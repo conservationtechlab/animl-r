@@ -1,0 +1,262 @@
+#############################################
+#' Extract bounding boxes for a single image and save as new images
+#'
+#' Requires the unflattened raw MD output
+#'
+#' @param image single image, raw MD output
+#' @param min_conf Confidence threshold (defaults to 0, not in use)
+#' @param buffer Adds a buffer to the MD bounding box, defaults to 2px
+#' @param plot T/F toggle to plot each crop in the plot window, defaults to True
+#' @param return.crops T/F toggle to return list of cropped images, defaults to False
+#' @param save T/F toggle to save output cropped, defaults to False
+#' @param resize Size in pixels to resize cropped images, NA if images are not resized, defaults to NA
+#' @param outdir Directory in which output cropped images will be saved
+#' @param quality Compression level of output cropped image, defaults to 0.8
+#'
+#' @return a flattened dataframe containing crop information
+#' @export
+#'
+#' @examples
+#'
+#' extractBoxes(mdresults)
+extractBoxes<-function(image,min_conf=0,buffer=2,plot=T,return.crops=F,save=F,resize=NA,outdir="",quality=0.8){
+  if(save & !dir.exists(outdir))stop("Output directory invalid.\n")
+  images_flat<-data.frame(image_path=character(),md_class=numeric(),md_confidence=numeric(),pixelx=numeric(),pixely=numeric(),
+                          x1=numeric(),x2=numeric(),y1=numeric(),y2=numeric(),
+                          xmin=numeric(),xmax=numeric(),ymin=numeric(),ymax=numeric(),crop_path=character(),stringsAsFactors = F)
+
+  #load image
+  jpg<-readJPEG(image$file)
+  jpgy<-dim(jpg)[1]
+  jpgx<-dim(jpg)[2]
+
+  #get bounding boxes
+  #get bounding boxes
+  if(class(image$detections)=="data.frame"){
+    s<-image$detections
+
+    #extract bounding box
+    if(return.crops==T)crops<-list()
+    c=1
+    for(j in 1:nrow(s)){
+      xmin<-max(0,round(s[j,]$bbox1*jpgx,0))
+      xmax<-min(jpgx,round(s[j,]$bbox1*jpgx+max(1,s[j,]$bbox3*jpgx),0))
+      ymin<-max(0,round(s[j,]$bbox2*jpgy,0))
+      ymax<-min(jpgy,round(s[j,]$bbox2*jpgy+max(1,s[j,]$bbox4*jpgy),0))
+      buffer2=max(xmax-xmin,ymax-ymin)*buffer
+
+      xminb<-max(0,xmin-buffer2)
+      xmaxb<-min(jpgx,xmax+buffer2)
+      yminb<-max(0,ymin-buffer2)
+      ymaxb<-min(jpgy,ymax+buffer2)
+      if(length(dim(jpg))==2)dim(jpg)<-c(dim(jpg)[1],dim(jpg)[2],1)
+      crop<-jpg[yminb:ymaxb,xminb:xmaxb,]
+
+      #resize and pad if requested
+      if(!is.na(resize))crop<-resize_pad(crop,resize)
+
+      #if we return crops save crop in list
+      if(return.crops==T)crops[[c]]<-crop
+
+      #plot cropped image if requested
+      if(plot)plot(as.raster(crop))
+
+      #save image if requested
+      imgname<-""
+      if(save){
+        imgname<-paste0(outdir,image$rel_path)
+        if(nrow(s)>1){
+          imgbase<-strsplit(basename(imgname),"[.]")[[1]][1]
+          imgext<-strsplit(basename(imgname),"[.]")[[1]][2]
+          imgname<-paste0(dirname(imgname),"/",imgbase,"_c",j,".",imgext)
+        }
+        if(!dir.exists(dirname(imgname)))dir.create(dirname(imgname),recursive=T)
+        writeJPEG(crop,imgname,quality=quality)
+      }
+      line<-data.frame(image_path=image$file,md_class=as.numeric(s[j,]$category),md_confidence=s[j,]$conf,pixelx=jpgx,pixely=jpgy,
+                       x1=s[j,]$bbox1,x2=s[j,]$bbox2,y1=s[j,]$bbox3,y2=s[j,]$bbox4,
+                       xmin=xmin,xmax=xmax,ymin=ymin,ymax=ymax,crop_path=imgname,stringsAsFactors = F)
+      images_flat<-rbind(images_flat,line)
+    }
+  }else{
+    line<-data.frame(image_path=image$file,md_class=0,md_confidence=image$max_detection_conf,pixelx=jpgx,pixely=jpgy,
+                     x1=NA,x2=NA,y1=NA,y2=NA,
+                     xmin=NA,xmax=NA,ymin=NA,ymax=NA,crop_path="",stringsAsFactors = F)
+    images_flat<-rbind(images_flat,line)
+  }
+  if(return.crops==T)list(crops=crops,data=images_flat)
+  else{images_flat}
+}
+
+
+#############################################
+#'  Extract bounding boxes and save as new image from a batch of images
+#'
+#' @param images list of images, raw MD output
+#' @param min_conf Confidence threshold (defaults to 0, not in use)
+#' @param buffer Adds a buffer to the MD bounding box, defaults to 2px
+#' @param plot T/F toggle to plot each crop in the plot window, defaults to True
+#' @param return.crops T/F toggle to return list of cropped images, defaults to False
+#' @param save T/F toggle to save output cropped, defaults to False
+#' @param resize Size in pixels to resize cropped images, NA if images are not resized, defaults to NA
+#' @param outdir Directory in which output cropped images will be saved
+#' @param quality Compression level of output cropped image, defaults to 0.8
+#' @param parallel T/F toggle to enable parallel processing, defaults to False
+#' @param nproc Number of workers if parallel = True, defaults to output of detectCores()
+#'
+#' @return a flattened dataframe containing crop information
+#' @export
+#'
+#' @examples
+#'
+#' extractBoxes(mdresults)
+extractAllBoxes<-function(images,min_conf=0,buffer=2,save=F,resize=NA,outdir="",quality=0.8,parallel=F,nproc=detectCores()){
+  if(outdir!="" & !dir.exists(outdir)){
+    if(!dir.create(outdir,recursive = T))
+      stop("Output directory invalid.\n")}
+
+  #define processing function
+  run.parallel<-function(i){if(file.exists(images[[i]]$file)){extractBoxes(images[[i]],min_conf=min_conf,buffer=buffer,resize=resize,save=save,outdir=outdir,plot=F,quality=quality)}else{NA}}
+  opb<-pboptions(char = "=")
+  if(parallel){
+    require(parallel)
+    type="PSOCK"
+
+    cl <- makeCluster(min(detectCores(),nproc),type=type)
+    #clusterExport(cl,expList <- as.list(objects(pos = globalenv())))
+    clusterExport(cl,list("buffer","resize","quality","outdir","images","extractBoxes","resize_pad"),
+                  envir=environment())
+    #set random number generator for cluster
+    clusterSetRNGStream(cl)
+
+    clusterEvalQ(cl,library(jpeg))
+    clusterEvalQ(cl,library(imager))
+    clusterEvalQ(cl, library(utils))
+
+    #results<-clusterApplyLB(cl,1:nrow(images),function(x){run.parallel(x)})
+    #results<-parLapply(cl,1:length(images),function(x){run.parallel(x)})
+    results<-pblapply(1:length(images),function(x){run.parallel(x)},cl=cl)
+    stopCluster(cl)
+
+  }else{
+    results<-pblapply(1:length(images),function(x){run.parallel(x)})
+  }
+  results<-do.call(rbind,results)
+  results
+}
+
+
+#############################################
+#' Extract crops from a single image represented by a processed dataframe
+#'
+#' @param image dataframe containing MD output (assumes single row)
+#' @param min_conf Confidence threshold (defaults to 0, not in use)
+#' @param buffer Adds a buffer to the MD bounding box, defaults to 2px
+#' @param plot T/F toggle to plot each crop in the plot window, defaults to True
+#' @param save T/F toggle to save output cropped, defaults to False
+#' @param resize Size in pixels to resize cropped images, NA if images are not resized, defaults to NA
+#' @param outdir Directory in which output cropped images will be saved
+#' @param quality Compression level of output cropped image, defaults to 0.8
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+#' extractBoxes(mdresultsflat)
+extractBoxesFromFlat<-function(image,min_conf=0,buffer=0,plot=T,save=F,resize=NA,outdir="",quality=0.8){
+  if(save & !dir.exists(outdir))stop("Output directory invalid.\n")
+  #load image
+  jpg<-readJPEG(image$image_path)
+  jpgy<-dim(jpg)[1]
+  jpgx<-dim(jpg)[2]
+
+  #get bounding boxes
+  #get bounding boxes
+  xmin<-max(0,round(image$x1*jpgx,0))
+  xmax<-min(jpgx,round(image$x1*jpgx+max(1,image$y1*jpgx),0))
+  ymin<-max(0,round(image$x2*jpgy,0))
+  ymax<-min(jpgy,round(image$x2*jpgy+max(1,image$y2*jpgy),0))
+  buffer2=max(xmax-xmin,ymax-ymin)*buffer
+
+  xminb<-max(0,xmin-buffer2)
+  xmaxb<-min(jpgx,xmax+buffer2)
+  yminb<-max(0,ymin-buffer2)
+  ymaxb<-min(jpgy,ymax+buffer2)
+  if(length(dim(jpg))==2)dim(jpg)<-c(dim(jpg)[1],dim(jpg)[2],1)
+  crop<-jpg[yminb:ymaxb,xminb:xmaxb,]
+
+  #resize and pad if requested
+  if(!is.na(resize))crop<-resize_pad(crop,resize)
+
+
+  #plot cropped image if requested
+  if(plot)plot(as.raster(crop))
+
+  #save image if requested
+  if(save){
+    imgname<-paste0(outdir,image$crop_rel_path)
+    if(!dir.exists(dirname(imgname)))dir.create(dirname(imgname),recursive=T)
+    writeJPEG(crop,imgname,quality=quality)
+  }
+}
+
+#############################################
+#' Extract ,cropped images from a processed dataframe
+#'
+#' @param image dataframe containing MD output (assumes single row)
+#' @param buffer Adds a buffer to the MD bounding box, defaults to 2px
+#' @param plot T/F toggle to plot each crop in the plot window, defaults to True
+#' @param save T/F toggle to save output cropped, defaults to False
+#' @param resize Size in pixels to resize cropped images, NA if images are not resized, defaults to NA
+#' @param outdir Directory in which output cropped images will be saved
+#' @param quality Compression level of output cropped image, defaults to 0.8
+#' @param overwrite T/F toggle to overwrite output cropped images if they already exis, defaults to True
+#' @param parallel T/F toggle to enable parallel processing, defaults to False
+#' @param nproc Number of workers if parallel = True, defaults to output of detectCores()
+#'
+#' @return A dataframe containing image and crop paths,
+#' @export
+#'
+#' @examples
+#'
+#' extractBoxes(mdresultsflat)
+extractAllBoxesFromFlat<-function(images,buffer=0,resize=NA,quality=0.8,outdir="",save=F,overwrite=T,parallel=F,nproc=detectCores()){
+  if(outdir!="" & !dir.exists(outdir)){
+    if(!dir.create(outdir,recursive = T))
+      stop("Output directory invalid.\n")}
+
+  #define processing function
+  if(overwrite==T){
+    run.parallel<-function(i){if(file.exists(images[i,]$image_path)){extractBoxesFromFlat(images[i,],buffer=buffer,resize=resize,save=save,outdir=outdir,plot=F,quality=quality)}else{NA}}
+  }else{
+    run.parallel<-function(i){if(file.exists(images[i,]$image_path) & !file.exists(paste0(outdir,images[i,]$crop_rel_path))){extractBoxesFromFlat(images[i,],buffer=buffer,resize=resize,save=save,outdir=outdir,plot=F,quality=quality)}else{NA}}
+  }
+  opb<-pboptions(char = "=")
+  if(parallel){
+    require(parallel)
+    type="PSOCK"
+
+    cl <- makeCluster(min(detectCores(),nproc),type=type)
+    #clusterExport(cl,expList <- as.list(objects(pos = globalenv())))
+    clusterExport(cl,list("buffer","resize","quality","outdir","images","extractBoxesFromFlat","resize_pad"),
+                  envir=environment())
+    #set random number generator for cluster
+    clusterSetRNGStream(cl)
+
+    clusterEvalQ(cl,library(jpeg))
+    clusterEvalQ(cl,library(imager))
+    clusterEvalQ(cl, library(utils))
+
+    #results<-clusterApplyLB(cl,1:nrow(images),function(x){run.parallel(x)})
+    #results<-parLapply(cl,1:length(images),function(x){run.parallel(x)})
+    results<-pblapply(1:nrow(images),function(x){run.parallel(x)},cl=cl)
+    stopCluster(cl)
+
+  }else{
+    results<-pblapply(1:nrow(images),function(x){run.parallel(x)})
+  }
+  results<-do.call(rbind,results)
+  results
+}
+

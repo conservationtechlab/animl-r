@@ -1,0 +1,130 @@
+#############################################
+#' Run MD on a single image
+#'
+#' Returns the MD bounding boxes, classes, confidence above the min_conf
+#' threshold for a single image. #' Requires a an MD tfsession is already
+#' loaded (see loadMDModel() ) and the file path of the image in question.
+#'
+#'
+#' @param tfsession should be the output from loadMDmodel(model)
+#' @param imagefile The path for the image in question
+#' @param min_conf Confidence threshold for returning bounding boxes, defaults to 0.1
+#'
+#' @return a list of MD bounding boxes, classes, and confidence for the image
+#' @export
+#'
+#' @examples
+#'
+#' classifyImageMD(mdSession,images)
+#'
+classifyImageMD<-function(tfsession,imagefile,min_conf=0.1){
+  np<-import("numpy")
+  image<-readJPEG(imagefile)
+  image<-image_load(imagefile)
+  image_tensor=tfsession$graph$get_tensor_by_name('image_tensor:0')
+  box_tensor = tfsession$graph$get_tensor_by_name('detection_boxes:0')
+  score_tensor = tfsession$graph$get_tensor_by_name('detection_scores:0')
+  class_tensor = tfsession$graph$get_tensor_by_name('detection_classes:0')
+  res<-tfsession$run(list(box_tensor,score_tensor,class_tensor),feed_dict=list("image_tensor:0"=np$expand_dims(image, axis=F)))
+  resfilter<-which(res[[2]]>=min_conf)
+  list(file=imagefile,max_detection_conf=max(res[[2]]),max_detection_category=res[[3]][which(res[[2]]==max(res[[2]]))][1],
+       detections=data.frame(category=res[[3]][resfilter],conf=res[[2]][resfilter],
+                             bbox1=res[[1]][1,resfilter,2],bbox2=res[[1]][1,resfilter,1],bbox3=res[[1]][1,resfilter,4]-res[[1]][1,resfilter,2],bbox4=res[[1]][1,resfilter,3]-res[[1]][1,resfilter,1]))
+}
+
+
+#############################################
+#' Run Megadetector on a batch of images (old)
+#'
+#' Old version for applying MD classification, does not use parallel processing.
+#'
+#' @param tfsession should be the output from loadMDmodel(model)
+#' @param images a vector containing image filepaths
+#'
+#' @return a list of lists of bounding boxes for each image
+#' @export
+#'
+#' @examples
+#'
+#' classifyImagesBatchMD_0ld(mdSession,images)
+#'
+classifyImagesBatchMD_0ld<-function(tfsession,images){
+  pblapply(images,classifyImageMD,tfsession=tfsession)
+}
+
+#############################################
+#' Run MegaDetector on a batch of images
+#'
+#' Runs MD on a list of image filepaths.
+#' Can resume for a results file and will checkpoint the results after a set
+#' number of images
+#'
+#'
+#' @param tfsession should be the output from loadMDmodel(model)
+#' @param images list of image filepaths
+#' @param min_conf Confidence threshold for returning bounding boxes, defaults to 0.1
+#' @param batch_size Process images in batches, defaults to 1
+#' @param resultsfile File containing previously checkpointed results
+#' @param checkpoint Bank results after processing a number of images, defaults to 5000
+#'
+#' @return a list of lists of bounding boxes for each image
+#' @export
+#'
+#' @examples
+#'
+#' classifyImagesBatchMD_0ld(mdSession,images,mdResults.RData)
+#'
+classifyImagesBatchMD<-function(tfsession,images,min_conf=0.1,batch_size=1,resultsfile=NULL,checkpoint=5000){
+  if(!dir.exists(dirname(resultsfile)))stop("Results file directory does not exist.\n")
+  if(tolower(substr(resultsfile,nchar(resultsfile)-5,nchar(resultsfile))) != ".rdata")
+    resultsfile<-paste0(resultsfile,".RData")
+
+  #if results file exists prompt user to load it and resume
+  if(file.exists(resultsfile)){
+    if(tolower(readline(prompt="Results file exists, would you like to resume? y/n: "))=="y"){
+      load(resultsfile)
+      images<-images[!(images %in% sapply(results,function(x)x$file))]
+      cat(length(results),"records loaded.\n")
+    }else{
+      results<-list()
+    }
+  }else{
+    results<-list()
+  }
+
+  #create data generator
+  dataset<-tensor_slices_dataset(images)
+  dataset<-dataset_map_and_batch(dataset,decode_img_full,batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
+  dataset<-dataset_prefetch(dataset,buffer_size = tf$data$experimental$AUTOTUNE)
+  #dataset<-dataset$apply(tf$data$experimental$ignore_errors())
+  dataset<-as_iterator(dataset)
+
+  #get tensors
+  image_tensor=tfsession$graph$get_tensor_by_name('image_tensor:0')
+  box_tensor = tfsession$graph$get_tensor_by_name('detection_boxes:0')
+  score_tensor = tfsession$graph$get_tensor_by_name('detection_scores:0')
+  class_tensor = tfsession$graph$get_tensor_by_name('detection_classes:0')
+
+  steps<-ceiling(length(images)/batch_size)
+  opb<-pboptions(char = "=")
+  pb <-startpb(1,steps) #txtProgressBar(min = 0, max = length(results), style = 3)
+  #process all images
+  for(i in 1:steps){
+    #catch errors due to empty or corrupted images
+    if(!inherits(try(img<-iter_next(dataset),silent=T),"try-error")){
+      res<-mdsession$run(list(box_tensor,score_tensor,class_tensor),feed_dict=list("image_tensor:0"=img$numpy()))
+      for(l in 1:dim(res[[1]])[1]){
+        resfilter<-which(res[[2]]>=min_conf)
+        results[[length(results)+1]]<-list(file=images[(i*batch_size-batch_size)+l],max_detection_conf=max(res[[2]][l,]),max_detection_category=res[[3]][which(res[[2]][l,]==max(res[[2]][l,]))][1],
+                                           detections=data.frame(category=res[[3]][l,resfilter],conf=res[[2]][l,resfilter],
+                                                                 bbox1=res[[1]][l,resfilter,2],bbox2=res[[1]][l,resfilter,1],bbox3=res[[1]][l,resfilter,4]-res[[1]][l,resfilter,2],bbox4=res[[1]][l,resfilter,3]-res[[1]][l,resfilter,1]))
+      }
+    }
+    #save intermediate results at given checkpoint interval
+    if(!is.null(resultsfile) & (i %% checkpoint/batch_size)==0)save(results,file=resultsfile)
+    setpb(pb,i)
+  }
+  setpb(pb,steps)
+  closepb(pb)
+  results
+}
