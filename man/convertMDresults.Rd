@@ -15,8 +15,3 @@ A dataframe with one entry for each bounding box
 \description{
 Each row is a MD bounding box, there can be multiple bounding boxes per image.
 }
-\examples{
-
-convertMDresults(mdresults)
-
-}

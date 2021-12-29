@@ -4,15 +4,11 @@
 #'
 #' @return list of MD detections
 #' @export
-#'
-#' @examples
-#'
-#' mdres <- parseMDjson(mdresults.json)
 parseMDjson<-function(json){
   results<-json[[1]]
   delete<-numeric()
-  opb<-pboptions(char = "=")
-  pb <-startpb(1,length(results)) #txtProgressBar(min = 0, max = length(results), style = 3)
+  opb<-pbapply::pboptions(char = "=")
+  pb <-pbapply::startpb(1,length(results)) #txtProgressBar(min = 0, max = length(results), style = 3)
   for(n in 1:length(results)){
     if(!is.null(results[[n]][['failure']])){
       delete<-c(delete,n)
@@ -34,10 +30,10 @@ parseMDjson<-function(json){
       }
       results[[n]]<-results[[n]][c(1,2,4,3)]
     }
-    if((n %% round(length(results)/100,0)) ==0) setpb(pb,n)#setTxtProgressBar(pb, n)
+    if((n %% round(length(results)/100,0)) ==0) pbapply::setpb(pb,n)#setTxtProgressBar(pb, n)
   }
-  setpb(pb,length(results))
-  closepb(pb)
+  pbapply::setpb(pb,length(results))
+  pbapply::closepb(pb)
   if(length(delete)>0)
     results[-delete]
   else

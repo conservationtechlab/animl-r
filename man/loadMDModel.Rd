@@ -7,15 +7,11 @@
 loadMDModel(modelfile)
 }
 \arguments{
-\item{modelfile}{}
+\item{modelfile}{.pb file obtained from megaDetector}
 }
 \value{
 
 }
 \description{
 Title
-}
-\examples{
-mdsession<-loadMDModel(mdmodel)
-
 }

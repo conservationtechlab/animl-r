@@ -41,7 +41,3 @@ a flattened dataframe containing crop information
 \description{
 Requires the unflattened raw MD output
 }
-\examples{
-
-extractBoxes(mdresults)
-}

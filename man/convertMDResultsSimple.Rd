@@ -16,8 +16,3 @@ A dataframe with one entry for each bounding box
 Returns a dataframe where each row is a MD bounding box, does not take into consideration
 potential collisions with the outer edge of the image.
 }
-\examples{
-
-convertMDResultsSimple(mdresults)
-
-}

@@ -32,8 +32,3 @@ This function retains "Empty" classification even if other images within the
 sequence are predicted to contain animals.
 Classification confidence is weighted by MD confidence.
 }
-\examples{
-
-classifySequence(imagesallanimal,results,classes,17)
-
-}

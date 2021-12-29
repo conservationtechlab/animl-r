@@ -17,7 +17,3 @@ images
 \description{
 Extract exif data and create dataframe, adjust time if necessary.
 }
-\examples{
-extract_images("P:\\\\machinelearning\orbweavr\examples",2)
-
-}

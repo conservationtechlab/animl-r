@@ -4,10 +4,10 @@
 \alias{classifyImagesBatchMD_0ld}
 \title{Run Megadetector on a batch of images (old)}
 \usage{
-classifyImagesBatchMD_0ld(tfsession, images)
+classifyImagesBatchMD_0ld(mdsession, images)
 }
 \arguments{
-\item{tfsession}{should be the output from loadMDmodel(model)}
+\item{mdsession}{should be the output from loadMDmodel(model)}
 
 \item{images}{a vector containing image filepaths}
 }
@@ -16,9 +16,4 @@ a list of lists of bounding boxes for each image
 }
 \description{
 Old version for applying MD classification, does not use parallel processing.
-}
-\examples{
-
-classifyImagesBatchMD_0ld(mdSession,images)
-
 }

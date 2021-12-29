@@ -38,7 +38,3 @@ extractBoxesFromFlat(
 \description{
 Extract crops from a single image represented by a processed dataframe
 }
-\examples{
-
-extractBoxes(mdresultsflat)
-}

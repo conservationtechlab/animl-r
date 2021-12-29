@@ -1,31 +1,25 @@
-#############################################
 #' Run MD on a single image
 #'
 #' Returns the MD bounding boxes, classes, confidence above the min_conf
-#' threshold for a single image. #' Requires a an MD tfsession is already
+#' threshold for a single image. #' Requires a an mdsession is already
 #' loaded (see loadMDModel() ) and the file path of the image in question.
 #'
 #'
-#' @param tfsession should be the output from loadMDmodel(model)
+#' @param mdsession should be the output from loadMDmodel(model)
 #' @param imagefile The path for the image in question
 #' @param min_conf Confidence threshold for returning bounding boxes, defaults to 0.1
 #'
 #' @return a list of MD bounding boxes, classes, and confidence for the image
 #' @export
-#'
-#' @examples
-#'
-#' classifyImageMD(mdSession,images)
-#'
-classifyImageMD<-function(tfsession,imagefile,min_conf=0.1){
-  np<-import("numpy")
-  image<-readJPEG(imagefile)
-  image<-image_load(imagefile)
-  image_tensor=tfsession$graph$get_tensor_by_name('image_tensor:0')
-  box_tensor = tfsession$graph$get_tensor_by_name('detection_boxes:0')
-  score_tensor = tfsession$graph$get_tensor_by_name('detection_scores:0')
-  class_tensor = tfsession$graph$get_tensor_by_name('detection_classes:0')
-  res<-tfsession$run(list(box_tensor,score_tensor,class_tensor),feed_dict=list("image_tensor:0"=np$expand_dims(image, axis=F)))
+classifyImageMD<-function(mdsession,imagefile,min_conf=0.1){
+  np<-reticulate::import("numpy")
+  image<-jpeg::readJPEG(imagefile)
+  image<-keras::image_load(imagefile)
+  image_tensor=mdsession$graph$get_tensor_by_name('image_tensor:0')
+  box_tensor = mdsession$graph$get_tensor_by_name('detection_boxes:0')
+  score_tensor = mdsession$graph$get_tensor_by_name('detection_scores:0')
+  class_tensor = mdsession$graph$get_tensor_by_name('detection_classes:0')
+  res<-mdsession$run(list(box_tensor,score_tensor,class_tensor),feed_dict=list("image_tensor:0"=np$expand_dims(image, axis=F)))
   resfilter<-which(res[[2]]>=min_conf)
   list(file=imagefile,max_detection_conf=max(res[[2]]),max_detection_category=res[[3]][which(res[[2]]==max(res[[2]]))][1],
        detections=data.frame(category=res[[3]][resfilter],conf=res[[2]][resfilter],
@@ -33,26 +27,20 @@ classifyImageMD<-function(tfsession,imagefile,min_conf=0.1){
 }
 
 
-#############################################
 #' Run Megadetector on a batch of images (old)
 #'
 #' Old version for applying MD classification, does not use parallel processing.
 #'
-#' @param tfsession should be the output from loadMDmodel(model)
+#' @param mdsession should be the output from loadMDmodel(model)
 #' @param images a vector containing image filepaths
 #'
 #' @return a list of lists of bounding boxes for each image
 #' @export
-#'
-#' @examples
-#'
-#' classifyImagesBatchMD_0ld(mdSession,images)
-#'
-classifyImagesBatchMD_0ld<-function(tfsession,images){
-  pblapply(images,classifyImageMD,tfsession=tfsession)
+classifyImagesBatchMD_0ld<-function(mdsession,images){
+  pbapply::pblapply(images,classifyImageMD,mdsession=mdsession)
 }
 
-#############################################
+
 #' Run MegaDetector on a batch of images
 #'
 #' Runs MD on a list of image filepaths.
@@ -60,7 +48,7 @@ classifyImagesBatchMD_0ld<-function(tfsession,images){
 #' number of images
 #'
 #'
-#' @param tfsession should be the output from loadMDmodel(model)
+#' @param mdsession should be the output from loadMDmodel(model)
 #' @param images list of image filepaths
 #' @param min_conf Confidence threshold for returning bounding boxes, defaults to 0.1
 #' @param batch_size Process images in batches, defaults to 1
@@ -69,12 +57,8 @@ classifyImagesBatchMD_0ld<-function(tfsession,images){
 #'
 #' @return a list of lists of bounding boxes for each image
 #' @export
-#'
-#' @examples
-#'
-#' classifyImagesBatchMD_0ld(mdSession,images,mdResults.RData)
-#'
-classifyImagesBatchMD<-function(tfsession,images,min_conf=0.1,batch_size=1,resultsfile=NULL,checkpoint=5000){
+classifyImagesBatchMD<-function(mdsession,images,min_conf=0.1,batch_size=1,resultsfile=NULL,checkpoint=5000){
+  tf<-reticulate::import("tensorflow")
   if(!dir.exists(dirname(resultsfile)))stop("Results file directory does not exist.\n")
   if(tolower(substr(resultsfile,nchar(resultsfile)-5,nchar(resultsfile))) != ".rdata")
     resultsfile<-paste0(resultsfile,".RData")
@@ -93,25 +77,24 @@ classifyImagesBatchMD<-function(tfsession,images,min_conf=0.1,batch_size=1,resul
   }
 
   #create data generator
-  dataset<-tensor_slices_dataset(images)
-  dataset<-dataset_map_and_batch(dataset,decode_img_full,batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
-  dataset<-dataset_prefetch(dataset,buffer_size = tf$data$experimental$AUTOTUNE)
-  #dataset<-dataset$apply(tf$data$experimental$ignore_errors())
-  dataset<-as_iterator(dataset)
+  dataset<-tfdatasets::tensor_slices_dataset(images)
+  dataset<-tfdatasets::dataset_map_and_batch(dataset,decode_img_full,batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
+  dataset<-tfdatasets::dataset_prefetch(dataset,buffer_size = tf$data$experimental$AUTOTUNE)
+  dataset<-tfdatasets::as_iterator(dataset)
 
   #get tensors
-  image_tensor=tfsession$graph$get_tensor_by_name('image_tensor:0')
-  box_tensor = tfsession$graph$get_tensor_by_name('detection_boxes:0')
-  score_tensor = tfsession$graph$get_tensor_by_name('detection_scores:0')
-  class_tensor = tfsession$graph$get_tensor_by_name('detection_classes:0')
+  image_tensor=mdsession$graph$get_tensor_by_name('image_tensor:0')
+  box_tensor = mdsession$graph$get_tensor_by_name('detection_boxes:0')
+  score_tensor = mdsession$graph$get_tensor_by_name('detection_scores:0')
+  class_tensor = mdsession$graph$get_tensor_by_name('detection_classes:0')
 
   steps<-ceiling(length(images)/batch_size)
-  opb<-pboptions(char = "=")
-  pb <-startpb(1,steps) #txtProgressBar(min = 0, max = length(results), style = 3)
+  opb<-pbapply::pboptions(char = "=")
+  pb <-pbapply::startpb(1,steps) #txtProgressBar(min = 0, max = length(results), style = 3)
   #process all images
   for(i in 1:steps){
     #catch errors due to empty or corrupted images
-    if(!inherits(try(img<-iter_next(dataset),silent=T),"try-error")){
+    if(!inherits(try(img<-tfdatasets::iter_next(dataset),silent=T),"try-error")){
       res<-mdsession$run(list(box_tensor,score_tensor,class_tensor),feed_dict=list("image_tensor:0"=img$numpy()))
       for(l in 1:dim(res[[1]])[1]){
         resfilter<-which(res[[2]]>=min_conf)
@@ -122,9 +105,9 @@ classifyImagesBatchMD<-function(tfsession,images,min_conf=0.1,batch_size=1,resul
     }
     #save intermediate results at given checkpoint interval
     if(!is.null(resultsfile) & (i %% checkpoint/batch_size)==0)save(results,file=resultsfile)
-    setpb(pb,i)
+    pbapply::setpb(pb,i)
   }
-  setpb(pb,steps)
-  closepb(pb)
+  pbapply::setpb(pb,steps)
+  pbapply::closepb(pb)
   results
 }

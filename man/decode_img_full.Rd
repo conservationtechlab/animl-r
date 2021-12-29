@@ -12,8 +12,3 @@ decode_img_full(image_filepath)
 \description{
 Load image with TF, full size for MD
 }
-\examples{
-
-decode_img_full(images[1]$FilePath)
-
-}

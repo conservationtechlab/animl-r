@@ -5,7 +5,7 @@
 \title{Run MegaDetector on a batch of images}
 \usage{
 classifyImagesBatchMD(
-  tfsession,
+  mdsession,
   images,
   min_conf = 0.1,
   batch_size = 1,
@@ -14,7 +14,7 @@ classifyImagesBatchMD(
 )
 }
 \arguments{
-\item{tfsession}{should be the output from loadMDmodel(model)}
+\item{mdsession}{should be the output from loadMDmodel(model)}
 
 \item{images}{list of image filepaths}
 
@@ -33,9 +33,4 @@ a list of lists of bounding boxes for each image
 Runs MD on a list of image filepaths.
 Can resume for a results file and will checkpoint the results after a set
 number of images
-}
-\examples{
-
-classifyImagesBatchMD_0ld(mdSession,images,mdResults.RData)
-
 }

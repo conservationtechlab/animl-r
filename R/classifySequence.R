@@ -13,11 +13,6 @@
 #'
 #' @return reclassified imagesallanimal dataframe
 #' @export
-#'
-#' @examples
-#'
-#' classifySequence(imagesallanimal,results,classes,17)
-#'
 classifySequence <- function(imagesallanimal,mlpredictions,classes,emptycol,maxdiff=60){
 
   #sort by SurveyID, StationID, DateTime
@@ -34,7 +29,7 @@ classifySequence <- function(imagesallanimal,mlpredictions,classes,emptycol,maxd
     j=i+1
 
     #find all images within a sequence, image creation times must be within maxdiff seconds to be considered in sequence
-    while(!is.na(imagesallanimal$DateTime[j]) & !is.na(imagesallanimal$DateTime[i]) & j<nrow(imagesallanimal) & imagesallanimal$Camera[j]==imagesallanimal$Camera[i] & difftime(imagesallanimal$DateTime[j],imagesallanimal$DateTime[i],units="secs")<=maxdif){
+    while(!is.na(imagesallanimal$DateTime[j]) & !is.na(imagesallanimal$DateTime[i]) & j<nrow(imagesallanimal) & imagesallanimal$Camera[j]==imagesallanimal$Camera[i] & difftime(imagesallanimal$DateTime[j],imagesallanimal$DateTime[i],units="secs")<=maxdiff){
       sequence <- c(sequence,j)
       j=j+1
     }

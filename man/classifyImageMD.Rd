@@ -4,10 +4,10 @@
 \alias{classifyImageMD}
 \title{Run MD on a single image}
 \usage{
-classifyImageMD(tfsession, imagefile, min_conf = 0.1)
+classifyImageMD(mdsession, imagefile, min_conf = 0.1)
 }
 \arguments{
-\item{tfsession}{should be the output from loadMDmodel(model)}
+\item{mdsession}{should be the output from loadMDmodel(model)}
 
 \item{imagefile}{The path for the image in question}
 
@@ -18,11 +18,6 @@ a list of MD bounding boxes, classes, and confidence for the image
 }
 \description{
 Returns the MD bounding boxes, classes, confidence above the min_conf
-threshold for a single image. #' Requires a an MD tfsession is already
+threshold for a single image. #' Requires a an mdsession is already
 loaded (see loadMDModel() ) and the file path of the image in question.
-}
-\examples{
-
-classifyImageMD(mdSession,images)
-
 }

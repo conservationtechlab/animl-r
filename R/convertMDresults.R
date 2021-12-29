@@ -6,20 +6,15 @@
 #'
 #' @return A dataframe with one entry for each bounding box
 #' @export
-#'
-#' @examples
-#'
-#' convertMDresults(mdresults)
-#'
 convertMDresults <- function(mdresults){
   images_flat<-data.frame(image_path=character(),md_class=numeric(),md_confidence=numeric(),pixelx=numeric(),pixely=numeric(),
                           x1=numeric(),x2=numeric(),y1=numeric(),y2=numeric(),
                           xmin=numeric(),xmax=numeric(),ymin=numeric(),ymax=numeric())
 
-  pb <- txtProgressBar(min = 0, max = length(mdresults), style = 3)
+  pb <- utils::txtProgressBar(min = 0, max = length(mdresults), style = 3)
   for(i in 1:length(mdresults)){
     #load image
-    jpg<-readJPEG(mdresults[[i]]$file)
+    jpg<-jpeg::readJPEG(mdresults[[i]]$file)
     jpgy<-dim(jpg)[1]
     jpgx<-dim(jpg)[2]
 
@@ -52,13 +47,12 @@ convertMDresults <- function(mdresults){
                        xmin=NA,xmax=NA,ymin=NA,ymax=NA)
       images_flat<-rbind(images_flat,line)
     }
-    setTxtProgressBar(pb, i)
+    utils::setTxtProgressBar(pb, i)
   }
   images_flat
 }
 
 
-#############################################
 #' Quickly flatten output from MegaDetector
 #'
 #' Returns a dataframe where each row is a MD bounding box, does not take into consideration
@@ -68,11 +62,6 @@ convertMDresults <- function(mdresults){
 #'
 #' @return A dataframe with one entry for each bounding box
 #' @export
-#'
-#' @examples
-#'
-#' convertMDResultsSimple(mdresults)
-#'
 convertMDResultsSimple<-function(mdresults){
   f<-function(data){
     if(nrow(data$detections)>0){data.frame(file=data$file,max_detection_conf=data$max_detection_conf,max_detection_category=data$max_detection_category,data$detections,stringsAsFactors = F)

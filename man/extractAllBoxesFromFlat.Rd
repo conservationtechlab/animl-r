@@ -13,10 +13,12 @@ extractAllBoxesFromFlat(
   save = F,
   overwrite = T,
   parallel = F,
-  nproc = detectCores()
+  nproc = parallel::detectCores()
 )
 }
 \arguments{
+\item{images}{dataframe containing MD output (assumes single row)}
+
 \item{buffer}{Adds a buffer to the MD bounding box, defaults to 2px}
 
 \item{resize}{Size in pixels to resize cropped images, NA if images are not resized, defaults to NA}
@@ -32,18 +34,10 @@ extractAllBoxesFromFlat(
 \item{parallel}{T/F toggle to enable parallel processing, defaults to False}
 
 \item{nproc}{Number of workers if parallel = True, defaults to output of detectCores()}
-
-\item{image}{dataframe containing MD output (assumes single row)}
-
-\item{plot}{T/F toggle to plot each crop in the plot window, defaults to True}
 }
 \value{
 A dataframe containing image and crop paths,
 }
 \description{
 Extract ,cropped images from a processed dataframe
-}
-\examples{
-
-extractBoxes(mdresultsflat)
 }

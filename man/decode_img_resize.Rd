@@ -16,7 +16,3 @@ decode_img_resize(image_filepath, height = 299, width = 299)
 \description{
 Load image with TF 35722 and resize for MD
 }
-\examples{
-
-decode_img_resize(images[1]$FilePath)
-}

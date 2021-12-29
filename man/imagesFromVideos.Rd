@@ -35,7 +35,3 @@ dataframe of still frames for each video
 \description{
 This function can take
 }
-\examples{
-
-imagesFromVideos(videos$FilePath,outdir=tempdir,frames=5,parallel=T,nproc=12)
-}

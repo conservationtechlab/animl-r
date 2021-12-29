@@ -5,11 +5,8 @@
 #'
 #' @return images
 #' @export
-#'
-#' @examples extract_images("P:\\machinelearning\orbweavr\examples",2)
-#'
 extractFiles <- function(imagedir,timezone_offset=0){
-  images<-read_exif(imagedir,tags=c("filename","directory","DateTime","FileModifyDate"), recursive = TRUE)
+  images<-exifr::read_exif(imagedir,tags=c("filename","directory","DateTime","FileModifyDate"), recursive = TRUE)
   colnames(images)[1]<-"FilePath"
   images<-as.data.frame(images)
   images$DateTime<-as.POSIXct(images$DateTime,format="%Y:%m:%d %H:%M:%S")

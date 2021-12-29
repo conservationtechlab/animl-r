@@ -13,7 +13,7 @@ extractAllBoxes(
   outdir = "",
   quality = 0.8,
   parallel = F,
-  nproc = detectCores()
+  nproc = parallel::detectCores()
 )
 }
 \arguments{
@@ -34,18 +34,10 @@ extractAllBoxes(
 \item{parallel}{T/F toggle to enable parallel processing, defaults to False}
 
 \item{nproc}{Number of workers if parallel = True, defaults to output of detectCores()}
-
-\item{plot}{T/F toggle to plot each crop in the plot window, defaults to True}
-
-\item{return.crops}{T/F toggle to return list of cropped images, defaults to False}
 }
 \value{
 a flattened dataframe containing crop information
 }
 \description{
 Extract bounding boxes and save as new image from a batch of images
-}
-\examples{
-
-extractBoxes(mdresults)
 }

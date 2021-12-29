@@ -5,12 +5,9 @@
 #' @param height resize height, defaults to 299 px
 #' @param width resize width, defualts to 299 px
 #' @export
-#'
-#' @examples
-#'
-#' decode_img_resize(images[1]$FilePath)
+#' @importFrom dplyr "%>%"
 decode_img_resize <- function(image_filepath, height = 299, width = 299) {
-
+  tf<-reticulate::import("tensorflow")
   size <- as.integer(c(height, width))
 
   image_filepath %>%
@@ -20,17 +17,12 @@ decode_img_resize <- function(image_filepath, height = 299, width = 299) {
     tf$image$resize(size = size)
 }
 
-#############################################
 #' Load image with TF, full size for MD
 #'
 #' @param image_filepath the file path of the image
 #' @export
-#'
-#' @examples
-#'
-#' decode_img_full(images[1]$FilePath)
-#'
 decode_img_full <- function(image_filepath) {
+  tf<-reticulate::import("tensorflow")
   image_filepath %>%
     tf$io$read_file() %>%
     tf$io$decode_jpeg(channels = 3,try_recover_truncated = T)

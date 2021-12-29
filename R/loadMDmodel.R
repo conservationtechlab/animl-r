@@ -2,14 +2,12 @@
 #load MegaDetector tensorflow model from .pb file
 #' Title
 #'
-#' @param modelfile
+#' @param modelfile .pb file obtained from megaDetector
 #'
 #' @return
 #' @export
-#'
-#' @examples mdsession<-loadMDModel(mdmodel)
-#'
 loadMDModel<-function(modelfile){
+  tf <- reticulate::import("tensorflow")
   if(strsplit(tf$version$VERSION,".",fixed=T)[[1]][1]==1){
     #Tensorflow 1.x
     tfsession<-tf$Session()

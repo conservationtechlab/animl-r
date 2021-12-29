@@ -21,8 +21,3 @@ list of images with multiple species, includes number of animals for each class
 \description{
 Classify images with multiple potential species
 }
-\examples{
-
-multianimal <- multispecies(imagesallanimal,results,classes,17)
-
-}

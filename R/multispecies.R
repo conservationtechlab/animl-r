@@ -7,11 +7,6 @@
 #'
 #' @return list of images with multiple species, includes number of animals for each class
 #' @export
-#'
-#' @examples
-#'
-#' multianimal <- multispecies(imagesallanimal,results,classes,17)
-#'
 multispecies <- function(imagesallanimal,mlpredictions,classes,emptycol){
 
   multianimal <- imagesallanimal[0,]
@@ -51,6 +46,4 @@ multispecies <- function(imagesallanimal,mlpredictions,classes,emptycol){
   })
 
   multianimal
-
-
 }

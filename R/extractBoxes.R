@@ -1,4 +1,3 @@
-#############################################
 #' Extract bounding boxes for a single image and save as new images
 #'
 #' Requires the unflattened raw MD output
@@ -15,10 +14,6 @@
 #'
 #' @return a flattened dataframe containing crop information
 #' @export
-#'
-#' @examples
-#'
-#' extractBoxes(mdresults)
 extractBoxes<-function(image,min_conf=0,buffer=2,plot=T,return.crops=F,save=F,resize=NA,outdir="",quality=0.8){
   if(save & !dir.exists(outdir))stop("Output directory invalid.\n")
   images_flat<-data.frame(image_path=character(),md_class=numeric(),md_confidence=numeric(),pixelx=numeric(),pixely=numeric(),
@@ -26,7 +21,7 @@ extractBoxes<-function(image,min_conf=0,buffer=2,plot=T,return.crops=F,save=F,re
                           xmin=numeric(),xmax=numeric(),ymin=numeric(),ymax=numeric(),crop_path=character(),stringsAsFactors = F)
 
   #load image
-  jpg<-readJPEG(image$file)
+  jpg<-jpeg::readJPEG(image$file)
   jpgy<-dim(jpg)[1]
   jpgx<-dim(jpg)[2]
 
@@ -59,7 +54,7 @@ extractBoxes<-function(image,min_conf=0,buffer=2,plot=T,return.crops=F,save=F,re
       if(return.crops==T)crops[[c]]<-crop
 
       #plot cropped image if requested
-      if(plot)plot(as.raster(crop))
+      if(plot)plot(grDevices::as.raster(crop)) ## not sure where raster comes in
 
       #save image if requested
       imgname<-""
@@ -71,7 +66,7 @@ extractBoxes<-function(image,min_conf=0,buffer=2,plot=T,return.crops=F,save=F,re
           imgname<-paste0(dirname(imgname),"/",imgbase,"_c",j,".",imgext)
         }
         if(!dir.exists(dirname(imgname)))dir.create(dirname(imgname),recursive=T)
-        writeJPEG(crop,imgname,quality=quality)
+        jpeg::writeJPEG(crop,imgname,quality=quality)
       }
       line<-data.frame(image_path=image$file,md_class=as.numeric(s[j,]$category),md_confidence=s[j,]$conf,pixelx=jpgx,pixely=jpgy,
                        x1=s[j,]$bbox1,x2=s[j,]$bbox2,y1=s[j,]$bbox3,y2=s[j,]$bbox4,
@@ -89,14 +84,11 @@ extractBoxes<-function(image,min_conf=0,buffer=2,plot=T,return.crops=F,save=F,re
 }
 
 
-#############################################
 #'  Extract bounding boxes and save as new image from a batch of images
 #'
 #' @param images list of images, raw MD output
 #' @param min_conf Confidence threshold (defaults to 0, not in use)
 #' @param buffer Adds a buffer to the MD bounding box, defaults to 2px
-#' @param plot T/F toggle to plot each crop in the plot window, defaults to True
-#' @param return.crops T/F toggle to return list of cropped images, defaults to False
 #' @param save T/F toggle to save output cropped, defaults to False
 #' @param resize Size in pixels to resize cropped images, NA if images are not resized, defaults to NA
 #' @param outdir Directory in which output cropped images will be saved
@@ -106,47 +98,35 @@ extractBoxes<-function(image,min_conf=0,buffer=2,plot=T,return.crops=F,save=F,re
 #'
 #' @return a flattened dataframe containing crop information
 #' @export
-#'
-#' @examples
-#'
-#' extractBoxes(mdresults)
-extractAllBoxes<-function(images,min_conf=0,buffer=2,save=F,resize=NA,outdir="",quality=0.8,parallel=F,nproc=detectCores()){
+extractAllBoxes<-function(images,min_conf=0,buffer=2,save=F,resize=NA,outdir="",quality=0.8,parallel=F,nproc=parallel::detectCores()){
   if(outdir!="" & !dir.exists(outdir)){
     if(!dir.create(outdir,recursive = T))
       stop("Output directory invalid.\n")}
 
   #define processing function
   run.parallel<-function(i){if(file.exists(images[[i]]$file)){extractBoxes(images[[i]],min_conf=min_conf,buffer=buffer,resize=resize,save=save,outdir=outdir,plot=F,quality=quality)}else{NA}}
-  opb<-pboptions(char = "=")
+  opb<-pbapply::pboptions(char = "=")
   if(parallel){
-    require(parallel)
     type="PSOCK"
 
-    cl <- makeCluster(min(detectCores(),nproc),type=type)
+    cl <- parallel::makeCluster(min(parallel::detectCores(),nproc),type=type)
     #clusterExport(cl,expList <- as.list(objects(pos = globalenv())))
-    clusterExport(cl,list("buffer","resize","quality","outdir","images","extractBoxes","resize_pad"),
+    parallel::clusterExport(cl,list("buffer","resize","quality","outdir","images","extractBoxes","resize_pad"),
                   envir=environment())
     #set random number generator for cluster
-    clusterSetRNGStream(cl)
+    parallel::clusterSetRNGStream(cl)
 
-    clusterEvalQ(cl,library(jpeg))
-    clusterEvalQ(cl,library(imager))
-    clusterEvalQ(cl, library(utils))
-
-    #results<-clusterApplyLB(cl,1:nrow(images),function(x){run.parallel(x)})
-    #results<-parLapply(cl,1:length(images),function(x){run.parallel(x)})
-    results<-pblapply(1:length(images),function(x){run.parallel(x)},cl=cl)
-    stopCluster(cl)
+    results<-pbapply::pblapply(1:length(images),function(x){run.parallel(x)},cl=cl)
+    parallel::stopCluster(cl)
 
   }else{
-    results<-pblapply(1:length(images),function(x){run.parallel(x)})
+    results<-pbapply::pblapply(1:length(images),function(x){run.parallel(x)})
   }
   results<-do.call(rbind,results)
   results
 }
 
 
-#############################################
 #' Extract crops from a single image represented by a processed dataframe
 #'
 #' @param image dataframe containing MD output (assumes single row)
@@ -160,14 +140,10 @@ extractAllBoxes<-function(images,min_conf=0,buffer=2,save=F,resize=NA,outdir="",
 #'
 #' @return
 #' @export
-#'
-#' @examples
-#'
-#' extractBoxes(mdresultsflat)
 extractBoxesFromFlat<-function(image,min_conf=0,buffer=0,plot=T,save=F,resize=NA,outdir="",quality=0.8){
   if(save & !dir.exists(outdir))stop("Output directory invalid.\n")
   #load image
-  jpg<-readJPEG(image$image_path)
+  jpg<-jpeg::readJPEG(image$image_path)
   jpgy<-dim(jpg)[1]
   jpgx<-dim(jpg)[2]
 
@@ -191,22 +167,21 @@ extractBoxesFromFlat<-function(image,min_conf=0,buffer=0,plot=T,save=F,resize=NA
 
 
   #plot cropped image if requested
-  if(plot)plot(as.raster(crop))
+  if(plot)plot(grDevices::as.raster(crop))
 
   #save image if requested
   if(save){
     imgname<-paste0(outdir,image$crop_rel_path)
     if(!dir.exists(dirname(imgname)))dir.create(dirname(imgname),recursive=T)
-    writeJPEG(crop,imgname,quality=quality)
+    jpeg::writeJPEG(crop,imgname,quality=quality)
   }
 }
 
-#############################################
+
 #' Extract ,cropped images from a processed dataframe
 #'
-#' @param image dataframe containing MD output (assumes single row)
+#' @param images dataframe containing MD output (assumes single row)
 #' @param buffer Adds a buffer to the MD bounding box, defaults to 2px
-#' @param plot T/F toggle to plot each crop in the plot window, defaults to True
 #' @param save T/F toggle to save output cropped, defaults to False
 #' @param resize Size in pixels to resize cropped images, NA if images are not resized, defaults to NA
 #' @param outdir Directory in which output cropped images will be saved
@@ -217,11 +192,7 @@ extractBoxesFromFlat<-function(image,min_conf=0,buffer=0,plot=T,save=F,resize=NA
 #'
 #' @return A dataframe containing image and crop paths,
 #' @export
-#'
-#' @examples
-#'
-#' extractBoxes(mdresultsflat)
-extractAllBoxesFromFlat<-function(images,buffer=0,resize=NA,quality=0.8,outdir="",save=F,overwrite=T,parallel=F,nproc=detectCores()){
+extractAllBoxesFromFlat<-function(images,buffer=0,resize=NA,quality=0.8,outdir="",save=F,overwrite=T,parallel=F,nproc=parallel::detectCores()){
   if(outdir!="" & !dir.exists(outdir)){
     if(!dir.create(outdir,recursive = T))
       stop("Output directory invalid.\n")}
@@ -232,31 +203,23 @@ extractAllBoxesFromFlat<-function(images,buffer=0,resize=NA,quality=0.8,outdir="
   }else{
     run.parallel<-function(i){if(file.exists(images[i,]$image_path) & !file.exists(paste0(outdir,images[i,]$crop_rel_path))){extractBoxesFromFlat(images[i,],buffer=buffer,resize=resize,save=save,outdir=outdir,plot=F,quality=quality)}else{NA}}
   }
-  opb<-pboptions(char = "=")
+  opb<-pbapply::pboptions(char = "=")
   if(parallel){
-    require(parallel)
     type="PSOCK"
 
-    cl <- makeCluster(min(detectCores(),nproc),type=type)
+    cl <- parallel::makeCluster(min(parallel::detectCores(),nproc),type=type)
     #clusterExport(cl,expList <- as.list(objects(pos = globalenv())))
-    clusterExport(cl,list("buffer","resize","quality","outdir","images","extractBoxesFromFlat","resize_pad"),
+    parallel::clusterExport(cl,list("buffer","resize","quality","outdir","images","extractBoxesFromFlat","resize_pad"),
                   envir=environment())
     #set random number generator for cluster
-    clusterSetRNGStream(cl)
+    parallel::clusterSetRNGStream(cl)
 
-    clusterEvalQ(cl,library(jpeg))
-    clusterEvalQ(cl,library(imager))
-    clusterEvalQ(cl, library(utils))
-
-    #results<-clusterApplyLB(cl,1:nrow(images),function(x){run.parallel(x)})
-    #results<-parLapply(cl,1:length(images),function(x){run.parallel(x)})
-    results<-pblapply(1:nrow(images),function(x){run.parallel(x)},cl=cl)
-    stopCluster(cl)
+    results<-pbapply::pblapply(1:nrow(images),function(x){run.parallel(x)},cl=cl)
+    parallel::stopCluster(cl)
 
   }else{
-    results<-pblapply(1:nrow(images),function(x){run.parallel(x)})
+    results<-pbapply::pblapply(1:nrow(images),function(x){run.parallel(x)})
   }
   results<-do.call(rbind,results)
   results
 }
-
