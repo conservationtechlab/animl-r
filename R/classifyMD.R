@@ -13,7 +13,7 @@
 #' @export
 classifyImageMD<-function(mdsession,imagefile,min_conf=0.1){
   np<-reticulate::import("numpy")
-  image<-jpeg::readJPEG(imagefile)
+  #image<-jpeg::readJPEG(imagefile)
   image<-keras::image_load(imagefile)
   image_tensor=mdsession$graph$get_tensor_by_name('image_tensor:0')
   box_tensor = mdsession$graph$get_tensor_by_name('detection_boxes:0')
@@ -21,7 +21,7 @@ classifyImageMD<-function(mdsession,imagefile,min_conf=0.1){
   class_tensor = mdsession$graph$get_tensor_by_name('detection_classes:0')
   res<-mdsession$run(list(box_tensor,score_tensor,class_tensor),feed_dict=list("image_tensor:0"=np$expand_dims(image, axis=F)))
   resfilter<-which(res[[2]]>=min_conf)
-  list(file=imagefile,max_detection_conf=max(res[[2]]),max_detection_category=res[[3]][which(res[[2]]==max(res[[2]]))][1],
+  list(FilePath=imagefile,max_detection_conf=max(res[[2]]),max_detection_category=res[[3]][which(res[[2]]==max(res[[2]]))][1],
        detections=data.frame(category=res[[3]][resfilter],conf=res[[2]][resfilter],
                              bbox1=res[[1]][1,resfilter,2],bbox2=res[[1]][1,resfilter,1],bbox3=res[[1]][1,resfilter,4]-res[[1]][1,resfilter,2],bbox4=res[[1]][1,resfilter,3]-res[[1]][1,resfilter,1]))
 }
@@ -98,7 +98,7 @@ classifyImagesBatchMD<-function(mdsession,images,min_conf=0.1,batch_size=1,resul
       res<-mdsession$run(list(box_tensor,score_tensor,class_tensor),feed_dict=list("image_tensor:0"=img$numpy()))
       for(l in 1:dim(res[[1]])[1]){
         resfilter<-which(res[[2]]>=min_conf)
-        results[[length(results)+1]]<-list(file=images[(i*batch_size-batch_size)+l],max_detection_conf=max(res[[2]][l,]),max_detection_category=res[[3]][which(res[[2]][l,]==max(res[[2]][l,]))][1],
+        results[[length(results)+1]]<-list(FilePath=images[(i*batch_size-batch_size)+l],max_detection_conf=max(res[[2]][l,]),max_detection_category=res[[3]][which(res[[2]][l,]==max(res[[2]][l,]))][1],
                                            detections=data.frame(category=res[[3]][l,resfilter],conf=res[[2]][l,resfilter],
                                                                  bbox1=res[[1]][l,resfilter,2],bbox2=res[[1]][l,resfilter,1],bbox3=res[[1]][l,resfilter,4]-res[[1]][l,resfilter,2],bbox4=res[[1]][l,resfilter,3]-res[[1]][l,resfilter,1]))
       }

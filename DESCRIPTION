@@ -1,9 +1,9 @@
 Package: animl
-Title: A collection of ML tools for classifying and sorting camera trap images
+Title: A collection of ML tools for conservation research, including classifying and sorting camera trap images
 Version: 0.0.0.9000
 Authors@R: 
-    person("Kyra", "Swanson", , "tswanson@sdzwa.org", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+    c(person(given="Kyra", family="Swanson",email="tswanson@sdzwa.org", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-1496-3217")))
 Description: What the package does (one paragraph).
 License: 
     GPL (>= 3)
