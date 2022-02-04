@@ -4,8 +4,14 @@
 #' @param label T/F toggle to plot MD category
 #' @param minconf minimum confidence to plot box
 #'
-#' @return
+#' @return no return value, produces bounding box in plot panel
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' mdres<-classifyImageMD(mdsession,images$FilePath[30000])
+#' plotBoxes(mdres,minconf = 0.5)
+#' }
 plotBoxes<-function(image,label=FALSE,minconf=0){
   #load image
   image$file
@@ -39,11 +45,18 @@ plotBoxes<-function(image,label=FALSE,minconf=0){
 #' Plot bounding boxes from MD flat data frame
 #'
 #' @param image The mdres for the image
-#' @param label T/F toggle to plot MD category
+#' @param label Toggle to plot MD category, defaults to FALSE
 #' @param minconf minimum confidence to plot box
 #'
-#' @return
+#' @return no return value, produces bounding box in plot panel
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' mdres<-classifyImageMD(mdsession,images$FilePath[30000])
+#' mdresflat<-flattenBoxesMDSimple(mdres)
+#' plotBoxesFromFlat(mdresflat,minconf = 0.5)
+#' }
 plotBoxesFromFlat<-function(image,label=FALSE,minconf=0){
   if(class(image)=="data.frame" & nrow(image)>0){
     if(length(unique(image$FilePath))>1)stop("Provide data for a single image file.\n")
@@ -62,10 +75,6 @@ plotBoxesFromFlat<-function(image,label=FALSE,minconf=0){
         if(image[j,]$md_confidence>=minconf & !is.na(image[j,]$bbox1)){
           graphics::rect(image[j,]$bbox1*jpgx,jpgy-image[j,]$bbox2*jpgy,(image[j,]$bbox1+image[j,]$bbox3)*jpgx,jpgy-(image[j,]$bbox2+image[j,]$bbox4)*jpgy,border=col[as.numeric(image[j,]$md_class)],lwd = 2)}
       }
-    }
-    #plot label
-    if(label){
-      #do stuff
     }
   }
 }

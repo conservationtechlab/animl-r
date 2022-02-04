@@ -8,8 +8,8 @@ extractBoxesFromFlat(
   image,
   min_conf = 0,
   buffer = 0,
-  plot = T,
-  save = F,
+  plot = TRUE,
+  save = FALSE,
   resize = NA,
   outdir = "",
   quality = 0.8
@@ -22,9 +22,9 @@ extractBoxesFromFlat(
 
 \item{buffer}{Adds a buffer to the MD bounding box, defaults to 2px}
 
-\item{plot}{T/F toggle to plot each crop in the plot window, defaults to True}
+\item{plot}{Toggle to plot each crop in the plot window, defaults to TRUE}
 
-\item{save}{T/F toggle to save output cropped, defaults to False}
+\item{save}{Toggle to save output cropped, defaults to FALSE}
 
 \item{resize}{Size in pixels to resize cropped images, NA if images are not resized, defaults to NA}
 
@@ -33,8 +33,13 @@ extractBoxesFromFlat(
 \item{quality}{Compression level of output cropped image, defaults to 0.8}
 }
 \value{
-
+A dataframe containing image and crop paths
 }
 \description{
 Extract crops from a single image represented by a processed dataframe
+}
+\examples{
+\dontrun{
+crops <- extractBoxesFromFlat(mdresflat[1,],save=TRUE,out)
+}
 }

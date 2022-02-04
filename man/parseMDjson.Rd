@@ -15,3 +15,8 @@ list of MD detections
 \description{
 parse MD JSON results file
 }
+\examples{
+\dontrun{
+mdres <- parseMDjson("MDresults.json")
+}
+}

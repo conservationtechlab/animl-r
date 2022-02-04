@@ -4,6 +4,11 @@
 #'
 #' @return list of MD detections
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' mdres <- parseMDjson("MDresults.json")
+#' }
 parseMDjson<-function(json){
   results<-json[[1]]
   delete<-numeric()

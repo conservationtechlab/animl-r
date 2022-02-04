@@ -10,9 +10,9 @@ extractAllBoxesFromFlat(
   resize = NA,
   quality = 0.8,
   outdir = "",
-  save = F,
-  overwrite = T,
-  parallel = F,
+  save = FALSE,
+  overwrite = TRUE,
+  parallel = FALSE,
   nproc = parallel::detectCores()
 )
 }
@@ -27,17 +27,22 @@ extractAllBoxesFromFlat(
 
 \item{outdir}{Directory in which output cropped images will be saved}
 
-\item{save}{T/F toggle to save output cropped, defaults to False}
+\item{save}{Toggle to save output cropped, defaults to FALSE}
 
-\item{overwrite}{T/F toggle to overwrite output cropped images if they already exis, defaults to True}
+\item{overwrite}{Toggle to overwrite output cropped images if they already exis, defaults to TRUE}
 
-\item{parallel}{T/F toggle to enable parallel processing, defaults to False}
+\item{parallel}{Toggle to enable parallel processing, defaults to FALSE}
 
-\item{nproc}{Number of workers if parallel = True, defaults to output of detectCores()}
+\item{nproc}{Number of workers if parallel = TRUE, defaults to output of detectCores()}
 }
 \value{
-A dataframe containing image and crop paths,
+A dataframe containing image and crop paths
 }
 \description{
 Extract ,cropped images from a processed dataframe
+}
+\examples{
+\dontrun{
+crops <- extractBoxesFromFlat(mdresflat,save=TRUE,out)
+}
 }

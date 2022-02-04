@@ -12,8 +12,13 @@ resize_pad(img, size = 256)
 \item{size}{new size}
 }
 \value{
-
+returns resized jpeg image
 }
 \description{
 Resize an image with padding
+}
+\examples{
+\dontrun{
+crop<-resize_pad(cropped_image_path,256)
+}
 }

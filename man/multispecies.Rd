@@ -21,3 +21,8 @@ list of images with multiple species, includes number of animals for each class
 \description{
 Classify images with multiple potential species
 }
+\examples{
+\dontrun{
+imagesallanimal <- multispecies(imagesallanimal,mlpredictions,classes,17)
+}
+}
