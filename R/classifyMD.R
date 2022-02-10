@@ -13,7 +13,6 @@
 #' @export
 classifyImageMD<-function(mdsession,imagefile,min_conf=0.1){
   np<-reticulate::import("numpy")
-  #image<-jpeg::readJPEG(imagefile)
   image<-keras::image_load(imagefile)
   image_tensor=mdsession$graph$get_tensor_by_name('image_tensor:0')
   box_tensor = mdsession$graph$get_tensor_by_name('detection_boxes:0')
@@ -80,7 +79,7 @@ classifyImagesBatchMD<-function(mdsession,images,min_conf=0.1,batch_size=1,resul
   dataset<-tfdatasets::tensor_slices_dataset(images)
   dataset<-tfdatasets::dataset_map_and_batch(dataset,decode_img_full,batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
   dataset<-tfdatasets::dataset_prefetch(dataset,buffer_size = tf$data$experimental$AUTOTUNE)
-  dataset<-tfdatasets::as_iterator(dataset)
+  dataset<-as_iterator(dataset)
 
   #get tensors
   image_tensor=mdsession$graph$get_tensor_by_name('image_tensor:0')
@@ -89,12 +88,13 @@ classifyImagesBatchMD<-function(mdsession,images,min_conf=0.1,batch_size=1,resul
   class_tensor = mdsession$graph$get_tensor_by_name('detection_classes:0')
 
   steps<-ceiling(length(images)/batch_size)
+  print(steps)
   opb<-pbapply::pboptions(char = "=")
   pb <-pbapply::startpb(1,steps) #txtProgressBar(min = 0, max = length(results), style = 3)
   #process all images
   for(i in 1:steps){
     #catch errors due to empty or corrupted images
-    if(!inherits(try(img<-tfdatasets::iter_next(dataset),silent=T),"try-error")){
+    if(!inherits(try(img<-iter_next(dataset),silent=T),"try-error")){
       res<-mdsession$run(list(box_tensor,score_tensor,class_tensor),feed_dict=list("image_tensor:0"=img$numpy()))
       for(l in 1:dim(res[[1]])[1]){
         resfilter<-which(res[[2]]>=min_conf)

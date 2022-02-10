@@ -4,6 +4,11 @@
 #'
 #' @return list of MD detections
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' mdresults <- parseMDsimple(mdres)
+#' }
 parseMDjson<-function(json){
   results<-json[[1]]
   delete<-numeric()
@@ -38,4 +43,28 @@ parseMDjson<-function(json){
     results[-delete]
   else
     results
+}
+
+#' parse MD JSON results file into a simple dataframe
+#'
+#' @param mdresults raw MegaDetector output
+#'
+#' @return flattened dataframe of results
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' mdresults <- parseMDsimple(mdres)
+#' }
+parseMDsimple<-function(mdresults){
+  f<-function(data){
+    if(nrow(data$detections)>0){
+      data.frame(file=data$FilePath,max_detection_conf=data$max_detection_conf,max_detection_category=data$max_detection_category,data$detections,stringsAsFactors = F)
+    }else{
+
+      data.frame(file=data$FilePath,max_detection_conf=data$max_detection_conf,max_detection_category=data$max_detection_category,category=0,conf=NA,bbox1=NA,bbox2=NA,bbox3=NA,bbox4=NA,stringsAsFactors = F)}
+  }
+  results<-do.call(rbind.data.frame,sapply(mdresults,f,simplify = F))
+  colnames(results)[4:5]<-c("md_class","md_confidence")
+  results
 }
