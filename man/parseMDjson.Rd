@@ -17,6 +17,6 @@ parse MD JSON results file
 }
 \examples{
 \dontrun{
-mdresults <- parseMDsimple(mdres)
+mdres <- parseMDjson("MDresults.json")
 }
 }

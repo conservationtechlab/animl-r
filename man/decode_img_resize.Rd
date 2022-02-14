@@ -16,3 +16,8 @@ decode_img_resize(image_filepath, height = 299, width = 299)
 \description{
 Load image with TF 35722 and resize for MD
 }
+\examples{
+\dontrun{
+  dataset<-tfdatasets::dataset_map_and_batch(dataset,decode_img_resize,batch_size)
+}
+}

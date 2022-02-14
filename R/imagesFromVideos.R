@@ -7,15 +7,19 @@
 #' @param format output format for frames, defaults to jpg
 #' @param fps frames per second, otherwise determine mathematically
 #' @param frames number of frames to sample
-#' @param parallel T/F toggle for parallel processing, defaults to FALSE
+#' @param parallel Toggle for parallel processing, defaults to FALSE
 #' @param nproc number of processors to use if parallel, defaults to 1
 #'
 #' @return dataframe of still frames for each video
 #' @export
-imagesFromVideos<-function (videos, outdir = tempfile(), format = "jpg", fps = NULL,frames=NULL,parallel=F,nproc=1)
-{
+#'
+#' @examples
+#' \dontrun{
+#' frames <- imagesFromVideos(videos,outdir="C:\\Users\\usr\\Videos\\",frames=5)
+#' }
+imagesFromVideos<-function (videos, outdir = tempfile(), format = "jpg", fps = NULL,frames=NULL,parallel=FALSE,nproc=1) {
   if(outdir!="" & !dir.exists(outdir)){
-    if(!dir.create(outdir,recursive = T))
+    if(!dir.create(outdir,recursive = TRUE))
       stop("Output directory invalid.\n")}
   if(!is.null(fps) & !is.null(frames))
     message("If both fps and frames are defined fps will be used.")

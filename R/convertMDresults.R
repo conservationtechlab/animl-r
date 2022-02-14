@@ -6,6 +6,15 @@
 #'
 #' @return A dataframe with one entry for each bounding box
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#'  images<-read_exif(imagedir,tags=c("filename","directory","DateTimeOriginal","FileModifyDate"), recursive = TRUE)
+#'  colnames(images)[1]<-"FilePath
+#'  mdsession<-loadMDModel(mdmodel)
+#'  mdres<-classifyImagesBatchMD(mdsession,images$FilePath, resultsfile=mdresultsfile,checkpoint = 2500)
+#'  mdresflat<-convertMDresults(mdres)
+#' }
 convertMDresults <- function(mdresults){
   images_flat<-data.frame(image_path=character(),md_class=numeric(),md_confidence=numeric(),pixelx=numeric(),pixely=numeric(),
                           x1=numeric(),x2=numeric(),y1=numeric(),y2=numeric(),
@@ -62,6 +71,15 @@ convertMDresults <- function(mdresults){
 #'
 #' @return A dataframe with one entry for each bounding box
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#'  images<-read_exif(imagedir,tags=c("filename","directory","DateTimeOriginal","FileModifyDate"), recursive = TRUE)
+#'  colnames(images)[1]<-"FilePath
+#'  mdsession<-loadMDModel(mdmodel)
+#'  mdres<-classifyImagesBatchMD(mdsession,images$FilePath, resultsfile=mdresultsfile,checkpoint = 2500)
+#'  mdresflat<-convertMDResultsSimple(mdres)
+#' }
 convertMDResultsSimple<-function(mdresults){
   f<-function(data){
     if(nrow(data$detections)>0){data.frame(file=data$file,max_detection_conf=data$max_detection_conf,max_detection_category=data$max_detection_category,data$detections,stringsAsFactors = F)

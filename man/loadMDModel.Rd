@@ -10,8 +10,14 @@ loadMDModel(modelfile)
 \item{modelfile}{.pb file obtained from megaDetector}
 }
 \value{
-
+a tfsession containing the MD model
 }
 \description{
 Title
+}
+\examples{
+\dontrun{
+mdmodel<-"megadetector_v4.1.pb"
+mdsession<-loadMDModel(mdmodel)
+}
 }

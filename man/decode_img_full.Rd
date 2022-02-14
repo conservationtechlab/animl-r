@@ -12,3 +12,8 @@ decode_img_full(image_filepath)
 \description{
 Load image with TF, full size for MD
 }
+\examples{
+\dontrun{
+  dataset<-tfdatasets::dataset_map_and_batch(dataset,decode_img_full,batch_size)
+}
+}

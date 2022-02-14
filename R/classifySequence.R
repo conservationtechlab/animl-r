@@ -13,6 +13,12 @@
 #'
 #' @return reclassified imagesallanimal dataframe
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' predictions <-classifyCropsSpecies(images,modelfile,resize=456)
+#' imagesallanimal <- classifySequences(images,predictions,classes,17,maxdiff=60)
+#' }
 classifySequence <- function(imagesallanimal,mlpredictions,classes,emptycol,maxdiff=60){
 
   #sort by SurveyID, StationID, DateTime

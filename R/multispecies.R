@@ -7,6 +7,11 @@
 #'
 #' @return list of images with multiple species, includes number of animals for each class
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' imagesallanimal <- multispecies(imagesallanimal,mlpredictions,classes,17)
+#' }
 multispecies <- function(imagesallanimal,mlpredictions,classes,emptycol){
 
   multianimal <- imagesallanimal[0,]

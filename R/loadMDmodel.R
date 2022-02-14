@@ -4,8 +4,14 @@
 #'
 #' @param modelfile .pb file obtained from megaDetector
 #'
-#' @return
+#' @return a tfsession containing the MD model
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' mdmodel<-"megadetector_v4.1.pb"
+#' mdsession<-loadMDModel(mdmodel)
+#' }
 loadMDModel<-function(modelfile){
   tf <- reticulate::import("tensorflow")
   if(strsplit(tf$version$VERSION,".",fixed=T)[[1]][1]==1){
@@ -27,17 +33,3 @@ loadMDModel<-function(modelfile){
   }
   tfsession
 }
-#'
-#' #' Load saved MD model, NOT CURRENTLY IN USE
-#' #'
-#' #' @param modelpath
-#' #'
-#' #' @return
-#' #' @export
-#' #'
-#' #' @examples
-#' loadMDSavedModel<-function(modelpath){
-#'   tfmodel<-load_model_tf(modelpath)
-#'   tfsession<-tf$compat$v1$Session(graph=tfmodel$graph)
-#'   tfsession
-#' }

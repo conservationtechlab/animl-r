@@ -5,6 +5,11 @@
 #'
 #' @return images
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' images <- extractFiles("C:\\Users\\usr\\Pictures\\")
+#' }
 extractFiles <- function(imagedir,timezone_offset=0){
   images<-exifr::read_exif(imagedir,tags=c("filename","directory","DateTimeOriginal","FileModifyDate"), recursive = TRUE)
   colnames(images)[1]<-"FilePath"

@@ -17,3 +17,8 @@ images
 \description{
 Extract exif data and create dataframe, adjust time if necessary.
 }
+\examples{
+\dontrun{
+images <- extractFiles("C:\\\\Users\\\\usr\\\\Pictures\\\\")
+}
+}

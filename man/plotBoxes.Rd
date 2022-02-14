@@ -14,8 +14,14 @@ plotBoxes(image, label = FALSE, minconf = 0)
 \item{minconf}{minimum confidence to plot box}
 }
 \value{
-
+no return value, produces bounding box in plot panel
 }
 \description{
 Plot bounding boxes on image from md results
+}
+\examples{
+\dontrun{
+mdres<-classifyImageMD(mdsession,images$FilePath[30000])
+plotBoxes(mdres,minconf = 0.5)
+}
 }
