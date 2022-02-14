@@ -21,46 +21,48 @@ imagesFromVideos<-function (videos, outdir = tempfile(), format = "jpg", fps = N
   if(outdir!="" & !dir.exists(outdir)){
     if(!dir.create(outdir,recursive = TRUE))
       stop("Output directory invalid.\n")}
-
+  if(!is.null(fps) & !is.null(frames))
+    message("If both fps and frames are defined fps will be used.")
+  if(is.null(fps) & is.null(frames))
+    stop("Either fps or frames need to be defined.")
   run.parallel<-function(x){
-    vfilter <- ifelse(length(fps), paste0("fps=", fps),
-                      "null")
     vfilter <- ifelse(length(frames), paste0("fps=", round(1/(av::av_media_info(x)$duration/frames),3)),
+                      "null")
+    vfilter <- ifelse(length(fps), paste0("fps=", fps),
                       vfilter)
     framerate <- av::av_media_info(x)$video$framerate
     tempdir<-tempfile()
     dir.create(tempdir)
     name<-strsplit(basename(x),".",fixed=T)[[1]][1]
-    codec <- switch(format, jpeg = "mjpeg", jpg = "mjpeg", format)
-    #add a random number to avoid duplicate file names
-    rnd<-sprintf("%05d", round(stats::runif(1,1,99999),0))
+    rnd<-sprintf("%05d", round(runif(1,1,99999),0))
     output <- file.path(tempdir, paste0(name,"_",rnd,"_%5d.", format))
-    #output <- file.path(tempdir, paste0(name,"_%5d.", format))
     av::av_encode_video(input = x, output = output, framerate = framerate,
-                    codec = codec, vfilter = vfilter)
-    files<-data.frame(videofile=x,tmpframe=list.files(tempdir, pattern = paste0(name,"_",rnd,"_\\d{5}.", format),
+                    #codec = codec,
+                    vfilter = vfilter,verbose=F)
+    files<-data.frame(FilePath=x,tmpframe=list.files(tempdir, pattern = paste0(name,"_",rnd,"_\\d{5}.", format),
                                                       full.names = TRUE),stringsAsFactors = F)
-    files$videoframe<-paste0(outdir,basename(files$tmpframe))
-    file.rename(files$tmpframe,files$videoframe)
-    files[,c("videofile","videoframe")]
+    files$Frame<-paste0(outdir,basename(files$tmpframe))
+    file.copy(files$tmpframe,files$Frame)
+    file.remove(files$tmpframe)
+    files[,c("FilePath","VideoFrame")]
   }
-  opb<-pbapply::pboptions(char = "=")
   if(parallel){
     type="PSOCK"
 
     cl <- parallel::makeCluster(min(parallel::detectCores(),nproc),type=type)
-
     parallel::clusterExport(cl,list("outdir","format","fps","frames"),
                   envir=environment())
-    #set random number generator for cluster
+
     parallel::clusterSetRNGStream(cl)
 
-    results<-pbapply::pblapply(videos,function(x){run.parallel(x)},cl=cl)
+    parallel::clusterEvalQ(cl,library(av))
+    results<-pbapply::pblapply(videos,function(x){try(run.parallel(x))},cl=cl)
     parallel::stopCluster(cl)
 
   }else{
-    results<-pbapply::pblapply(videos,function(x){run.parallel(x)})
+    results<-pbapply::pblapply(videos,function(x){try(run.parallel(x))})
   }
   results<-do.call(rbind,results)
   results
 }
+

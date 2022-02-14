@@ -11,12 +11,17 @@
 #' images <- extractFiles("C:\\Users\\usr\\Pictures\\")
 #' }
 extractFiles <- function(imagedir,timezone_offset=0){
-  images<-exifr::read_exif(imagedir,tags=c("filename","directory","DateTime","FileModifyDate"), recursive = TRUE)
+  images<-exifr::read_exif(imagedir,tags=c("filename","directory","DateTimeOriginal","FileModifyDate"), recursive = TRUE)
   colnames(images)[1]<-"FilePath"
   images<-as.data.frame(images)
-  images$DateTime<-as.POSIXct(images$DateTime,format="%Y:%m:%d %H:%M:%S")
+  if(!"DateTimeOriginal" %in% names(images)){
+    images$DateTime<-as.POSIXct(images$FileModifyDate,format="%Y:%m:%d %H:%M:%S")
+  }
+  else{images$DateTime<-as.POSIXct(images$DateTimeOriginal,format="%Y:%m:%d %H:%M:%S") }
+
   images$DateTimeModified<-as.POSIXct(images$FileModifyDate,format="%Y:%m:%d %H:%M:%S")
   images$DateTimeAdjusted <- as.POSIXct(images$FileModifyDate,format="%Y:%m:%d %H:%M:%S")+timezone_offset*3600
+
   return(images)
 }
 

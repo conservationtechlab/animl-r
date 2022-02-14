@@ -13,9 +13,7 @@
 #' plotBoxes(mdres,minconf = 0.5)
 #' }
 plotBoxes<-function(image,label=FALSE,minconf=0){
-  #load image
-  image$file
-  jpg<-jpeg::readJPEG(image$file)
+  jpg<-jpeg::readJPEG(image$FilePath)
   plot(grDevices::as.raster(jpg)) ## where is this from??
   jpgy<-dim(jpg)[1]
   jpgx<-dim(jpg)[2]
