@@ -17,7 +17,7 @@
 classifySpecies<-function(mdresults,model,resize=299,standardize=TRUE,batch_size=32,workers=1){
   source_python("/mnt/machinelearning/orbweaver/ImageCropGenerator.py")
   ### Muti-model
-  filecol<-which(colnames(mdresults) %in% c("file","FilePath"))[1]
+  filecol<-which(colnames(mdresults) %in% c("file","Frame"))[1]
   predlist<-list()
   predict_steps=ceiling(nrow(mdresults)/batch_size)
   cropGenerator<-GenerateCropsFromFile(x=mdresults[,filecol],boxes=as.matrix(mdresults[,c("bbox1","bbox2","bbox3","bbox4")]),resize=resize,standardize=standardize,batch_size=batch_size)

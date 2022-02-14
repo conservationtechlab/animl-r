@@ -37,10 +37,10 @@ imagesFromVideos<-function (videos, outdir = tempfile(), format = "jpg", fps = N
                     vfilter = vfilter,verbose=F)
     files<-data.frame(FilePath=x,tmpframe=list.files(tempdir, pattern = paste0(name,"_",rnd,"_\\d{5}.", format),
                                                       full.names = TRUE),stringsAsFactors = F)
-    files$VideoFrame<-paste0(outdir,basename(files$tmpframe))
-    file.copy(files$tmpframe,files$VideoFrame)
+    files$Frame<-paste0(outdir,basename(files$tmpframe))
+    file.copy(files$tmpframe,files$Frame)
     file.remove(files$tmpframe)
-    files[,c("FilePath","VideoFramePath")]
+    files[,c("FilePath","VideoFrame")]
   }
   if(parallel){
     type="PSOCK"
