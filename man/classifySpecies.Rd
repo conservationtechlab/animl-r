@@ -6,7 +6,7 @@
 \usage{
 classifySpecies(
   mdresults,
-  models,
+  model,
   resize = 299,
   standardize = TRUE,
   batch_size = 32,
@@ -16,7 +16,7 @@ classifySpecies(
 \arguments{
 \item{mdresults}{flattened mdresults dataframe}
 
-\item{models}{models with which to classify species}
+\item{model}{models with which to classify species}
 
 \item{resize}{resize images before classification, defaults to 299x299px}
 
@@ -36,6 +36,4 @@ Classifies Crops Using Specified Models
 \dontrun{
 pred<-classifySpecies(imagesallanimal,paste0(modelfile,".h5"),resize=456,standardize=FALSE,batch_size = 64,workers=8)
 }
-
-
 }

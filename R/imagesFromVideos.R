@@ -12,8 +12,7 @@
 #'
 #' @return dataframe of still frames for each video
 #' @export
-imagesFromVideos<-function (videos, outdir = tempfile(), format = "jpg", fps = NULL,frames=NULL,parallel=F,nproc=1)
-{
+imagesFromVideos<-function (videos, outdir = tempfile(), fps = NULL,frames=5,parallel=F,nproc=1){
   if(outdir!="" & !dir.exists(outdir)){
     if(!dir.create(outdir,recursive = T))
       stop("Output directory invalid.\n")}
@@ -21,26 +20,35 @@ imagesFromVideos<-function (videos, outdir = tempfile(), format = "jpg", fps = N
     message("If both fps and frames are defined fps will be used.")
   if(is.null(fps) & is.null(frames))
     stop("Either fps or frames need to be defined.")
-  run.parallel<-function(x){
-    vfilter <- ifelse(length(frames), paste0("fps=", round(1/(av::av_media_info(x)$duration/frames),3)),
-                      "null")
-    vfilter <- ifelse(length(fps), paste0("fps=", fps),
-                      vfilter)
-    framerate <- av::av_media_info(x)$video$framerate
-    tempdir<-tempfile()
-    dir.create(tempdir)
-    name<-strsplit(basename(x),".",fixed=T)[[1]][1]
-    rnd<-sprintf("%05d", round(runif(1,1,99999),0))
-    output <- file.path(tempdir, paste0(name,"_",rnd,"_%5d.", format))
-    av::av_encode_video(input = x, output = output, framerate = framerate,
-                    #codec = codec,
-                    vfilter = vfilter,verbose=F)
-    files<-data.frame(FilePath=x,tmpframe=list.files(tempdir, pattern = paste0(name,"_",rnd,"_\\d{5}.", format),
-                                                      full.names = TRUE),stringsAsFactors = F)
-    files$Frame<-paste0(outdir,basename(files$tmpframe))
-    file.copy(files$tmpframe,files$Frame)
-    file.remove(files$tmpframe)
-    files[,c("FilePath","VideoFrame")]
+
+  run.parallel <- function(x, cond = 'problem'){
+    result <- tryCatch({
+      av::av_media_info(x)
+    } , error = function(e) {
+      message(cond)
+      message(e)
+      return(NA)
+    })
+    if(result$video$frames < 5){files<-data.frame(FilePath=x,Frame="File Corrupt")}
+    else{
+      vfilter <- ifelse(length(frames), paste0("fps=", round(1/(result$duration/frames),3)),
+                        "null")
+      vfilter <- ifelse(length(fps), paste0("fps=", fps),vfilter)
+      framerate <- result$video$framerate
+      tempdir<-tempfile()
+      dir.create(tempdir)
+      name<-strsplit(basename(x),".",fixed=T)[[1]][1]
+      rnd<-sprintf("%05d", round(runif(1,1,99999),0))
+      output <- file.path(tempdir, paste0(name,"_",rnd,"_%5d", ".jpg"))
+      av::av_encode_video(input = x, output = output, framerate = framerate,
+                          vfilter = vfilter,verbose=F)
+      files<-data.frame(FilePath=x,tmpframe=list.files(tempdir, pattern = paste0(name,"_",rnd,"_\\d{5}", ".jpg"),
+                                                       full.names = TRUE),stringsAsFactors = F)
+      files$Frame<-paste0(outdir,basename(files$tmpframe))
+      file.copy(files$tmpframe,files$Frame)
+      file.remove(files$tmpframe)
+      files[,c("FilePath","Frame")]
+    }
   }
   if(parallel){
     type="PSOCK"
@@ -61,4 +69,8 @@ imagesFromVideos<-function (videos, outdir = tempfile(), format = "jpg", fps = N
   results<-do.call(rbind,results)
   results
 }
+
+
+
+
 

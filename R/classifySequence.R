@@ -86,3 +86,55 @@ classifySequence <- function(imagesallanimal,mlpredictions,classes,emptycol,maxd
 
   imagesallanimal
 }
+
+
+
+#' Select Best Classification From Multiple Frames
+#'
+#' @param mdanimals dataframe of all frames including species classification
+#' @param how method for selecting best prediction, defaults to most frequent
+#'
+#' @return dataframe with new prediction in "Common" column
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' mdanimals <- classifyVideo(mdanimals)
+#' }
+classifyVideo <- function(mdanimals,how="count"){
+
+  sort<-with(mdanimals,order(Site,Camera,NewName))
+  mdanimals<-mdanimals[sort,]
+
+  videonames <- unique(mdanimals$NewName)
+
+  i=1
+  steps<-length(videonames)
+  pb <-pbapply::startpb(1,steps)
+
+  for(i in 1:steps){
+    v <- videonames[i]
+    sequence = mdanimals[mdanimals$NewName == v,]
+    guesses <- sequence %>% dplyr::group_by(prediction) %>%
+      dplyr::summarise(mean = mean(confidence), n = dplyr::n())
+
+    if(how == "conf"){ best <- guesses[which.max(guesses$mean),]}
+    else{
+      best <- which.max(guesses$n)
+      guess <- guesses[best,]
+      if(guess$prediction=="empty" && nrow(guesses) > 1){
+       # print(sequence[,c("prediction","confidence")])
+        newguesses <- guesses[-best,]
+        guess <- newguesses[which.max(newguesses$mean),]
+      #  print(guess)
+      }
+    }
+    mdanimals[mdanimals$NewName == v,]$Common = guess$prediction
+    i <- i + 1
+    pbapply::setpb(pb,i)
+  }
+  pbapply::setpb(pb,steps)
+  pbapply::closepb(pb)
+  mdanimals
+}
+
