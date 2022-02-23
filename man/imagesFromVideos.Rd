@@ -10,7 +10,7 @@ imagesFromVideos(
   format = "jpg",
   fps = NULL,
   frames = NULL,
-  parallel = F,
+  parallel = FALSE,
   nproc = 1
 )
 }
@@ -25,7 +25,7 @@ imagesFromVideos(
 
 \item{frames}{number of frames to sample}
 
-\item{parallel}{T/F toggle for parallel processing, defaults to FALSE}
+\item{parallel}{Toggle for parallel processing, defaults to FALSE}
 
 \item{nproc}{number of processors to use if parallel, defaults to 1}
 }
@@ -34,4 +34,9 @@ dataframe of still frames for each video
 }
 \description{
 This function can take
+}
+\examples{
+\dontrun{
+frames <- imagesFromVideos(videos,outdir="C:\\\\Users\\\\usr\\\\Videos\\\\",frames=5)
+}
 }

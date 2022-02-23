@@ -8,9 +8,9 @@ extractBoxes(
   image,
   min_conf = 0,
   buffer = 2,
-  plot = T,
-  return.crops = F,
-  save = F,
+  plot = TRUE,
+  return.crops = FALSE,
+  save = FALSE,
   resize = NA,
   outdir = "",
   quality = 0.8
@@ -23,11 +23,11 @@ extractBoxes(
 
 \item{buffer}{Adds a buffer to the MD bounding box, defaults to 2px}
 
-\item{plot}{T/F toggle to plot each crop in the plot window, defaults to True}
+\item{plot}{Toggle to plot each crop in the plot window, defaults to TRUE}
 
-\item{return.crops}{T/F toggle to return list of cropped images, defaults to False}
+\item{return.crops}{Toggle to return list of cropped images, defaults to FALSE}
 
-\item{save}{T/F toggle to save output cropped, defaults to False}
+\item{save}{Toggle to save output cropped, defaults to FALSE}
 
 \item{resize}{Size in pixels to resize cropped images, NA if images are not resized, defaults to NA}
 
@@ -40,4 +40,10 @@ a flattened dataframe containing crop information
 }
 \description{
 Requires the unflattened raw MD output
+}
+\examples{
+\dontrun{
+images<-read_exif(imagedir,tags=c("filename","directory"), recursive = TRUE)
+crops <- extractBoxes(images[1,],plot=TRUE,return.crops=TRUE,save=TRUE)
+}
 }

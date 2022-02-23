@@ -7,7 +7,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' mdresults <- parseMDsimple(mdres)
+#' mdres <- parseMDjson("MDresults.json")
 #' }
 parseMDjson<-function(json){
   results<-json[[1]]

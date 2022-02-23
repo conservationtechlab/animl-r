@@ -11,6 +11,14 @@
 #'
 #' @return a list of MD bounding boxes, classes, and confidence for the image
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#'  images<-read_exif(imagedir,tags=c("filename","directory","DateTimeOriginal","FileModifyDate"), recursive = TRUE)
+#'  colnames(images)[1]<-"FilePath
+#'  mdsession<-loadMDModel(mdmodel)
+#'  mdres<-classifyImageMD(mdsession,images$FilePath[1])
+#' }
 classifyImageMD<-function(mdsession,imagefile,min_conf=0.1){
   np<-reticulate::import("numpy")
   image<-keras::image_load(imagefile)
@@ -35,6 +43,14 @@ classifyImageMD<-function(mdsession,imagefile,min_conf=0.1){
 #'
 #' @return a list of lists of bounding boxes for each image
 #' @export
+#'
+#' @examples
+#' #' \dontrun{
+#'  images<-read_exif(imagedir,tags=c("filename","directory","DateTimeOriginal","FileModifyDate"), recursive = TRUE)
+#'  colnames(images)[1]<-"FilePath
+#'  mdsession<-loadMDModel(mdmodel)
+#'  mdres<-classifyImagesBatchMD_0ld(mdsession,images$FilePath)
+#' }
 classifyImagesBatchMD_0ld<-function(mdsession,images){
   pbapply::pblapply(images,classifyImageMD,mdsession=mdsession)
 }
@@ -56,6 +72,14 @@ classifyImagesBatchMD_0ld<-function(mdsession,images){
 #'
 #' @return a list of lists of bounding boxes for each image
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#'  images<-read_exif(imagedir,tags=c("filename","directory","DateTimeOriginal","FileModifyDate"), recursive = TRUE)
+#'  colnames(images)[1]<-"FilePath
+#'  mdsession<-loadMDModel(mdmodel)
+#'  mdres<-classifyImagesBatchMD(mdsession,images$FilePath, resultsfile=mdresultsfile,checkpoint = 2500)
+#' }
 classifyImagesBatchMD<-function(mdsession,images,min_conf=0.1,batch_size=1,resultsfile=NULL,checkpoint=5000){
   tf<-reticulate::import("tensorflow")
   if(!dir.exists(dirname(resultsfile)))stop("Results file directory does not exist.\n")

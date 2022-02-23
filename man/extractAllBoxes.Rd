@@ -8,11 +8,11 @@ extractAllBoxes(
   images,
   min_conf = 0,
   buffer = 2,
-  save = F,
+  save = FALSE,
   resize = NA,
   outdir = "",
   quality = 0.8,
-  parallel = F,
+  parallel = FALSE,
   nproc = parallel::detectCores()
 )
 }
@@ -23,7 +23,7 @@ extractAllBoxes(
 
 \item{buffer}{Adds a buffer to the MD bounding box, defaults to 2px}
 
-\item{save}{T/F toggle to save output cropped, defaults to False}
+\item{save}{Toggle to save output cropped, defaults to FALSE}
 
 \item{resize}{Size in pixels to resize cropped images, NA if images are not resized, defaults to NA}
 
@@ -31,13 +31,19 @@ extractAllBoxes(
 
 \item{quality}{Compression level of output cropped image, defaults to 0.8}
 
-\item{parallel}{T/F toggle to enable parallel processing, defaults to False}
+\item{parallel}{Toggle to enable parallel processing, defaults to FALSE}
 
-\item{nproc}{Number of workers if parallel = True, defaults to output of detectCores()}
+\item{nproc}{Number of workers if parallel = TRUE, defaults to output of detectCores()}
 }
 \value{
 a flattened dataframe containing crop information
 }
 \description{
 Extract bounding boxes and save as new image from a batch of images
+}
+\examples{
+\dontrun{
+images<-read_exif(imagedir,tags=c("filename","directory"), recursive = TRUE)
+crops <- extractAllBoxes(images,save=TRUE,out)
+}
 }

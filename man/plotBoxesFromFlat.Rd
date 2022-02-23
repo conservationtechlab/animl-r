@@ -9,13 +9,20 @@ plotBoxesFromFlat(image, label = FALSE, minconf = 0)
 \arguments{
 \item{image}{The mdres for the image}
 
-\item{label}{T/F toggle to plot MD category}
+\item{label}{Toggle to plot MD category, defaults to FALSE}
 
 \item{minconf}{minimum confidence to plot box}
 }
 \value{
-
+no return value, produces bounding box in plot panel
 }
 \description{
 Plot bounding boxes from MD flat data frame
+}
+\examples{
+\dontrun{
+mdres<-classifyImageMD(mdsession,images$FilePath[30000])
+mdresflat<-flattenBoxesMDSimple(mdres)
+plotBoxesFromFlat(mdresflat,minconf = 0.5)
+}
 }

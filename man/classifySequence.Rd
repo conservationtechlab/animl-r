@@ -32,3 +32,9 @@ This function retains "Empty" classification even if other images within the
 sequence are predicted to contain animals.
 Classification confidence is weighted by MD confidence.
 }
+\examples{
+\dontrun{
+predictions <-classifyCropsSpecies(images,modelfile,resize=456)
+imagesallanimal <- classifySequences(images,predictions,classes,17,maxdiff=60)
+}
+}
