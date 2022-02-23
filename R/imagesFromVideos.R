@@ -12,16 +12,12 @@
 #'
 #' @return dataframe of still frames for each video
 #' @export
-<<<<<<< HEAD
-imagesFromVideos<-function (videos, outdir = tempfile(), fps = NULL,frames=5,parallel=F,nproc=1){
-=======
 #'
 #' @examples
 #' \dontrun{
 #' frames <- imagesFromVideos(videos,outdir="C:\\Users\\usr\\Videos\\",frames=5)
 #' }
 imagesFromVideos<-function (videos, outdir = tempfile(), format = "jpg", fps = NULL,frames=NULL,parallel=FALSE,nproc=1) {
->>>>>>> 8658c7ee0e2b0f6e15d711f7d32a085d27752e62
   if(outdir!="" & !dir.exists(outdir)){
     if(!dir.create(outdir,recursive = TRUE))
       stop("Output directory invalid.\n")}
@@ -78,8 +74,3 @@ imagesFromVideos<-function (videos, outdir = tempfile(), format = "jpg", fps = N
   results<-do.call(rbind,results)
   results
 }
-
-
-
-
-
