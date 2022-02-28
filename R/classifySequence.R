@@ -114,7 +114,6 @@ classifyVideo <- function(mdanimals,how="count"){
 
   videonames <- unique(mdanimals$NewName)
 
-  i=1
   steps<-length(videonames)
   pb <-pbapply::startpb(1,steps)
 
@@ -136,7 +135,6 @@ classifyVideo <- function(mdanimals,how="count"){
       }
     }
     mdanimals[mdanimals$NewName == v,]$Common = guess$prediction
-    i <- i + 1
     pbapply::setpb(pb,i)
   }
   pbapply::setpb(pb,steps)
