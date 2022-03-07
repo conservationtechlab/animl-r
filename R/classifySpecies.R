@@ -15,8 +15,6 @@
 #' pred<-classifySpecies(imagesallanimal,paste0(modelfile,".h5"),resize=456,standardize=FALSE,batch_size = 64,workers=8)
 #' }
 classifySpecies<-function(mdresults,model,resize=299,standardize=TRUE,batch_size=32,workers=1){
-  source_python("ImageCropGenerator.py")
-  ### Muti-model
   filecol<-which(colnames(mdresults) %in% c("file","Frame"))[1]
   model<-load_model_hdf5(model)
   predict_steps=ceiling(nrow(mdresults)/batch_size)
