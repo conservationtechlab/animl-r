@@ -43,7 +43,7 @@ imagesFromVideos<-function (videos, outdir = tempfile(), format = "jpg", fps = N
       tempdir<-tempfile()
       dir.create(tempdir)
       name<-strsplit(basename(x),".",fixed=T)[[1]][1]
-      rnd<-sprintf("%05d", round(runif(1,1,99999),0))
+      rnd<-sprintf("%05d", round(stats::runif(1,1,99999),0))
       output <- file.path(tempdir, paste0(name,"_",rnd,"_%5d", ".jpg"))
       av::av_encode_video(input = x, output = output, framerate = framerate,
                           vfilter = vfilter,verbose=F)

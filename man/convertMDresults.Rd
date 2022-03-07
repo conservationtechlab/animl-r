@@ -15,3 +15,14 @@ A dataframe with one entry for each bounding box
 \description{
 Each row is a MD bounding box, there can be multiple bounding boxes per image.
 }
+\examples{
+\dontrun{
+ images<-read_exif(imagedir,tags=c("filename","directory","DateTimeOriginal","FileModifyDate"),
+                   recursive = TRUE)
+ colnames(images)[1]<-"FilePath"
+ mdsession<-loadMDModel(mdmodel)
+ mdres<-classifyImagesBatchMD(mdsession,images$FilePath,
+                              resultsfile=mdresultsfile,checkpoint = 2500)
+ mdresflat<-convertMDresults(mdres)
+}
+}

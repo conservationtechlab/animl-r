@@ -2,7 +2,6 @@
 
 export(classifyImageMD)
 export(classifyImagesBatchMD)
-export(classifyImagesBatchMD_0ld)
 export(classifySequence)
 export(classifySpecies)
 export(classifyVideo)

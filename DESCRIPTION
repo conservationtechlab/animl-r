@@ -5,7 +5,7 @@ Authors@R:
     c(person(given="Kyra", family="Swanson",email="tswanson@sdzwa.org", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-1496-3217")),person(given="Mathias",family="Tobler",role = "aut"))
 Description: Functions required to classify subjects within camera trap field data. The package can handle both images and videos. The authors recommend a two-step approach using Microsoft's 'MegaDector' model and then a second model trained on the classes of interest.
-License: GPL-3
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2.9000

@@ -14,8 +14,9 @@
 #'
 #' @examples
 #' \dontrun{
-#'  images<-read_exif(imagedir,tags=c("filename","directory","DateTimeOriginal","FileModifyDate"), recursive = TRUE)
-#'  colnames(images)[1]<-"FilePath
+#'  images<-read_exif(imagedir,tags=c("filename","directory","DateTimeOriginal","FileModifyDate"),
+#'  recursive = TRUE)
+#'  colnames(images)[1]<-"FilePath"
 #'  mdsession<-loadMDModel(mdmodel)
 #'  mdres<-classifyImageMD(mdsession,images$FilePath[1])
 #' }
@@ -30,38 +31,16 @@ classifyImageMD<-function(mdsession,imagefile,min_conf=0.1){
   resfilter<-which(res[[2]]>=min_conf)
   list(FilePath=imagefile,max_detection_conf=max(res[[2]]),max_detection_category=res[[3]][which(res[[2]]==max(res[[2]]))][1],
        detections=data.frame(category=res[[3]][resfilter],conf=res[[2]][resfilter],
-                             bbox1=res[[1]][1,resfilter,2],bbox2=res[[1]][1,resfilter,1],bbox3=res[[1]][1,resfilter,4]-res[[1]][1,resfilter,2],bbox4=res[[1]][1,resfilter,3]-res[[1]][1,resfilter,1]))
+                             bbox1=res[[1]][1,resfilter,2],bbox2=res[[1]][1,resfilter,1],
+                             bbox3=res[[1]][1,resfilter,4]-res[[1]][1,resfilter,2],
+                             bbox4=res[[1]][1,resfilter,3]-res[[1]][1,resfilter,1]))
 }
-
-
-#' Run Megadetector on a batch of images (old)
-#'
-#' Old version for applying MD classification, does not use parallel processing.
-#'
-#' @param mdsession should be the output from loadMDmodel(model)
-#' @param images a vector containing image filepaths
-#'
-#' @return a list of lists of bounding boxes for each image
-#' @export
-#'
-#' @examples
-#' #' \dontrun{
-#'  images<-read_exif(imagedir,tags=c("filename","directory","DateTimeOriginal","FileModifyDate"), recursive = TRUE)
-#'  colnames(images)[1]<-"FilePath
-#'  mdsession<-loadMDModel(mdmodel)
-#'  mdres<-classifyImagesBatchMD_0ld(mdsession,images$FilePath)
-#' }
-classifyImagesBatchMD_0ld<-function(mdsession,images){
-  pbapply::pblapply(images,classifyImageMD,mdsession=mdsession)
-}
-
 
 #' Run MegaDetector on a batch of images
 #'
 #' Runs MD on a list of image filepaths.
 #' Can resume for a results file and will checkpoint the results after a set
 #' number of images
-#'
 #'
 #' @param mdsession should be the output from loadMDmodel(model)
 #' @param images list of image filepaths
@@ -75,10 +54,12 @@ classifyImagesBatchMD_0ld<-function(mdsession,images){
 #'
 #' @examples
 #' \dontrun{
-#'  images<-read_exif(imagedir,tags=c("filename","directory","DateTimeOriginal","FileModifyDate"), recursive = TRUE)
-#'  colnames(images)[1]<-"FilePath
+#'  images<-read_exif(imagedir,tags=c("filename","directory","DateTimeOriginal","FileModifyDate"),
+#'  recursive = TRUE)
+#'  colnames(images)[1]<-"FilePath"
 #'  mdsession<-loadMDModel(mdmodel)
-#'  mdres<-classifyImagesBatchMD(mdsession,images$FilePath, resultsfile=mdresultsfile,checkpoint = 2500)
+#'  mdres<-classifyImagesBatchMD(mdsession,images$FilePath,
+#'                               resultsfile=mdresultsfile,checkpoint = 2500)
 #' }
 classifyImagesBatchMD<-function(mdsession,images,min_conf=0.1,batch_size=1,resultsfile=NULL,checkpoint=5000){
   tf<-reticulate::import("tensorflow")
@@ -103,10 +84,10 @@ classifyImagesBatchMD<-function(mdsession,images,min_conf=0.1,batch_size=1,resul
   dataset<-tfdatasets::tensor_slices_dataset(images)
   dataset<-tfdatasets::dataset_map_and_batch(dataset,decode_img_full,batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
   dataset<-tfdatasets::dataset_prefetch(dataset,buffer_size = tf$data$experimental$AUTOTUNE)
-  dataset<-as_iterator(dataset)
+  dataset<-reticulate::as_iterator(dataset)
 
   #get tensors
-  image_tensor=mdsession$graph$get_tensor_by_name('image_tensor:0')
+  image_tensor = mdsession$graph$get_tensor_by_name('image_tensor:0')
   box_tensor = mdsession$graph$get_tensor_by_name('detection_boxes:0')
   score_tensor = mdsession$graph$get_tensor_by_name('detection_scores:0')
   class_tensor = mdsession$graph$get_tensor_by_name('detection_classes:0')
@@ -118,13 +99,17 @@ classifyImagesBatchMD<-function(mdsession,images,min_conf=0.1,batch_size=1,resul
   #process all images
   for(i in 1:steps){
     #catch errors due to empty or corrupted images
-    if(!inherits(try(img<-iter_next(dataset),silent=T),"try-error")){
+    if(!inherits(try(img<-reticulate::iter_next(dataset),silent=T),"try-error")){
       res<-mdsession$run(list(box_tensor,score_tensor,class_tensor),feed_dict=list("image_tensor:0"=img$numpy()))
       for(l in 1:dim(res[[1]])[1]){
         resfilter<-which(res[[2]]>=min_conf)
-        results[[length(results)+1]]<-list(FilePath=images[(i*batch_size-batch_size)+l],max_detection_conf=max(res[[2]][l,]),max_detection_category=res[[3]][which(res[[2]][l,]==max(res[[2]][l,]))][1],
+        results[[length(results)+1]]<-list(FilePath=images[(i*batch_size-batch_size)+l],max_detection_conf=max(res[[2]][l,]),
+                                           max_detection_category=res[[3]][which(res[[2]][l,]==max(res[[2]][l,]))][1],
                                            detections=data.frame(category=res[[3]][l,resfilter],conf=res[[2]][l,resfilter],
-                                                                 bbox1=res[[1]][l,resfilter,2],bbox2=res[[1]][l,resfilter,1],bbox3=res[[1]][l,resfilter,4]-res[[1]][l,resfilter,2],bbox4=res[[1]][l,resfilter,3]-res[[1]][l,resfilter,1]))
+                                                                 bbox1=res[[1]][l,resfilter,2],
+                                                                 bbox2=res[[1]][l,resfilter,1],
+                                                                 bbox3=res[[1]][l,resfilter,4]-res[[1]][l,resfilter,2],
+                                                                 bbox4=res[[1]][l,resfilter,3]-res[[1]][l,resfilter,1]))
       }
     }
     #save intermediate results at given checkpoint interval

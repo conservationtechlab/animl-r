@@ -21,3 +21,12 @@ Returns the MD bounding boxes, classes, confidence above the min_conf
 threshold for a single image. #' Requires a an mdsession is already
 loaded (see loadMDModel() ) and the file path of the image in question.
 }
+\examples{
+\dontrun{
+ images<-read_exif(imagedir,tags=c("filename","directory","DateTimeOriginal","FileModifyDate"),
+ recursive = TRUE)
+ colnames(images)[1]<-"FilePath"
+ mdsession<-loadMDModel(mdmodel)
+ mdres<-classifyImageMD(mdsession,images$FilePath[1])
+}
+}

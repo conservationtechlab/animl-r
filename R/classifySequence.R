@@ -128,10 +128,8 @@ classifyVideo <- function(mdanimals,how="count"){
       best <- which.max(guesses$n)
       guess <- guesses[best,]
       if(guess$prediction=="empty" && nrow(guesses) > 1){
-       # print(sequence[,c("prediction","confidence")])
         newguesses <- guesses[-best,]
         guess <- newguesses[which.max(newguesses$mean),]
-      #  print(guess)
       }
     }
     mdanimals[mdanimals$NewName == v,]$Common = guess$prediction
