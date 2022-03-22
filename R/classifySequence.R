@@ -120,8 +120,8 @@ classifyVideo <- function(mdanimals,how="count"){
   for(i in 1:steps){
     v <- videonames[i]
     sequence = mdanimals[mdanimals$NewName == v,]
-    guesses <- sequence %>% dplyr::group_by(prediction) %>%
-      dplyr::summarise(mean = mean(confidence), n = dplyr::n())
+    guesses <- sequence %>% dplyr::group_by(sequence$prediction) %>%
+      dplyr::summarise(mean = mean(sequence$confidence), n = dplyr::n())
 
     if(how == "conf"){ best <- guesses[which.max(guesses$mean),]}
     else{

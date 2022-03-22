@@ -33,7 +33,7 @@ extractBoxes<-function(image,min_conf=0,buffer=2,plot=TRUE,return.crops=FALSE,sa
 
   #get bounding boxes
   #get bounding boxes
-  if(class(image$detections)=="data.frame"){
+  if(is.data.frame(image$detections)){
     s<-image$detections
 
     #extract bounding box

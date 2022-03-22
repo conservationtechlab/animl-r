@@ -32,7 +32,7 @@ convertMDresults <- function(mdresults){
 
     #get bounding boxes
     #get bounding boxes
-    if(class(mdresults[[i]]$detections)=="data.frame"){
+    if(is.data.frame(mdresults[[i]]$detections)){
       s<-mdresults[[i]]$detections
 
       #extract bounding box

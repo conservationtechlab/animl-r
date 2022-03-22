@@ -3,7 +3,6 @@
 export(classifyImageMD)
 export(classifyImagesBatchMD)
 export(classifySequence)
-export(classifySpecies)
 export(classifyVideo)
 export(convertMDResultsSimple)
 export(convertMDresults)

@@ -19,7 +19,7 @@ plotBoxes<-function(image,label=FALSE,minconf=0){
   jpgx<-dim(jpg)[2]
 
   #get bounding boxes
-  if(class(image$detections)=="data.frame"){
+  if(is.data.frame(image$detections)){
     s<-image$detections
     if(nrow(s)>0){
       #plot bounding boxes
@@ -56,7 +56,7 @@ plotBoxes<-function(image,label=FALSE,minconf=0){
 #' plotBoxesFromFlat(mdresflat,minconf = 0.5)
 #' }
 plotBoxesFromFlat<-function(image,label=FALSE,minconf=0){
-  if(class(image)=="data.frame" & nrow(image)>0){
+  if(is.data.frame(image) & nrow(image)>0){
     if(length(unique(image$FilePath))>1)stop("Provide data for a single image file.\n")
     #load image
     image$FilePath[1]

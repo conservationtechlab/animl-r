@@ -1,18 +1,18 @@
-#' #' Title
-#' #'
-#' #' @param x
-#' #' @param boxes
-#' #' @param resize
-#' #' @param buffer
-#' #' @param batch_size
-#' #' @param standardize
-#' #'
-#' #' @return
-#' #' @export
-#' #'
-#' #' @examples
-#'  generateCropsFromFile <- function(x, boxes, resize=299,buffer=2,batch_size=32,standardize=TRUE){
-#'    num_samples = nrow(x)
+#' Title
+#'
+#' @param x
+#' @param boxes
+#' @param resize
+#' @param buffer
+#' @param batch_size
+#' @param standardize
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'    crop_generator <- function(x, boxes, resize=299,buffer=2,batch_size=32,standardize=TRUE){
+#' #'    num_samples = nrow(x)
 #'    #offset=0
 #'    while(TRUE){
 #'      for(offset in 1:num_samples, batch_size){
@@ -55,5 +55,6 @@
 #'          #offset+=batch_size
 #'        }
 #'      }
+#' #'    }
 #'    }
-#' }
+
