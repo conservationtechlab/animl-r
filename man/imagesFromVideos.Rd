@@ -5,7 +5,7 @@
 \title{Extract frames from video for classification}
 \usage{
 imagesFromVideos(
-  videos,
+  files,
   outdir = tempfile(),
   format = "jpg",
   fps = NULL,
@@ -15,8 +15,6 @@ imagesFromVideos(
 )
 }
 \arguments{
-\item{videos}{dataframe of videos}
-
 \item{outdir}{directory to save frames to}
 
 \item{format}{output format for frames, defaults to jpg}
@@ -28,6 +26,8 @@ imagesFromVideos(
 \item{parallel}{Toggle for parallel processing, defaults to FALSE}
 
 \item{nproc}{number of processors to use if parallel, defaults to 1}
+
+\item{videos}{dataframe of videos}
 }
 \value{
 dataframe of still frames for each video

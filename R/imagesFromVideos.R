@@ -2,7 +2,7 @@
 #'
 #' This function can take
 #'
-#' @param videos dataframe of videos
+#' @param files dataframe of videos
 #' @param outdir directory to save frames to
 #' @param format output format for frames, defaults to jpg
 #' @param fps frames per second, otherwise determine mathematically
@@ -17,7 +17,7 @@
 #' \dontrun{
 #' frames <- imagesFromVideos(videos,outdir="C:\\Users\\usr\\Videos\\",frames=5)
 #' }
-imagesFromVideos<-function (videos, outdir = tempfile(), format = "jpg", fps = NULL,frames=NULL,parallel=FALSE,nproc=1) {
+imagesFromVideos<-function (files, outdir = tempfile(), format = "jpg", fps = NULL,frames=NULL,parallel=FALSE,nproc=1) {
   if(outdir!="" & !dir.exists(outdir)){
     if(!dir.create(outdir,recursive = TRUE))
       stop("Output directory invalid.\n")}
@@ -25,6 +25,10 @@ imagesFromVideos<-function (videos, outdir = tempfile(), format = "jpg", fps = N
     message("If both fps and frames are defined fps will be used.")
   if(is.null(fps) & is.null(frames))
     stop("Either fps or frames need to be defined.")
+
+  images<-files[tools::file_ext(files$FileName) %in% c("jpg","JPG"),]
+  images$Frame <- images$FilePath
+  videos<-files[tools::file_ext(files$FileName) %in% c("mp4","MP4"),]
 
   run.parallel <- function(x, cond = 'problem'){
     result <- tryCatch({
@@ -65,12 +69,21 @@ imagesFromVideos<-function (videos, outdir = tempfile(), format = "jpg", fps = N
     parallel::clusterSetRNGStream(cl)
 
     parallel::clusterEvalQ(cl,library(av))
-    results<-pbapply::pblapply(videos,function(x){try(run.parallel(x))},cl=cl)
+    results<-pbapply::pblapply(videos$FilePath,function(x){try(run.parallel(x))},cl=cl)
     parallel::stopCluster(cl)
 
   }else{
-    results<-pbapply::pblapply(videos,function(x){try(run.parallel(x))})
+    results<-pbapply::pblapply(videos$FilePath,function(x){try(run.parallel(x))})
   }
   results<-do.call(rbind,results)
-  results
+  videoframes<-merge(videos,results)
+  imagesall <- rbind(images,videoframes)
+  imagesall
 }
+
+
+
+
+
+
+

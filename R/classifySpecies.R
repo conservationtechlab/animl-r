@@ -16,10 +16,11 @@
 #'                       resize=456,standardize=FALSE,batch_size = 64,workers=8)
 #' #' }
 #' classifySpecies<-function(mdresults,model,resize=299,standardize=TRUE,batch_size=32,workers=1){
+#'   animlpy <- reticulate::import("animl")
 #'   filecol<-which(colnames(mdresults) %in% c("file","Frame"))[1]
 #'   model<-keras::load_model_hdf5(model)
 #'   predict_steps=ceiling(nrow(mdresults)/batch_size)
-#'   cropGenerator<-generateCropsFromFile(x=mdresults[,filecol],boxes=as.matrix(mdresults[,c("bbox1","bbox2","bbox3","bbox4")]),
+#'   cropGenerator<-animlpy::generateCropsFromFile(x=mdresults[,filecol],boxes=as.matrix(mdresults[,c("bbox1","bbox2","bbox3","bbox4")]),
 #'                                        resize=resize,standardize=standardize,batch_size=batch_size)
 #'
 #'   pred <- model %>% keras::predict_generator(generator=cropGenerator,steps=predict_steps,workers=workers,verbose=1)
