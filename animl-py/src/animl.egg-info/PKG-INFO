@@ -1,0 +1,23 @@
+Metadata-Version: 2.1
+Name: animl
+Version: 1.0.0
+Summary: Functions required to classify subjects within camera trap field data. The package can handle both images and videos. The authors recommend a two-step approach using Microsoft's 'MegaDector' model and then a second model trained on the classes of interest.
+Home-page: https://github.com/icr-ctl/animl
+Author: Kyra Swanson
+Author-email: tswanson@sdzwa.org
+License: UNKNOWN
+Project-URL: Bug Tracker, https://github.com/icr-ctl/animl/issues
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE.md
+
+# animl
+
+Animl Overview 
+Functions required to classify subjects within camera trap field data. The package can handle both images and videos. The authors recommend a two-step approach using Microsoft's 'MegaDector' model and then a second model trained on the classes of interest.
+
+

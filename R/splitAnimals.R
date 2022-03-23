@@ -1,5 +1,13 @@
-setEmpty <- function(imagesall){
-  empty <- imagesall[imagesall$max_detection_category!=1,]
+#' Title
+#'
+#' @param crops all megadetector crops
+#'
+#' @return list of empty/human/vehicle crops with md classification
+#' @export
+#'
+#' @examples
+setEmpty <- function(crops){
+  empty <- crops[crops$max_detection_category!=1,]
   empty$prediction <-NA
   empty$confidence <-NA
   empty[empty$max_detection_category==0,]$prediction = "empty"
