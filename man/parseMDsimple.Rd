@@ -4,13 +4,15 @@
 \alias{parseMDsimple}
 \title{parse MD JSON results file into a simple dataframe}
 \usage{
-parseMDsimple(mdresults)
+parseMDsimple(imagesall, mdresults)
 }
 \arguments{
+\item{imagesall}{dataframe containing all frames}
+
 \item{mdresults}{raw MegaDetector output}
 }
 \value{
-flattened dataframe of results
+original dataframe including md results
 }
 \description{
 parse MD JSON results file into a simple dataframe

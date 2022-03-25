@@ -47,16 +47,17 @@ parseMDjson<-function(json){
 
 #' parse MD JSON results file into a simple dataframe
 #'
+#' @param imagesall dataframe containing all frames
 #' @param mdresults raw MegaDetector output
 #'
-#' @return flattened dataframe of results
+#' @return original dataframe including md results
 #' @export
 #'
 #' @examples
 #' \dontrun{
 #' mdresults <- parseMDsimple(mdres)
 #' }
-parseMDsimple<-function(mdresults){
+parseMDsimple<-function(imagesall, mdresults){
   f<-function(data){
     if(nrow(data$detections)>0){
       data.frame(Frame=data$FilePath,max_detection_conf=data$max_detection_conf,max_detection_category=data$max_detection_category,data$detections,stringsAsFactors = F)
@@ -66,5 +67,6 @@ parseMDsimple<-function(mdresults){
   }
   results<-do.call(rbind.data.frame,sapply(mdresults,f,simplify = F))
   colnames(results)[4:5]<-c("md_class","md_confidence")
-  results
+  imagesall<-merge(imagesall,results)
+  imagesall
 }
