@@ -9,8 +9,11 @@ Animl comprises a variety of machine learning tools for analyzing ecological dat
 
 ## Camera Trap Classification
 
-Automatic identification of animals within camera trap images or videos. 
-First, build the file manifest:
+Below are the steps required for automatic identification of animals within camera trap images or videos. 
+
+#### 1. File Manifest
+
+First, build the file manifest of a given directory.
 
 ```R
 imagedir <- "examples/TestData"
@@ -21,21 +24,65 @@ setupDirectory(imagedir)
 # Read exif data for all images within base directory
 files <- buildFileManifest(imagedir)
 
-# Set Region/Site/Camera names 
+# Set Region/Site/Camera names based on folder hierarchy
 files <- setLocation(files,imagedir)
 
 # Process videos, extract frames for ID
-imagesall<-imagesFromVideos(files,outdir=vidfdir,frames=5,parallel=T,nproc=12)
+imagesall<-imagesFromVideos(files,outdir=vidfdir,frames=5)
 ```
+#### 2. Object Detection
 
-The authors recommend a two-step approach using Microsoft's 'MegaDector' object detector to first identify potential animals and then using a second classification model trained on the species of interest. 
+This produces a dataframe of images, including frames taken from any videos to be fed into the classifier. The authors recommend a two-step approach using Microsoft's 'MegaDector' object detector to first identify potential animals and then using a second classification model trained on the species of interest. 
 
 MegaDetector can obtained from
 https://github.com/microsoft/CameraTraps/blob/main/megadetector.md
 
+```R
+#Load the Megadetector model
+mdsession<-loadMDModel("/path/to/megaDetector/megadetector_v4.1.pb")
+
+#+++++++++++++++++++++
+# Classify a single image to make sure everything works before continuing
+testMD(imagesall,mdsession)
+#+++++++++++++++++++++
+
+# Obtain crop information for each image, checkpoint MegaDetector after every 2500 images
+mdres <- classifyImagesBatchMD(mdsession,imagesall$Frame,resultsfile=paste0(datadir,mdresults),checkpoint = 2500)
+
+# Add crop information to dataframe
+imagesall <- parseMDsimple(imagesall, mdres)
+
+```
+#### 3. Classification
+Then feed the crops into the classifier. We recommend only classifying crops identified by MD as animals.
+
+```R
+# Pull out animal crops
+animals <- imagesall[imagesall$max_detection_category==1,]
+
+# Set of crops with MD human, vehicle and empty MD predictions. 
+empty <- setEmpty(imagesall)
 
 
-### Models
+modelfile <- "/Models/Southwest/EfficientNetB5_456_Unfrozen_01_0.58_0.82.h5"
+
+# Obtain predictions for each animal crop
+pred<-classifySpecies(animals,modelfile,resize=456,standardize=FALSE,batch_size = 64,workers=8)
+
+# Apply human-readable class name to dataframe
+# Classes are stored as text file
+# Returns a table with number of crops identified for each species
+alldata <- applyPredictions(animals,empty,"/Models/Southwest/classes.txt",pred, counts = TRUE)
+
+# Lastly pool crops to get one prediction per file
+alldata <- poolCrops(alldata)
+
+```
+
+
+
+
+## Models
 All of our pre-trained classification models can be obtained at [https://]
 
 Geographical regions represented:
