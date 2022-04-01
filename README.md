@@ -10,10 +10,23 @@ Animl comprises a variety of machine learning tools for analyzing ecological dat
 ## Camera Trap Classification
 
 Automatic identification of animals within camera trap images or videos. 
+First, build the file manifest:
 
+```R
+imagedir <- "examples/TestData"
 
+#create save-file placeholders and working directories
+setupDirectory(imagedir)
 
+# Read exif data for all images within base directory
+files <- buildFileManifest(imagedir)
 
+# Set Region/Site/Camera names 
+files <- setLocation(files,imagedir)
+
+# Process videos, extract frames for ID
+imagesall<-imagesFromVideos(files,outdir=vidfdir,frames=5,parallel=T,nproc=12)
+```
 
 The authors recommend a two-step approach using Microsoft's 'MegaDector' object detector to first identify potential animals and then using a second classification model trained on the species of interest. 
 
@@ -29,7 +42,6 @@ Geographical regions represented:
 * South America
 * African Savanna
 * Southwest United States
-* Madagascar
 
 ## What do I need to run animl?
 
