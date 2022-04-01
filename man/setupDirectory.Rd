@@ -2,7 +2,7 @@
 % Please edit documentation in R/setupDirectory.R
 \name{setupDirectory}
 \alias{setupDirectory}
-\title{Title}
+\title{Set Working Directory and Save File Global Variables}
 \usage{
 setupDirectory(imagedir)
 }
@@ -13,7 +13,7 @@ setupDirectory(imagedir)
 None
 }
 \description{
-Title
+Set Working Directory and Save File Global Variables
 }
 \examples{
 \dontrun{

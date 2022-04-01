@@ -20,7 +20,7 @@
 #'  mdsession<-loadMDModel(mdmodel)
 #'  mdres<-classifyImageMD(mdsession,images$FilePath[1])
 #' }
-classifyImageMD<-function(mdsession,imagefile,min_conf=0.1){
+detectObject<-function(mdsession,imagefile,min_conf=0.1){
   np<-reticulate::import("numpy")
   image<-keras::image_load(imagefile)
   image_tensor=mdsession$graph$get_tensor_by_name('image_tensor:0')
@@ -61,7 +61,7 @@ classifyImageMD<-function(mdsession,imagefile,min_conf=0.1){
 #'  mdres<-classifyImagesBatchMD(mdsession,images$FilePath,
 #'                               resultsfile=mdresultsfile,checkpoint = 2500)
 #' }
-classifyImagesBatchMD<-function(mdsession,images,min_conf=0.1,batch_size=1,resultsfile=NULL,checkpoint=5000){
+detectObjectBatch<-function(mdsession,images,min_conf=0.1,batch_size=1,resultsfile=NULL,checkpoint=5000){
   tf<-reticulate::import("tensorflow")
   if(!dir.exists(dirname(resultsfile)))stop("Results file directory does not exist.\n")
   if(tolower(substr(resultsfile,nchar(resultsfile)-5,nchar(resultsfile))) != ".rdata")

@@ -1,4 +1,4 @@
-#' Title
+#' Set Working Directory and Save File Global Variables
 #'
 #' @param imagedir local directory that contains data to process
 #'

@@ -78,6 +78,10 @@ imagesFromVideos<-function (files, outdir = tempfile(), format = "jpg", fps = NU
   results<-do.call(rbind,results)
   videoframes<-merge(videos,results)
   imagesall <- rbind(images,videoframes)
+
+  #assumes setDirectory()
+  try(write.csv(imagesall,file=paste0(datadir,imageframes),row.names = F,quote = F))
+
   imagesall
 }
 

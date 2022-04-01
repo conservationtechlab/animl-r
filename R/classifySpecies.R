@@ -20,7 +20,7 @@ classifySpecies<-function(mdresults,model,resize=299,standardize=TRUE,batch_size
   filecol<-which(colnames(mdresults) %in% c("file","Frame"))[1]
   model<-keras::load_model_hdf5(model)
   predict_steps=ceiling(nrow(mdresults)/batch_size)
-  cropGenerator<-animlpy$GenerateCropsFromFile(x=mdresults[,filecol],boxes=as.matrix(mdresults[,c("bbox1","bbox2","bbox3","bbox4")]),
+  cropGenerator<-animlpy$ImageCropGenerator$GenerateCropsFromFile(x=mdresults[,filecol],boxes=as.matrix(mdresults[,c("bbox1","bbox2","bbox3","bbox4")]),
                                        resize=resize,standardize=standardize,batch_size=batch_size)
 
   pred <- model %>% keras::predict_generator(generator=cropGenerator,steps=predict_steps,workers=workers,verbose=1)

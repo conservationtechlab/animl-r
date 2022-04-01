@@ -6,6 +6,9 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
+#' setEmpty(imagesall)
+#' }
 setEmpty <- function(crops){
   empty <- crops[crops$max_detection_category!=1,]
   empty$prediction <-NA

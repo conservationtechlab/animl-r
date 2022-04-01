@@ -107,7 +107,7 @@ classifySequence <- function(imagesallanimal,mlpredictions,classes,emptycol,maxd
 #' \dontrun{
 #' mdanimals <- classifyVideo(mdanimals)
 #' }
-classifyVideo <- function(mdanimals,how="count"){
+poolCrops <- function(mdanimals,how="count"){
 
   sort<-with(mdanimals,order(Site,Camera,NewName))
   mdanimals<-mdanimals[sort,]
