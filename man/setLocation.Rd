@@ -15,7 +15,7 @@ setLocation(
 )
 }
 \arguments{
-\item{files}{file manifest csv}
+\item{files}{file manifest data frame}
 
 \item{basedir}{directory from which files are obtained}
 
