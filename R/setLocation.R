@@ -1,6 +1,6 @@
 #' Set Region/Site/Camera Information for Each Image
 #'
-#' @param files file manifest csv
+#' @param files file manifest data frame
 #' @param basedir directory from which files are obtained
 #' @param adjust adjust starting position in folder hierarchy, defaults to 0
 #' @param rename create a new unique name from region/site/camera/date, defaults to true

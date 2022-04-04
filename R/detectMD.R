@@ -62,17 +62,21 @@ detectObject<-function(mdsession,imagefile,min_conf=0.1){
 #'                               resultsfile=mdresultsfile,checkpoint = 2500)
 #' }
 detectObjectBatch<-function(mdsession,images,min_conf=0.1,batch_size=1,resultsfile=NULL,checkpoint=5000){
-  tf<-reticulate::import("tensorflow")
-  if(!dir.exists(dirname(resultsfile)))stop("Results file directory does not exist.\n")
-  if(tolower(substr(resultsfile,nchar(resultsfile)-5,nchar(resultsfile))) != ".rdata")
-    resultsfile<-paste0(resultsfile,".RData")
-
-  #if results file exists prompt user to load it and resume
-  if(file.exists(resultsfile)){
-    if(tolower(readline(prompt="Results file exists, would you like to resume? y/n: "))=="y"){
-      load(resultsfile)
-      images<-images[!(images %in% sapply(results,function(x)x$file))]
-      cat(length(results),"records loaded.\n")
+  #tf<-reticulate::import("tensorflow")
+  if(!is.null(resultsfile)){
+    if(!dir.exists(dirname(resultsfile)))stop("Results file directory does not exist.\n")
+    if(tolower(substr(resultsfile,nchar(resultsfile)-5,nchar(resultsfile))) != ".rdata")
+      resultsfile<-paste0(resultsfile,".RData")
+    
+    #if results file exists prompt user to load it and resume
+    if(!is.null(resultsfile) & file.exists(resultsfile)){
+      if(tolower(readline(prompt="Results file exists, would you like to resume? y/n: "))=="y"){
+        load(resultsfile)
+        images<-images[!(images %in% sapply(results,function(x)x$file))]
+        cat(length(results),"records loaded.\n")
+      }else{
+        results<-list()
+      }
     }else{
       results<-list()
     }
@@ -93,7 +97,6 @@ detectObjectBatch<-function(mdsession,images,min_conf=0.1,batch_size=1,resultsfi
   class_tensor = mdsession$graph$get_tensor_by_name('detection_classes:0')
 
   steps<-ceiling(length(images)/batch_size)
-  print(steps)
   opb<-pbapply::pboptions(char = "=")
   pb <-pbapply::startpb(1,steps) #txtProgressBar(min = 0, max = length(results), style = 3)
   #process all images
