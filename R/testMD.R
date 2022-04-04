@@ -14,7 +14,7 @@ testMD <- function(imagesall,mdsession){
   f <- dplyr::sample_n(imagesall,1)
   jpg<-jpeg::readJPEG(f$Frame)
   plot(as.raster(jpg))
-  mdres<-classifyImageMD(mdsession,f$Frame)
+  mdres<-detectObject(mdsession,f$Frame)
   plotBoxes(mdres)
 
 }
