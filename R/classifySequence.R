@@ -109,6 +109,9 @@ classifySequence <- function(imagesallanimal,mlpredictions,classes,emptycol,maxd
 #' }
 poolCrops <- function(mdanimals,how="count"){
 
+  mdanimals$Species <- NA
+  mdanimals$Species <- mdanimals$prediction
+
   sort<-with(mdanimals,order(Site,Camera,NewName))
   mdanimals<-mdanimals[sort,]
 

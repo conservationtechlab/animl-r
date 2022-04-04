@@ -17,19 +17,11 @@ applyPredictions <- function(animals,empty,classfile,pred, counts = FALSE){
   classes<-read.table(classfile,stringsAsFactors = F)$x
 
   animals$prediction<-classes[apply(pred,1,which.max)]
-  animals$confidence <- apply(pred,1,max) * animals$md_confidence
+  animals$confidence <- apply(pred,1,max) * animals$conf
 
-  if(counts){
-    table(classes[apply(pred,1,which.max)])
-  }
+  if(counts){table(classes[apply(pred,1,which.max)])}
 
   #merge with empty data
   alldata <- rbind(animals,empty)
-  alldata$prediction[alldata$md_class==0]<-"empty"
-
-  alldata$Species <- NA
-
-  alldata$Species <- alldata$prediction
-
   alldata
 }

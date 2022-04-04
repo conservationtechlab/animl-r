@@ -26,7 +26,7 @@ buildFileManifest <- function(imagedir,timezone_offset=0){
   images$DateTimeAdjusted <- as.POSIXct(images$FileModifyDate,format="%Y:%m:%d %H:%M:%S")+timezone_offset*3600
 
   # assumes global variables datadir and filemanifest
-  try(write.csv(files,file=paste0(images,filemanifest),row.names = F,quote = F))
+  #try(write.csv(files,file=paste0(images,filemanifest),row.names = F,quote = F))
 
   return(images)
 }

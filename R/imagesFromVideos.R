@@ -26,9 +26,9 @@ imagesFromVideos<-function (files, outdir = tempfile(), format = "jpg", fps = NU
   if(is.null(fps) & is.null(frames))
     stop("Either fps or frames need to be defined.")
 
-  images<-files[tools::file_ext(files$FileName) %in% c("jpg","JPG"),]
+  images<-files[tools::file_ext(files$FileName) %in% c("jpg","JPG","png","PNG"),]
   images$Frame <- images$FilePath
-  videos<-files[tools::file_ext(files$FileName) %in% c("mp4","MP4"),]
+  videos<-files[tools::file_ext(files$FileName) %in% c("mp4","MP4","avi","AVI"),]
 
   run.parallel <- function(x, cond = 'problem'){
     result <- tryCatch({
@@ -75,12 +75,13 @@ imagesFromVideos<-function (files, outdir = tempfile(), format = "jpg", fps = NU
   }else{
     results<-pbapply::pblapply(videos$FilePath,function(x){try(run.parallel(x))})
   }
+
   results<-do.call(rbind,results)
   videoframes<-merge(videos,results)
   imagesall <- rbind(images,videoframes)
 
   #assumes setDirectory()
-  try(write.csv(imagesall,file=paste0(datadir,imageframes),row.names = F,quote = F))
+  #try(write.csv(imagesall,file=paste0(datadir,imageframes),row.names = F,quote = F))
 
   imagesall
 }

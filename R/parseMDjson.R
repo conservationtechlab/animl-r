@@ -60,13 +60,11 @@ parseMDjson<-function(json){
 parseMDsimple<-function(imagesall, mdresults){
   f<-function(data){
     if(nrow(data$detections)>0){
-      data.frame(Frame=data$FilePath,max_detection_conf=data$max_detection_conf,max_detection_category=data$max_detection_category,data$detections,stringsAsFactors = F)
+      data.frame(Frame=data$FilePath,max_conf=data$max_detection_conf,max_detection_category=data$max_detection_category,data$detections,stringsAsFactors = F)
     }else{
-
-      data.frame(Frame=data$FilePath,max_detection_conf=data$max_detection_conf,max_detection_category=data$max_detection_category,category=0,conf=NA,bbox1=NA,bbox2=NA,bbox3=NA,bbox4=NA,stringsAsFactors = F)}
+      data.frame(Frame=data$FilePath,max_conf=data$max_detection_conf,max_detection_category=0,category=0,conf=NA,bbox1=NA,bbox2=NA,bbox3=NA,bbox4=NA,stringsAsFactors = F)}
   }
   results<-do.call(rbind.data.frame,sapply(mdresults,f,simplify = F))
-  colnames(results)[4:5]<-c("md_class","md_confidence")
   imagesall<-merge(imagesall,results)
   imagesall
 }

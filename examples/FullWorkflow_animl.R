@@ -17,8 +17,7 @@ library(jpeg)
 library(dplyr)
 
 
-
-imagedir <- "/mnt/projects/Local_Lion/delaRosa_Cougar/BF/Animal/"
+imagedir <- "/home/kyra/animl/examples/test_data/Peru"
 
 #create global variable file and directory names
 setupDirectory(imagedir)
@@ -31,12 +30,10 @@ setupDirectory(imagedir)
 files <- buildFileManifest(imagedir)
 
 # Set Region/Site/Camera names
-files <- setLocation(files,imagedir, adjust = -2)
+files <- setLocation(files,imagedir)
 
 # Process videos, extract frames for ID
 imagesall<-imagesFromVideos(files,outdir=vidfdir,frames=5,parallel=T,nproc=12)
-
-
 
 #--------------------
 # save point
@@ -62,12 +59,6 @@ mdsession<-loadMDModel("/mnt/machinelearning/megaDetector/megadetector_v4.1.pb")
 testMD(imagesall,mdsession)
 #+++++++++++++++++++++
 
-f<- imagesall[12,]
-jpg<-jpeg::readJPEG(f$Frame)
-plot(as.raster(jpg))
-mdres<-detectObject(mdsession,f$Frame)
-plotBoxes(mdres)
-
 # Classify all images
 mdres <- detectObjectBatch(mdsession,imagesall$Frame,resultsfile=paste0(datadir,mdresults),checkpoint = 2500)
 imagesall <- parseMDsimple(imagesall, mdres)
@@ -84,12 +75,10 @@ load(file = paste0(datadir,mdresults))
 
 #null out low-confidence crops
 #check the "empty" folder, if you find animals, lower the confidence or do not run
-imagesall$max_detection_category[imagesall$md_confidence<0.25]<-0
-imagesall$max_detection_category[imagesall$max_detection_conf<0.1]<-0
+imagesall$max_detection_category[imagesall$confidence<0.1]<-0
 
 animals <- imagesall[imagesall$max_detection_category==1,]
-empty <- setEmpty(animal)
-empty <- animals[1,]
+empty <- setEmpty(animals)
 
 #===============================================================================
 # Species Classifier
