@@ -1,0 +1,225 @@
+# animl Classification Workflow
+#
+# c 2021 Mathias Tobler
+# Maintained by Kyra Swanson
+#
+#
+#-------------------------------------------------------------------------------
+# Setup
+#-------------------------------------------------------------------------------
+
+library(reticulate)
+use_condaenv("mlgpu")
+library(tensorflow)
+library(keras)
+library(animl)
+library(jpeg)
+library(dplyr)
+
+
+
+imagedir <- "/mnt/projects/Local_Lion/delaRosa_Cougar/BF/Animal/"
+
+#create global variable file and directory names
+setupDirectory(imagedir)
+
+#===============================================================================
+# Extract EXIF data
+#===============================================================================
+
+# Read exif data for all images within base directory
+files <- buildFileManifest(imagedir)
+
+# Set Region/Site/Camera names
+files <- setLocation(files,imagedir, adjust = -2)
+
+# Process videos, extract frames for ID
+imagesall<-imagesFromVideos(files,outdir=vidfdir,frames=5,parallel=T,nproc=12)
+
+
+
+#--------------------
+# save point
+write.csv(files,file=paste0(datadir,filemanifest),row.names = F,quote = F)
+write.csv(imagesall,file=paste0(datadir,imageframes),row.names = F,quote = F)
+
+# load point
+files<-read.csv(file=paste0(datadir,imagefile),stringsAsFactors = F)
+files$DateTime<-as.POSIXct(files$DateTime)
+imagesall<-read.csv(file=paste0(datadir,imageframes),stringsAsFactors = F)
+#--------------------
+
+
+#===============================================================================
+# MegaDetector
+#===============================================================================
+
+# Load the MegaDetector model
+mdsession<-loadMDModel("/mnt/machinelearning/megaDetector/megadetector_v4.1.pb")
+
+#+++++++++++++++++++++
+# Classify a single image to make sure everything works before continuing
+testMD(imagesall,mdsession)
+#+++++++++++++++++++++
+
+f<- imagesall[12,]
+jpg<-jpeg::readJPEG(f$Frame)
+plot(as.raster(jpg))
+mdres<-detectObject(mdsession,f$Frame)
+plotBoxes(mdres)
+
+# Classify all images
+mdres <- detectObjectBatch(mdsession,imagesall$Frame,resultsfile=paste0(datadir,mdresults),checkpoint = 2500)
+imagesall <- parseMDsimple(imagesall, mdres)
+
+#--------------------
+# save point
+write.csv(imagesall,paste0(datadir,cropfile),row.names=F,quote = F)
+save(mdres,file=paste0(datadir,mdresults))
+
+# load point
+imagesall<-read.csv(paste0(datadir,cropfile),stringsAsFactors = F)
+load(file = paste0(datadir,mdresults))
+#--------------------
+
+#null out low-confidence crops
+#check the "empty" folder, if you find animals, lower the confidence or do not run
+imagesall$max_detection_category[imagesall$md_confidence<0.25]<-0
+imagesall$max_detection_category[imagesall$max_detection_conf<0.1]<-0
+
+animals <- imagesall[imagesall$max_detection_category==1,]
+empty <- setEmpty(animal)
+empty <- animals[1,]
+
+#===============================================================================
+# Species Classifier
+#===============================================================================
+
+modelfile <- "/mnt/machinelearning/Models/Southwest/EfficientNetB5_456_Unfrozen_01_0.58_0.82.h5"
+
+pred<-classifySpecies(animals,modelfile,resize=456,standardize=FALSE,batch_size = 64,workers=8)
+
+# Combine data
+alldata <- applyPredictions(animals,empty,"/mnt/machinelearning/Models/Southwest/classes.txt",pred,counts = TRUE)
+
+
+classes<-read.table("/mnt/machinelearning/Models/Southwest/classes.txt",stringsAsFactors = F)$x
+
+animals$prediction<-classes[apply(pred,1,which.max)]
+
+#--------------------
+# save point
+save(pred,file=paste0(datadir,predresults))
+
+load(file=paste0(datadir,predresults))
+#--------------------
+
+#===============================================================================
+# Post-Process Species Results
+#===============================================================================
+
+
+# Classify sequences
+#mdanimals <- classifySequence(mdanimals,pred,classes,18,maxdiff=60)
+alldata <- poolCrops(alldata)
+
+
+#--------------------
+# save point
+write.csv(alldata,paste0(datadir,resultsfile),row.names = F,quote = F)
+
+# load results
+alldata<-read.csv(paste0(datadir,resultsfile),stringsAsFactors = F)
+#--------------------
+
+#===============================================================================
+# Symlinks
+#===============================================================================
+
+#create link
+alldata$link<-paste0(linkdir,alldata$Common,"/",alldata$NewName)
+
+topchoice = alldata[order(alldata[,'NewName']),]
+topchoice = topchoice[!duplicated(topchoice$NewName),]
+
+# place low-confidence images into "Unknown" category
+topchoice$Common[topchoice$confidence<0.5 & !(topchoice$Common %in% c("empty","human","vehicle"))]<-"unknown"
+
+# create species directories
+for(s in unique(topchoice$Common)){
+  if(!dir.exists(paste0(linkdir,s)))dir.create(paste0(linkdir,s),recursive=T)}
+
+#link images to species directory
+mapply(file.link,topchoice$FilePath,topchoice$link)
+
+
+#delete simlinks
+#sapply(imagesum$link,file.remove)
+
+#===============================================================================
+# Export to Camera Base
+#===============================================================================
+
+species_list<-read.csv("R:/PeruTrainingData/SpeciesID/species_list_full.csv",stringsAsFactors = F)
+
+alldata$Species<-species_list[match(alldata$Common,species_list$Common),"Species"]
+
+export<-data.frame(ID=1:nrow(alldata),
+                   Station_Code=alldata$Camera,
+                   Camera_Code1=alldata$Camera,
+                   Camera_Code2="",
+                   Date=as.Date(alldata$DateTime),
+                   Time=strftime(alldata$DateTime, format="%H:%M:%S"),
+                   Common=alldata$Common,
+                   Species=alldata$Species,
+                   perc_species=alldata$confidence1,
+                   Count=1,
+                   Sex="unknown",
+                   Marked=0,
+                   ImageNew1=alldata$NewName,
+                   ImageNew2="",
+                   SourceFile1=alldata$FilePath,
+                   SourceFile2="",stringsAsFactors = F)
+
+export<-export[!duplicated(export$SourceFile1),]
+export[export$Common=="Empty",]$Species="Blank"
+dim(export[export$Date>"2018-06-18",])
+
+write.table(export,file="R:/BrazilNutImportCB.txt",sep="\t",row.names = F,quote = F)
+
+#===============================================================================
+# Export to Zooniverse
+#===============================================================================
+
+source_python("ZooniverseFunctions.py")
+
+data = "/mnt/mathias/Camera Trap Data Raw/BIG GRID/September 2021/Data/ImportZooniverse.csv"
+alldata = read.csv(data)
+
+imagesallanimal<-alldata[!(alldata$Common %in% c("Empty","empty","human","Human","vehicle","Vehicle")),]
+
+# Confirm project name and subject set name
+# where the images will be added
+projectname<-"2789"
+subjectset<-"Loisaba Round 12"
+
+#take only top classification for each image (adjust later for multiple classifications)
+topchoice2 = imagesallanimal[order(imagesallanimal[,'FileName'],-imagesallanimal[,'confidence']),]
+topchoice2 = topchoice2[!duplicated(topchoice$NewName),]
+
+#change species name to the one used on Zooniverse
+zooconvert <- read.csv("Models/Kenya/Zooniverse_SpeciesList.csv")
+topchoice2$ZooniverseCode<-zooconvert[match(topchoice2$Common,zooconvert$Common),"ZooniverseCode"]
+
+
+toupload<-topchoice2[topchoice2$ZooniverseCode!="Human/Vehicle",]
+toupload<-toupload[toupload$ZooniverseCode!="Nothing Here",]
+
+
+upload_to_Zooniverse(projectname,101729,toupload[58800,],tempdir)
+
+
+create_SubjectSet(projectname,subjectset)
+
+upload_to_Zooniverse(projectname,99162,alldata[10:30,],tempdir,maxSeq=3,maxTime=15)
+
