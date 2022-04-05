@@ -17,7 +17,7 @@
 #' 
 cropImageGenerator<-function(files,boxes,resize_height=456,resize_width=456,standardize=FALSE,batch_size=32){
   #create data generator for  training (image/label pair)
-  if(!(is.vector(files) & class(files)=="character"))stop("files needs to be a vector of file names.\n")
+  if(!(is.vector(files) && class(files)=="character"))stop("files needs to be a vector of file names.\n")
   if(ncol(boxes)!=4)stop("boxes must have four columns.\n")
   if(sum(apply(boxes,2,is.numeric))!=4)stop("boxes must be numeric.\n")
   if(length(files)!=nrow(boxes))stop("boxes must have the same number of rows as the length of files.\n")
@@ -48,9 +48,9 @@ cropImageGenerator<-function(files,boxes,resize_height=456,resize_width=456,stan
 #' 
 ImageGenerator<-function(files,resize_height=NULL,resize_width=NULL,standardize=FALSE,batch_size=32){
   #create data generator for  training (image/label pair)
-  if(!(is.vector(files) & class(files)=="character"))stop("Please provide a vector of file names.\n")
+  if(!(is.vector(files) && class(files)=="character"))stop("Please provide a vector of file names.\n")
   dataset<-tfdatasets::tensor_slices_dataset(files)
-  if(is.null(resize_height) | is.null(resize_width)){
+  if(is.null(resize_height) || is.null(resize_width)){
     message("No values were provided for resize, returning full-size images.")
     dataset<-tfdatasets::dataset_map_and_batch(dataset,function(x)load_img(x,standardize),batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
     #dataset<-dataset$apply(tf$data$experimental$ignore_errors())
