@@ -30,7 +30,61 @@ cropImageGenerator<-function(files,boxes,resize_height=456,resize_width=456,stan
   dataset
 }
 
-  
+#' @title Tensorflow data generator that resizes images.
+#'
+#' @description Creates an image data generator that resizes images if requested.
+#'
+#' @param files a vector of file names
+#' @param resize_height the height the cropped image will be resized to. If NULL returns original size images.
+#' @param resize_width the width the cropped image will be resized to. If NULL returns original size images..
+#' @param standardize standardize the image to the range 0 to 1, TRUE or FALSE.
+#' @param batch_size the batch size for the image generator.
+#'
+#' @return A Tensorflow image data generator.
+#' @examples
+#'
+#' @export
+#' @import tensorflow
+#' 
+ImageGenerator<-function(files,resize_height=NULL,resize_width=NULL,standardize=FALSE,batch_size=32){
+  #create data generator for  training (image/label pair)
+  if(!(is.vector(files) & class(files)=="character"))stop("Please provide a vector of file names.\n")
+  dataset<-tfdatasets::tensor_slices_dataset(files)
+  if(is.null(resize_height) | is.null(resize_width)){
+    message("No values were provided for resize, returning full-size images.")
+    dataset<-tfdatasets::dataset_map_and_batch(dataset,function(x)load_img(x,standardize),batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
+    #dataset<-dataset$apply(tf$data$experimental$ignore_errors())
+  }else{
+    dataset<-tfdatasets::dataset_map_and_batch(dataset,function(x)load_img_resize(x,resize_height,resize_width,standardize),batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
+  }
+  dataset<-tfdatasets::dataset_prefetch(dataset,buffer_size = tf$data$experimental$AUTOTUNE)
+  dataset<-tfdatasets::as_iterator(dataset)
+  dataset
+}
+
+
+#' @title Load an image and return the full size image as an image tensor.
+#'
+#' @description Load an image and return the full size an image tensor. Internal function to be called by image generator function.
+#'
+#' @param file path to a JPEG file
+#' @param standardize standardize the image, TRUE or FALSE.
+#'
+#' @return An image tensor.
+#' @examples
+#' @import tensorflow
+#'
+load_img <- function(file,standardize=FALSE) {
+  #catch error caused by missing files and zero-length files
+  if(!is.null(tryCatch(image<-tf$io$read_file(file), error = function(e)NULL))){
+    image<-tf$image$decode_jpeg(image,channels = 3,try_recover_truncated = T)
+    if(standardize)images<-tf$image$convert_image_dtype(image,dtype = tf$float32)
+  }else{
+    image<-tf$zeros(as.integer(c(299,299,3)),dtype = tf$float32)
+  }
+  image
+}
+
 #' @title Load and resize an image and return an image tensor.
 #'
 #' @description Load and resize an image and return an image tensor. Internal function to be called by image generator function.
@@ -44,7 +98,7 @@ cropImageGenerator<-function(files,boxes,resize_height=456,resize_width=456,stan
 #' @examples
 #' @import tensorflow
 #'
-load_img_resize <- function(file, height = 299, width = 299,standardize=TRUE) {
+load_img_resize <- function(file, height = 299, width = 299,standardize=FALSE) {
   size <- as.integer(c(height, width))
   
   #catch error caused by missing files and zero-length files
@@ -52,6 +106,42 @@ load_img_resize <- function(file, height = 299, width = 299,standardize=TRUE) {
     image<-tf$cond(tf$equal(tf$strings$length(image),as.integer(0)),function() tf$zeros(as.integer(c(height,width,3)),dtype = tf$float32),
                    function() tf$image$decode_jpeg(image,channels = 3,try_recover_truncated = T) %>% 
                      tf$image$resize(size = size))
+    if(standardize)images<-tf$image$convert_image_dtype(image,dtype = tf$float32)
+  }else{
+    image<-tf$zeros(as.integer(c(height,width,3)),dtype = tf$float32)
+  }
+  image
+}
+
+
+#' @title Load, resize and crop an image and return an image tensor.
+#'
+#' @description Load a JPEG image and crop it to a bounding box. Internal function to be called by image generator function.
+#'
+#' @param data a list with the first element being a path to an image file and the next four arguments being the bounding box coordinates.
+#' @param height the height the cropped image will be resized to.
+#' @param width the width the cropped image will be resized to.
+#' @param standardize standardize the image, TRUE or FALSE.
+#' @param batch_size the batch size for the image generator.
+#'
+#' @return A Tensorflow image data generator.
+#' @examples
+#' @import tensorflow
+#'
+load_img_resize_crop <- function(data, height = 299, width = 299,standardize=FALSE) {
+  
+  #catch error caused by missing files and zero-length files
+  if(!is.null(tryCatch(image<-tf$io$read_file(data[[1]]), error = function(e)NULL))){
+    image<-tf$cond(tf$equal(tf$strings$length(image),as.integer(0)),function() tf$zeros(as.integer(c(height,width,3)),dtype = tf$float32),
+                   function(){image<-tf$image$decode_jpeg(image,channels = 3,try_recover_truncated = T)
+                   imgdim<-tf$cast(tf$unstack(tf$shape(image)),tf$float32)
+                   crop_top<-tf$cast(imgdim[[1]]*data[[2]],tf$int32)
+                   crop_left<-tf$cast(imgdim[[0]]*data[[3]],tf$int32)
+                   crop_height<-tf$cast(imgdim[[1]]*data[[4]],tf$int32)
+                   crop_width<-tf$cast(imgdim[[0]]*data[[5]],tf$int32)
+                   image<-tf$image$crop_to_bounding_box(image,crop_left,crop_top,crop_width,crop_height) %>%
+                     tf$image$resize_with_pad(as.integer(height),as.integer(width),method="bicubic")
+                   })
     if(standardize)images<-tf$image$convert_image_dtype(image,dtype = tf$float32)
   }else{
     image<-tf$zeros(as.integer(c(height,width,3)),dtype = tf$float32)
@@ -72,43 +162,8 @@ load_img_resize <- function(file, height = 299, width = 299,standardize=TRUE) {
 #' @examples
 #'
 #'
-image_label<-function(data, height = 299, width = 299,standardize=TRUE){
+image_label<-function(data, height = 299, width = 299,standardize=FALSE){
   image<-load_img_resize(data[[1]],height,width,standardize)
   list(image,data[[2]])
 }
 
-
-#' @title Load, resize and crop an image and return an image tensor.
-#'
-#' @description Load a JPEG image and crop it to a bounding box. Internal function to be called by image generator function.
-#'
-#' @param data a list with the first element being a path to an image file and the next four arguments being the bounding box coordinates.
-#' @param height the height the cropped image will be resized to.
-#' @param width the width the cropped image will be resized to.
-#' @param standardize standardize the image, TRUE or FALSE.
-#' @param batch_size the batch size for the image generator.
-#'
-#' @return A Tensorflow image data generator.
-#' @examples
-#' @import tensorflow
-#'
-load_img_resize_crop <- function(data, height = 299, width = 299,standardize=TRUE) {
-  
-  #catch error caused by missing files and zero-length files
-  if(!is.null(tryCatch(image<-tf$io$read_file(data[[1]]), error = function(e)NULL))){
-    image<-tf$cond(tf$equal(tf$strings$length(image),as.integer(0)),function() tf$zeros(as.integer(c(height,width,3)),dtype = tf$float32),
-                   function(){image<-tf$image$decode_jpeg(image,channels = 3,try_recover_truncated = T)
-                   imgdim<-tf$cast(tf$unstack(tf$shape(image)),tf$float32)
-                   crop_top<-tf$cast(imgdim[[1]]*data[[2]],tf$int32)
-                   crop_left<-tf$cast(imgdim[[0]]*data[[3]],tf$int32)
-                   crop_height<-tf$cast(imgdim[[1]]*data[[4]],tf$int32)
-                   crop_width<-tf$cast(imgdim[[0]]*data[[5]],tf$int32)
-                   image<-tf$image$crop_to_bounding_box(image,crop_left,crop_top,crop_width,crop_height) %>%
-                     tf$image$resize_with_pad(as.integer(height),as.integer(width),method="bicubic")
-                   })
-    if(standardize)images<-tf$image$convert_image_dtype(image,dtype = tf$float32)
-  }else{
-    image<-tf$zeros(as.integer(c(height,width,3)),dtype = tf$float32)
-  }
-  image
-}
