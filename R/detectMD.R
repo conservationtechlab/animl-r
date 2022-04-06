@@ -14,12 +14,15 @@
 #'
 #' @examples
 #' \dontrun{
-#'  images<-read_exif(imagedir,tags=c("filename", "directory", "DateTimeOriginal", "FileModifyDate"), recursive = TRUE)
+#'  images <- read_exif(imagedir, tags = c("filename", "directory", "DateTimeOriginal", "FileModifyDate"), recursive = TRUE)
 #'  colnames(images)[1] <- "FilePath"
 #'  mdsession <- loadMDModel(mdmodel)
 #'  mdres <- classifyImageMD(mdsession, images$FilePath[1])
 #' }
 detectObject <- function(mdsession, imagefile, min_conf = 0.1) {
+  if (!("mdsession" %in% class(mdsession))) 
+    stop("Expecting a mdsession object.")
+  
   np <- reticulate::import("numpy")
   image <- keras::image_load(imagefile)
   image_tensor <- mdsession$graph$get_tensor_by_name("image_tensor:0")
@@ -67,12 +70,15 @@ detectObject <- function(mdsession, imagefile, min_conf = 0.1) {
 #'   resultsfile = mdresultsfile, checkpoint = 2500
 #' )
 #' }
+
 detectObjectBatch <- function(mdsession, images, min_conf = 0.1, batch_size = 1, resultsfile = NULL, checkpoint = 5000) {
-  # tf <- reticulate::import("tensorflow")
+  if (!("mdsession" %in% class(mdsession))) 
+    stop("Expecting a mdsession object.")
+  
   if (!is.null(resultsfile)) {
-    if (!dir.exists(dirname(resultsfile))) {
+    if (!dir.exists(dirname(resultsfile))) 
       stop("Results file directory does not exist.\n")
-    }
+    
     if (tolower(substr(resultsfile, nchar(resultsfile) - 5, nchar(resultsfile))) != ".rdata") {
       resultsfile <- paste0(resultsfile, ".RData")
     }
@@ -94,10 +100,7 @@ detectObjectBatch <- function(mdsession, images, min_conf = 0.1, batch_size = 1,
   }
 
   # create data generator
-  dataset <- tfdatasets::tensor_slices_dataset(images)
-  dataset <- tfdatasets::dataset_map_and_batch(dataset, decode_img_full, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
-  dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
-  dataset <- reticulate::as_iterator(dataset)
+  dataset <- ImageGenerator(images, standardize = FALSE, batch_size = batch_size)
 
   # get tensors
   image_tensor <- mdsession$graph$get_tensor_by_name("image_tensor:0")
@@ -137,4 +140,30 @@ detectObjectBatch <- function(mdsession, images, min_conf = 0.1, batch_size = 1,
   pbapply::setpb(pb, steps)
   pbapply::closepb(pb)
   results
+}
+
+#############################################
+#load MegaDetector tensorflow model from .pb file
+#' Title
+#'
+#' @param modelfile .pb file obtained from megaDetector
+#'
+#' @return a tfsession containing the MD model
+#' @export
+#' @import tensorflow
+#'
+#' @examples
+#' \dontrun{
+#' mdmodel <- "megadetector_v4.1.pb"
+#' mdsession <- loadMDModel(mdmodel)
+#' }
+loadMDModel <- function(modelfile) {
+  tfsession <- tf$compat$v1$Session()
+  f <- tf$io$gfile$GFile(modelfile, "rb")
+  tfgraphdef <- tf$compat$v1$GraphDef()
+  tfgraphdef$ParseFromString(f$read())
+  tfsession$graph$as_default()
+  tf$import_graph_def(tfgraphdef, name = "")
+  class(tfsession) <- append(class(tfsession), "mdsession")
+  tfsession
 }
