@@ -10,23 +10,26 @@
 #' \dontrun{
 #' images <- extractFiles("C:\\Users\\usr\\Pictures\\")
 #' }
-buildFileManifest <- function(imagedir,timezone_offset=0){
-  if(!dir.exists(imagedir)){stop("Error: the given directory does not exist")}
-
-  images<-exifr::read_exif(imagedir,tags=c("filename","directory","DateTimeOriginal","FileModifyDate"), recursive = TRUE)
-  colnames(images)[1]<-"FilePath"
-  images<-as.data.frame(images)
-
-  if(!"DateTimeOriginal" %in% names(images)){
-    images$DateTime<-as.POSIXct(images$FileModifyDate,format="%Y:%m:%d %H:%M:%S")
+buildFileManifest <- function(imagedir, timezone_offset = 0) {
+  if (!dir.exists(imagedir)) {
+    stop("Error: the given directory does not exist")
   }
-  else{images$DateTime<-as.POSIXct(images$DateTimeOriginal,format="%Y:%m:%d %H:%M:%S") }
 
-  images$DateTimeModified<-as.POSIXct(images$FileModifyDate,format="%Y:%m:%d %H:%M:%S")
-  images$DateTimeAdjusted <- as.POSIXct(images$FileModifyDate,format="%Y:%m:%d %H:%M:%S")+timezone_offset*3600
+  images <- exifr::read_exif(imagedir, tags = c("filename", "directory", "DateTimeOriginal", "FileModifyDate"), recursive = TRUE)
+  colnames(images)[1] <- "FilePath"
+  images <- as.data.frame(images)
+
+  if (!"DateTimeOriginal" %in% names(images)) {
+    images$DateTime <- as.POSIXct(images$FileModifyDate, format = "%Y:%m:%d %H:%M:%S")
+  } else {
+    images$DateTime <- as.POSIXct(images$DateTimeOriginal, format = "%Y:%m:%d %H:%M:%S")
+  }
+
+  images$DateTimeModified <- as.POSIXct(images$FileModifyDate, format = "%Y:%m:%d %H:%M:%S")
+  images$DateTimeAdjusted <- as.POSIXct(images$FileModifyDate, format = "%Y:%m:%d %H:%M:%S") + timezone_offset * 3600
 
   # assumes global variables datadir and filemanifest
-  #try(write.csv(files,file=paste0(images,filemanifest),row.names = F,quote = F))
+  # try(write.csv(files,file=paste0(images,filemanifest),row.names = F,quote = F))
 
   return(images)
 }

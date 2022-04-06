@@ -11,17 +11,19 @@
 #'
 #' @examples
 #' \dontrun{
-#' alldata <- applyPredictions(animals,empty,classfile,pred, counts = FALSE)
+#' alldata <- applyPredictions(animals, empty, classfile, pred, counts = FALSE)
 #' }
-applyPredictions <- function(animals,empty,classfile,pred, counts = FALSE){
-  classes<-read.table(classfile,stringsAsFactors = F)$x
+applyPredictions <- function(animals, empty, classfile, pred, counts = FALSE) {
+  classes <- read.table(classfile, stringsAsFactors = F)$x
 
-  animals$prediction<-classes[apply(pred,1,which.max)]
-  animals$confidence <- apply(pred,1,max) * animals$conf
+  animals$prediction <- classes[apply(pred, 1, which.max)]
+  animals$confidence <- apply(pred, 1, max) * animals$conf
 
-  if(counts){table(classes[apply(pred,1,which.max)])}
+  if (counts) {
+    table(classes[apply(pred, 1, which.max)])
+  }
 
-  #merge with empty data
-  alldata <- rbind(animals,empty)
+  # merge with empty data
+  alldata <- rbind(animals, empty)
   alldata
 }

@@ -8,13 +8,12 @@
 #'
 #' @examples
 #' \dontrun{
-#' testMD(imagesall,mdsession)
+#' testMD(imagesall, mdsession)
 #' }
-testMD <- function(imagesall,mdsession){
-  f <- dplyr::sample_n(imagesall,1)
-  jpg<-jpeg::readJPEG(f$Frame)
+testMD <- function(imagesall, mdsession) {
+  f <- dplyr::sample_n(imagesall, 1)
+  jpg <- jpeg::readJPEG(f$Frame)
   plot(as.raster(jpg))
-  mdres<-detectObject(mdsession,f$Frame)
+  mdres <- detectObject(mdsession, f$Frame)
   plotBoxes(mdres)
-
 }
