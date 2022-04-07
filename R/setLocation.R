@@ -26,7 +26,7 @@ setLocation <- function(files,basedir,adjust = 0,rename=TRUE,region=NA,site=NA,c
   }else{files$Camera<-camera}
 
   if(rename){
-    files$NewName=paste(files$Region,files$Site,format(files$DateTime,format="%Y%m%d_%H%M%S"),files$FileName,sep="_")
+    files$NewName=paste(files$Region,files$Site,format(files$DateTimeOriginal,format="%Y%m%d_%H%M%S"),files$FileName,sep="_")
   }
   else{
     files$NewName=files$FileName

@@ -1,6 +1,7 @@
 #' Extract exif data and create dataframe, adjust time if necessary.
 #'
 #' @param imagedir file path
+#' @param outfile file path to which the data frame should be saved
 #' @param timezone_offset integer to adjust file modify time
 #'
 #' @return images
@@ -10,10 +11,17 @@
 #' \dontrun{
 #' images <- extractFiles("C:\\Users\\usr\\Pictures\\")
 #' }
-buildFileManifest <- function(imagedir,timezone_offset=0){
-  if(!dir.exists(imagedir)){stop("Error: the given directory does not exist")}
+buildFileManifest <- function(imagedir,outfile=NULL,timezone_offset=0){
+  if(!dir.exists(imagedir)){stop("The given directory does not exist.")}
 
-  images<-exifr::read_exif(imagedir,tags=c("filename","directory","DateTimeOriginal","FileModifyDate"), recursive = TRUE)
+  images <- tryCatch(
+    {exifr::read_exif(imagedir,tags=c("filename","directory","DateTimeOriginal","FileModifyDate"), recursive = TRUE)},
+    error=function(cond) {return(NULL)},
+    warning=function(cond) {},
+    finally={}
+  )
+  if(length(images)==0){stop("No files found in directory.")}
+
   colnames(images)[1]<-"FilePath"
   images<-as.data.frame(images)
 
@@ -25,8 +33,8 @@ buildFileManifest <- function(imagedir,timezone_offset=0){
   images$DateTimeModified<-as.POSIXct(images$FileModifyDate,format="%Y:%m:%d %H:%M:%S")
   images$DateTimeAdjusted <- as.POSIXct(images$FileModifyDate,format="%Y:%m:%d %H:%M:%S")+timezone_offset*3600
 
-  # assumes global variables datadir and filemanifest
-  #try(write.csv(files,file=paste0(images,filemanifest),row.names = F,quote = F))
+  # Save file manifest
+  saveData(images,outfile)
 
   return(images)
 }

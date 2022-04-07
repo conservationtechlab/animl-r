@@ -4,6 +4,7 @@
 #'
 #' @param files dataframe of videos
 #' @param outdir directory to save frames to
+#' @param outfile file to which results will be saved
 #' @param format output format for frames, defaults to jpg
 #' @param fps frames per second, otherwise determine mathematically
 #' @param frames number of frames to sample
@@ -17,7 +18,8 @@
 #' \dontrun{
 #' frames <- imagesFromVideos(videos,outdir="C:\\Users\\usr\\Videos\\",frames=5)
 #' }
-imagesFromVideos<-function (files, outdir = tempfile(), format = "jpg", fps = NULL,frames=NULL,parallel=FALSE,nproc=1) {
+imagesFromVideos<-function (files, outdir = tempfile(), outfile=NULL, format = "jpg", fps = NULL,frames=NULL,parallel=FALSE,nproc=1) {
+  if(!is(files,"data.frame"){stop("Error: 'mdresults' must be Data Frame.")}
   if(outdir!="" & !dir.exists(outdir)){
     if(!dir.create(outdir,recursive = TRUE))
       stop("Output directory invalid.\n")}
@@ -78,17 +80,11 @@ imagesFromVideos<-function (files, outdir = tempfile(), format = "jpg", fps = NU
 
   results<-do.call(rbind,results)
   videoframes<-merge(videos,results)
-  imagesall <- rbind(images,videoframes)
+  allframes <- rbind(images,videoframes)
 
-  #assumes setDirectory()
-  #try(write.csv(imagesall,file=paste0(datadir,imageframes),row.names = F,quote = F))
+  #save frames
+  saveData(allframes,outfile)
 
-  imagesall
+  allframes
 }
-
-
-
-
-
-
 

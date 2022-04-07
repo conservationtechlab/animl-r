@@ -1,4 +1,14 @@
-# matchBox <- function(first,second,buffer = 0.001){
+#' Title
+#'
+#' @param first
+#' @param second
+#' @param buffer
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#matchBox <- function(first,second,buffer = 0.001){
 #   #box is close enough
 #   if((abs(first$bbox1 - second$bbox1) <= buffer) && (abs(first$bbox2 - second$bbox2) <= buffer) &&
 #      (abs(first$bbox3 - second$bbox3) <= buffer) && (abs(first$bbox4 - second$bbox4) <= buffer)){

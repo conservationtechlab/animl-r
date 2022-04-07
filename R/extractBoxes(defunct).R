@@ -1,3 +1,7 @@
+# This functions are defunct/extraneous and need maintenance to bring in line
+# with the rest of the package.
+
+
 #' Extract bounding boxes for a single image and save as new images
 #'
 #' Requires the unflattened raw MD output

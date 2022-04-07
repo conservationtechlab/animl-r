@@ -21,7 +21,8 @@
 #'  mdres<-classifyImageMD(mdsession,images$FilePath[1])
 #' }
 detectObject<-function(mdsession,imagefile,min_conf=0.1){
-  if(!("mdsession" %in% class(mdsession)))stop("Expecting a mdsession object.")
+  if(!("mdsession" %in% class(mdsession)))stop("Error: expecting a mdsession object.")
+  if(!file.exists(imagefile)){stop("Error: the given image does not exist.")}
   np<-reticulate::import("numpy")
   image<-keras::image_load(imagefile)
   image_tensor=mdsession$graph$get_tensor_by_name('image_tensor:0')
@@ -68,7 +69,7 @@ detectObjectBatch<-function(mdsession,images,min_conf=0.1,batch_size=1,resultsfi
     if(!dir.exists(dirname(resultsfile)))stop("Results file directory does not exist.\n")
     if(tolower(substr(resultsfile,nchar(resultsfile)-5,nchar(resultsfile))) != ".rdata")
       resultsfile<-paste0(resultsfile,".RData")
-    
+
     #if results file exists prompt user to load it and resume
     if(!is.null(resultsfile) & file.exists(resultsfile)){
       if(tolower(readline(prompt="Results file exists, would you like to resume? y/n: "))=="y"){
@@ -87,7 +88,7 @@ detectObjectBatch<-function(mdsession,images,min_conf=0.1,batch_size=1,resultsfi
 
   #create data generator
   dataset<-ImageGenerator(images,standardize = FALSE,batch_size = batch_size)
-  
+
   #get tensors
   image_tensor = mdsession$graph$get_tensor_by_name('image_tensor:0')
   box_tensor = mdsession$graph$get_tensor_by_name('detection_boxes:0')
@@ -119,6 +120,7 @@ detectObjectBatch<-function(mdsession,images,min_conf=0.1,batch_size=1,resultsfi
   }
   pbapply::setpb(pb,steps)
   pbapply::closepb(pb)
+  save(results,file=resultsfile)
   results
 }
 
@@ -138,6 +140,7 @@ detectObjectBatch<-function(mdsession,images,min_conf=0.1,batch_size=1,resultsfi
 #' mdsession<-loadMDModel(mdmodel)
 #' }
 loadMDModel<-function(modelfile){
+  if(!file.exists(modelfile)){stop("The given MD model does not exist. Check path.")}
   tfsession<-tf$compat$v1$Session()
   f<-tf$io$gfile$GFile(modelfile,"rb")
   tfgraphdef<-tf$compat$v1$GraphDef()
