@@ -5,7 +5,7 @@ Animl comprises a variety of machine learning tools for analyzing ecological dat
 ## Table of Contents
 1. [Camera Trap Classificaton](#camera-trap-classification)
 2. [Models](#models)
-3. 
+3. [Installation](#installation)
 
 ## Camera Trap Classification
 
@@ -90,5 +90,8 @@ Geographical regions represented:
 * African Savanna
 * Southwest United States
 
-## What do I need to run animl?
+## Installation
+
+#### Requirements
+animl (R package) requires R >= 4.0
 
