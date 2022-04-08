@@ -12,8 +12,14 @@
 #' mdres <- classifyImageMD(mdsession, images$FilePath[30000])
 #' plotBoxes(mdres, minconf = 0.5)
 #' }
+<<<<<<< HEAD:R/plotBoxes.R
 plotBoxes <- function(image, label = FALSE, minconf = 0) {
   jpg <- jpeg::readJPEG(image$FilePath)
+=======
+plotBoxes<-function(image,label=FALSE,minconf=0){
+  if(!file.exists(image$FilePath)){stop("The given image file does not exist.")}
+  jpg<-jpeg::readJPEG(image$FilePath)
+>>>>>>> origin:R/plotBoxes(defunct).R
   plot(grDevices::as.raster(jpg)) ## where is this from??
   jpgy <- dim(jpg)[1]
   jpgx <- dim(jpg)[2]

@@ -33,10 +33,10 @@ setupDirectory <- function(imagedir) {
     dir.create(linkdir, recursive = T)
   }
 
-  filemanifest <<- "FileManifest.csv"
-  imageframes <<- "ImageFrames.csv"
-  resultsfile <<- "Results.csv"
-  cropfile <<- "Crops.csv"
-  mdresults <<- "mdres.RData"
-  predresults <<- "pred.RData"
+  filemanifest <<- paste0(datadir,"FileManifest.csv")
+  imageframes <<- paste0(datadir,"ImageFrames.csv")
+  resultsfile <<- paste0(datadir,"Results.csv")
+  cropfile <<- paste0(datadir,"Crops.csv")
+  mdresults <<- paste0(datadir,"mdres.RData")
+  predresults <<- paste0(datadir,"pred.RData")
 }
