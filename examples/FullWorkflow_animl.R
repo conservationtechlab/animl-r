@@ -17,7 +17,8 @@ library(jpeg)
 library(dplyr)
 
 
-imagedir <- "/home/kyra/animl/examples/test_data/Peru"
+
+imagedir <- "/mnt/projects/Local_Lion/delaRosa_Cougar/BF/Animal/"
 
 #create global variable file and directory names
 setupDirectory(imagedir)
@@ -27,24 +28,13 @@ setupDirectory(imagedir)
 #===============================================================================
 
 # Read exif data for all images within base directory
-files <- buildFileManifest(imagedir)
+files <- buildFileManifest(imagedir,outfile = filemanifest)
 
 # Set Region/Site/Camera names
-files <- setLocation(files,imagedir)
+files <- setLocation(files, imagedir, adjust = -2)
 
 # Process videos, extract frames for ID
-imagesall<-imagesFromVideos(files,outdir=vidfdir,frames=5,parallel=T,nproc=12)
-
-#--------------------
-# save point
-write.csv(files,file=paste0(datadir,filemanifest),row.names = F,quote = F)
-write.csv(imagesall,file=paste0(datadir,imageframes),row.names = F,quote = F)
-
-# load point
-files<-read.csv(file=paste0(datadir,imagefile),stringsAsFactors = F)
-files$DateTime<-as.POSIXct(files$DateTime)
-imagesall<-read.csv(file=paste0(datadir,imageframes),stringsAsFactors = F)
-#--------------------
+allframes<-imagesFromVideos(files,outdir=vidfdir,outfile=imageframes,frames=5,parallel=T,nproc=12)
 
 
 #===============================================================================
@@ -59,26 +49,19 @@ mdsession<-loadMDModel("/mnt/machinelearning/megaDetector/megadetector_v4.1.pb")
 testMD(imagesall,mdsession)
 #+++++++++++++++++++++
 
-# Classify all images
-mdres <- detectObjectBatch(mdsession,imagesall$Frame,resultsfile=paste0(datadir,mdresults),checkpoint = 2500)
-imagesall <- parseMDsimple(imagesall, mdres)
+mdres <- detectObjectBatch(mdsession,allframes$Frame, outfile = mdresults, checkpoint = 2500)
 
-#--------------------
-# save point
-write.csv(imagesall,paste0(datadir,cropfile),row.names=F,quote = F)
-save(mdres,file=paste0(datadir,mdresults))
+allframes <- parseMD(allframes, mdres)
 
-# load point
-imagesall<-read.csv(paste0(datadir,cropfile),stringsAsFactors = F)
-load(file = paste0(datadir,mdresults))
-#--------------------
 
 #null out low-confidence crops
 #check the "empty" folder, if you find animals, lower the confidence or do not run
-imagesall$max_detection_category[imagesall$confidence<0.1]<-0
+allframes$max_detection_category[allframes$max_detection_conf<0.1] <- 0
 
-animals <- imagesall[imagesall$max_detection_category==1,]
-empty <- setEmpty(animals)
+#select animal crops for classification
+animals <- allframes[allframes$max_detection_category==1,]
+empty <- setEmpty(allframes)
+
 
 #===============================================================================
 # Species Classifier
@@ -86,40 +69,17 @@ empty <- setEmpty(animals)
 
 modelfile <- "/mnt/machinelearning/Models/Southwest/EfficientNetB5_456_Unfrozen_01_0.58_0.82.h5"
 
-pred<-classifySpecies(animals,modelfile,resize=456,standardize=FALSE,batch_size = 64,workers=8)
+pred <- classifySpecies(animals,modelfile,resize=456,standardize=FALSE,batch_size = 64,workers=8)
 
-# Combine data
-alldata <- applyPredictions(animals,empty,"/mnt/machinelearning/Models/Southwest/classes.txt",pred,counts = TRUE)
-
-
-classes<-read.table("/mnt/machinelearning/Models/Southwest/classes.txt",stringsAsFactors = F)$x
-
-animals$prediction<-classes[apply(pred,1,which.max)]
-
-#--------------------
-# save point
-save(pred,file=paste0(datadir,predresults))
-
-load(file=paste0(datadir,predresults))
-#--------------------
-
-#===============================================================================
-# Post-Process Species Results
-#===============================================================================
-
+alldata <- applyPredictions(animals,empty,"/mnt/machinelearning/Models/Southwest/classes.txt",pred,
+                            outfile = predresults, counts = TRUE)
 
 # Classify sequences
 #mdanimals <- classifySequence(mdanimals,pred,classes,18,maxdiff=60)
 alldata <- poolCrops(alldata)
 
 
-#--------------------
-# save point
-write.csv(alldata,paste0(datadir,resultsfile),row.names = F,quote = F)
 
-# load results
-alldata<-read.csv(paste0(datadir,resultsfile),stringsAsFactors = F)
-#--------------------
 
 #===============================================================================
 # Symlinks
