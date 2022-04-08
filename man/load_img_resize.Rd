@@ -4,7 +4,7 @@
 \alias{load_img_resize}
 \title{Load and resize an image and return an image tensor.}
 \usage{
-load_img_resize(file, height = 299, width = 299, standardize = FALSE)
+load_img_resize(file, height = 299, width = 299, standardize = TRUE)
 }
 \arguments{
 \item{file}{path to a JPEG file}

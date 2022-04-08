@@ -11,30 +11,39 @@
 #' \dontrun{
 #' images <- extractFiles("C:\\Users\\usr\\Pictures\\")
 #' }
-buildFileManifest <- function(imagedir,outfile=NULL,timezone_offset=0){
-  if(!dir.exists(imagedir)){stop("The given directory does not exist.")}
+buildFileManifest <- function(imagedir, outfile = NULL, timezone_offset = 0) {
+  if (!dir.exists(imagedir)) {
+    stop("The given directory does not exist.")
+  }
 
   images <- tryCatch(
-    {exifr::read_exif(imagedir,tags=c("filename","directory","DateTimeOriginal","FileModifyDate"), recursive = TRUE)},
-    error=function(cond) {return(NULL)},
-    warning=function(cond) {},
-    finally={}
+    {
+      exifr::read_exif(imagedir, tags = c("filename", "directory", "DateTimeOriginal", "FileModifyDate"), recursive = TRUE)
+    },
+    error = function(cond) {
+      return(NULL)
+    },
+    warning = function(cond) {},
+    finally = {}
   )
-  if(length(images)==0){stop("No files found in directory.")}
-
-  colnames(images)[1]<-"FilePath"
-  images<-as.data.frame(images)
-
-  if(!"DateTimeOriginal" %in% names(images)){
-    images$DateTime<-as.POSIXct(images$FileModifyDate,format="%Y:%m:%d %H:%M:%S")
+  if (length(images) == 0) {
+    stop("No files found in directory.")
   }
-  else{images$DateTime<-as.POSIXct(images$DateTimeOriginal,format="%Y:%m:%d %H:%M:%S") }
 
-  images$DateTimeModified<-as.POSIXct(images$FileModifyDate,format="%Y:%m:%d %H:%M:%S")
-  images$DateTimeAdjusted <- as.POSIXct(images$FileModifyDate,format="%Y:%m:%d %H:%M:%S")+timezone_offset*3600
+  colnames(images)[1] <- "FilePath"
+  images <- as.data.frame(images)
+
+  if (!"DateTimeOriginal" %in% names(images)) {
+    images$DateTime <- as.POSIXct(images$FileModifyDate, format = "%Y:%m:%d %H:%M:%S")
+  } else {
+    images$DateTime <- as.POSIXct(images$DateTimeOriginal, format = "%Y:%m:%d %H:%M:%S")
+  }
+
+  images$DateTimeModified <- as.POSIXct(images$FileModifyDate, format = "%Y:%m:%d %H:%M:%S")
+  images$DateTimeAdjusted <- as.POSIXct(images$FileModifyDate, format = "%Y:%m:%d %H:%M:%S") + timezone_offset * 3600
 
   # Save file manifest
-  saveData(images,outfile)
+  saveData(images, outfile)
 
   return(images)
 }

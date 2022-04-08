@@ -4,7 +4,7 @@
 \alias{load_img_resize_crop}
 \title{Load, resize and crop an image and return an image tensor.}
 \usage{
-load_img_resize_crop(data, height = 299, width = 299, standardize = FALSE)
+load_img_resize_crop(data, height = 299, width = 299, standardize = TRUE)
 }
 \arguments{
 \item{data}{a list with the first element being a path to an image file and the next four arguments being the bounding box coordinates.}

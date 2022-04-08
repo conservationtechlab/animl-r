@@ -8,16 +8,17 @@
 #'
 #' @examples
 #' \dontrun{
-#' testMD(imagesall,mdsession)
+#' testMD(imagesall, mdsession)
 #' }
-testMD <- function(imagesall,mdsession){
-  if(!is(animals,"data.frame"){stop("'animals' must be DataFrame")}
-  if(!("mdsession" %in% class(mdsession)))stop("Expecting a mdsession object.")
+testMD <- function(imagesall, mdsession) {
+  if (!is(animals, "data.frame")) {
+    stop("'animals' must be DataFrame")
+  }
+  if (!("mdsession" %in% class(mdsession))) stop("Expecting a mdsession object.")
 
-  f <- dplyr::sample_n(imagesall,1)
-  jpg<-jpeg::readJPEG(f$Frame)
+  f <- dplyr::sample_n(imagesall, 1)
+  jpg <- jpeg::readJPEG(f$Frame)
   plot(as.raster(jpg))
-  mdres<-detectObject(mdsession,f$Frame)
+  mdres <- detectObject(mdsession, f$Frame)
   plotBoxes(mdres)
-
 }

@@ -15,19 +15,27 @@
 #' @export
 #' @import tensorflow
 #'
-cropImageGenerator<-function(files,boxes,resize_height=456,resize_width=456,standardize=FALSE,batch_size=32){
-  #create data generator for  training (image/label pair)
-  if(!(is.vector(files) && class(files)=="character"))stop("Files needs to be a vector of file names.\n")
-  if(ncol(boxes)!=4)stop("Boxes must have four columns.\n")
-  if(sum(apply(boxes,2,is.numeric))!=4)stop("boxes must be numeric.\n")
-  if(length(files)!=nrow(boxes))stop("Boxes must have the same number of rows as the length of files.\n")
+cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width = 456, standardize = FALSE, batch_size = 32) {
+  # create data generator for  training (image/label pair)
+  if (!(is.vector(files) && class(files) == "character")) {
+    stop("Files needs to be a vector of file names.\n")
+  }
+  if (ncol(boxes) != 4) {
+    stop("Boxes must have four columns.\n")
+  }
+  if (sum(apply(boxes, 2, is.numeric)) != 4) {
+    stop("boxes must be numeric.\n")
+  }
+  if (length(files) != nrow(boxes)) {
+    stop("Boxes must have the same number of rows as the length of files.\n")
+  }
 
-  data<-data.frame(file=files,boxes)
-  dataset<-tfdatasets::tensor_slices_dataset(data)
-  dataset<-tfdatasets::dataset_map_and_batch(dataset,function(x)load_img_resize_crop(x,resize_height,resize_width,standardize),batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
-  dataset<-tfdatasets::dataset_prefetch(dataset,buffer_size = tf$data$experimental$AUTOTUNE)
-  #dataset<-dataset$apply(tf$data$experimental$ignore_errors())
-  dataset<-tfdatasets::as_iterator(dataset)
+  data <- data.frame(file = files, boxes)
+  dataset <- tfdatasets::tensor_slices_dataset(data)
+  dataset <- tfdatasets::dataset_map_and_batch(dataset, function(x) load_img_resize_crop(x, resize_height, resize_width, standardize), batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
+  dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
+  # dataset<-dataset$apply(tf$data$experimental$ignore_errors())
+  dataset <- tfdatasets::as_iterator(dataset)
   dataset
 }
 
@@ -47,19 +55,21 @@ cropImageGenerator<-function(files,boxes,resize_height=456,resize_width=456,stan
 #' @export
 #' @import tensorflow
 #'
-ImageGenerator<-function(files,resize_height=NULL,resize_width=NULL,standardize=FALSE,batch_size=32){
-  #create data generator for  training (image/label pair)
-  if(!(is.vector(files) && class(files)=="character"))stop("Please provide a vector of file names.\n")
-  dataset<-tfdatasets::tensor_slices_dataset(files)
-  if(is.null(resize_height) || is.null(resize_width)){
-    message("No values were provided for resize, returning full-size images.")
-    dataset<-tfdatasets::dataset_map_and_batch(dataset,function(x)load_img(x,standardize),batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
-    #dataset<-dataset$apply(tf$data$experimental$ignore_errors())
-  }else{
-    dataset<-tfdatasets::dataset_map_and_batch(dataset,function(x)load_img_resize(x,resize_height,resize_width,standardize),batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
+ImageGenerator <- function(files, resize_height = NULL, resize_width = NULL, standardize = FALSE, batch_size = 32) {
+  # create data generator for  training (image/label pair)
+  if (!(is.vector(files) && class(files) == "character")) {
+    stop("Please provide a vector of file names.\n")
   }
-  dataset<-tfdatasets::dataset_prefetch(dataset,buffer_size = tf$data$experimental$AUTOTUNE)
-  dataset<-tfdatasets::as_iterator(dataset)
+  dataset <- tfdatasets::tensor_slices_dataset(files)
+  if (is.null(resize_height) || is.null(resize_width)) {
+    message("No values were provided for resize, returning full-size images.")
+    dataset <- tfdatasets::dataset_map_and_batch(dataset, function(x) load_img(x, standardize), batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
+    # dataset<-dataset$apply(tf$data$experimental$ignore_errors())
+  } else {
+    dataset <- tfdatasets::dataset_map_and_batch(dataset, function(x) load_img_resize(x, resize_height, resize_width, standardize), batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
+  }
+  dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
+  dataset <- tfdatasets::as_iterator(dataset)
   dataset
 }
 
@@ -75,13 +85,13 @@ ImageGenerator<-function(files,resize_height=NULL,resize_width=NULL,standardize=
 #' @examples
 #' @import tensorflow
 #'
-load_img <- function(file,standardize=FALSE) {
-  #catch error caused by missing files and zero-length files
-  if(!is.null(tryCatch(image<-tf$io$read_file(file), error = function(e)NULL))){
-    image<-tf$image$decode_jpeg(image,channels = 3,try_recover_truncated = T)
-    if(standardize)images<-tf$image$convert_image_dtype(image,dtype = tf$float32)
-  }else{
-    image<-tf$zeros(as.integer(c(299,299,3)),dtype = tf$float32)
+load_img <- function(file, standardize = FALSE) {
+  # catch error caused by missing files and zero-length files
+  if (!is.null(tryCatch(image <- tf$io$read_file(file), error = function(e) NULL))) {
+    image <- tf$image$decode_jpeg(image, channels = 3, try_recover_truncated = T)
+    if (standardize) images <- tf$image$convert_image_dtype(image, dtype = tf$float32)
+  } else {
+    image <- tf$zeros(as.integer(c(299, 299, 3)), dtype = tf$float32)
   }
   image
 }
@@ -99,17 +109,21 @@ load_img <- function(file,standardize=FALSE) {
 #' @examples
 #' @import tensorflow
 #'
-load_img_resize <- function(file, height = 299, width = 299,standardize=FALSE) {
+load_img_resize <- function(file, height = 299, width = 299, standardize = FALSE) {
   size <- as.integer(c(height, width))
 
-  #catch error caused by missing files and zero-length files
-  if(!is.null(tryCatch(image<-tf$io$read_file(file), error = function(e)NULL))){
-    image<-tf$cond(tf$equal(tf$strings$length(image),as.integer(0)),function() tf$zeros(as.integer(c(height,width,3)),dtype = tf$float32),
-                   function() tf$image$decode_jpeg(image,channels = 3,try_recover_truncated = T) %>%
-                     tf$image$resize(size = size))
-    if(standardize)images<-tf$image$convert_image_dtype(image,dtype = tf$float32)
-  }else{
-    image<-tf$zeros(as.integer(c(height,width,3)),dtype = tf$float32)
+  # catch error caused by missing files and zero-length files
+  if (!is.null(tryCatch(image <- tf$io$read_file(file), error = function(e) NULL))) {
+    image <- tf$cond(
+      tf$equal(tf$strings$length(image), as.integer(0)), function() tf$zeros(as.integer(c(height, width, 3)), dtype = tf$float32),
+      function() {
+        tf$image$decode_jpeg(image, channels = 3, try_recover_truncated = T) %>%
+          tf$image$resize(size = size)
+      }
+    )
+    if (standardize) images <- tf$image$convert_image_dtype(image, dtype = tf$float32)
+  } else {
+    image <- tf$zeros(as.integer(c(height, width, 3)), dtype = tf$float32)
   }
   image
 }
@@ -129,23 +143,26 @@ load_img_resize <- function(file, height = 299, width = 299,standardize=FALSE) {
 #' @examples
 #' @import tensorflow
 #'
-load_img_resize_crop <- function(data, height = 299, width = 299,standardize=FALSE) {
+load_img_resize_crop <- function(data, height = 299, width = 299, standardize = FALSE) {
 
-  #catch error caused by missing files and zero-length files
-  if(!is.null(tryCatch(image<-tf$io$read_file(data[[1]]), error = function(e)NULL))){
-    image<-tf$cond(tf$equal(tf$strings$length(image),as.integer(0)),function() tf$zeros(as.integer(c(height,width,3)),dtype = tf$float32),
-                   function(){image<-tf$image$decode_jpeg(image,channels = 3,try_recover_truncated = T)
-                   imgdim<-tf$cast(tf$unstack(tf$shape(image)),tf$float32)
-                   crop_top<-tf$cast(imgdim[[1]]*data[[2]],tf$int32)
-                   crop_left<-tf$cast(imgdim[[0]]*data[[3]],tf$int32)
-                   crop_height<-tf$cast(imgdim[[1]]*data[[4]],tf$int32)
-                   crop_width<-tf$cast(imgdim[[0]]*data[[5]],tf$int32)
-                   image<-tf$image$crop_to_bounding_box(image,crop_left,crop_top,crop_width,crop_height) %>%
-                     tf$image$resize_with_pad(as.integer(height),as.integer(width),method="bicubic")
-                   })
-    if(standardize)images<-tf$image$convert_image_dtype(image,dtype = tf$float32)
-  }else{
-    image<-tf$zeros(as.integer(c(height,width,3)),dtype = tf$float32)
+  # catch error caused by missing files and zero-length files
+  if (!is.null(tryCatch(image <- tf$io$read_file(data[[1]]), error = function(e) NULL))) {
+    image <- tf$cond(
+      tf$equal(tf$strings$length(image), as.integer(0)), function() tf$zeros(as.integer(c(height, width, 3)), dtype = tf$float32),
+      function() {
+        image <- tf$image$decode_jpeg(image, channels = 3, try_recover_truncated = T)
+        imgdim <- tf$cast(tf$unstack(tf$shape(image)), tf$float32)
+        crop_top <- tf$cast(imgdim[[1]] * data[[2]], tf$int32)
+        crop_left <- tf$cast(imgdim[[0]] * data[[3]], tf$int32)
+        crop_height <- tf$cast(imgdim[[1]] * data[[4]], tf$int32)
+        crop_width <- tf$cast(imgdim[[0]] * data[[5]], tf$int32)
+        image <- tf$image$crop_to_bounding_box(image, crop_left, crop_top, crop_width, crop_height) %>%
+          tf$image$resize_with_pad(as.integer(height), as.integer(width), method = "bicubic")
+      }
+    )
+    if (standardize) images <- tf$image$convert_image_dtype(image, dtype = tf$float32)
+  } else {
+    image <- tf$zeros(as.integer(c(height, width, 3)), dtype = tf$float32)
   }
   image
 }
@@ -163,8 +180,8 @@ load_img_resize_crop <- function(data, height = 299, width = 299,standardize=FAL
 #' @examples
 #'
 #'
-image_label<-function(data, height = 299, width = 299,standardize=FALSE){
-  image<-load_img_resize(data[[1]],height,width,standardize)
-  list(image,data[[2]])
+image_label <- function(data, height = 299, width = 299, standardize = FALSE) {
+  image <- load_img_resize(data[[1]], height, width, standardize)
+  list(image, data[[2]])
 }
 

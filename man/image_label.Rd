@@ -4,7 +4,7 @@
 \alias{image_label}
 \title{Load image and return a tensor with an image and a corresponding label.}
 \usage{
-image_label(data, height = 299, width = 299, standardize = FALSE)
+image_label(data, height = 299, width = 299, standardize = TRUE)
 }
 \arguments{
 \item{data}{a list with the first element being an image file path and the second element a label}
