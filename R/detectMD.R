@@ -19,11 +19,11 @@
 #'  mdsession <- loadMDModel(mdmodel)
 #'  mdres <- classifyImageMD(mdsession, images$FilePath[1])
 #' }
-<<<<<<< HEAD
 detectObject <- function(mdsession, imagefile, min_conf = 0.1) {
-  if (!("mdsession" %in% class(mdsession))) 
-    stop("Expecting a mdsession object.")
-  
+  if (!("mdsession" %in% class(mdsession))) stop("Error: expecting a mdsession object.")
+  if (!file.exists(imagefile)) {
+    stop("Error: the given image does not exist.")
+  }
   np <- reticulate::import("numpy")
   image <- keras::image_load(imagefile)
   image_tensor <- mdsession$graph$get_tensor_by_name("image_tensor:0")
@@ -41,24 +41,6 @@ detectObject <- function(mdsession, imagefile, min_conf = 0.1) {
       bbox4 = res[[1]][1, resfilter, 3] - res[[1]][1, resfilter, 1]
     )
   )
-=======
-detectObject<-function(mdsession,imagefile,min_conf=0.1){
-  if(!("mdsession" %in% class(mdsession)))stop("Error: expecting a mdsession object.")
-  if(!file.exists(imagefile)){stop("Error: the given image does not exist.")}
-  np<-reticulate::import("numpy")
-  image<-keras::image_load(imagefile)
-  image_tensor=mdsession$graph$get_tensor_by_name('image_tensor:0')
-  box_tensor = mdsession$graph$get_tensor_by_name('detection_boxes:0')
-  score_tensor = mdsession$graph$get_tensor_by_name('detection_scores:0')
-  class_tensor = mdsession$graph$get_tensor_by_name('detection_classes:0')
-  res<-mdsession$run(list(box_tensor,score_tensor,class_tensor),feed_dict=list("image_tensor:0"=np$expand_dims(image, axis=F)))
-  resfilter<-which(res[[2]]>=min_conf)
-  list(FilePath=imagefile,max_detection_conf=max(res[[2]]),max_detection_category=res[[3]][which(res[[2]]==max(res[[2]]))][1],
-       detections=data.frame(category=res[[3]][resfilter],conf=res[[2]][resfilter],
-                             bbox1=res[[1]][1,resfilter,2],bbox2=res[[1]][1,resfilter,1],
-                             bbox3=res[[1]][1,resfilter,4]-res[[1]][1,resfilter,2],
-                             bbox4=res[[1]][1,resfilter,3]-res[[1]][1,resfilter,1]))
->>>>>>> origin
 }
 
 #' Run MegaDetector on a batch of images
@@ -89,16 +71,10 @@ detectObject<-function(mdsession,imagefile,min_conf=0.1){
 #'   resultsfile = mdresultsfile, checkpoint = 2500
 #' )
 #' }
-<<<<<<< HEAD
-
 detectObjectBatch <- function(mdsession, images, min_conf = 0.1, batch_size = 1, resultsfile = NULL, checkpoint = 5000) {
-  if (!("mdsession" %in% class(mdsession))) 
-    stop("Expecting a mdsession object.")
-  
+  if (!("mdsession" %in% class(mdsession))) stop("Expecting a mdsession object.")
   if (!is.null(resultsfile)) {
-    if (!dir.exists(dirname(resultsfile))) 
-      stop("Results file directory does not exist.\n")
-    
+    if (!dir.exists(dirname(resultsfile))) stop("Results file directory does not exist.\n")
     if (tolower(substr(resultsfile, nchar(resultsfile) - 5, nchar(resultsfile))) != ".rdata") {
       resultsfile <- paste0(resultsfile, ".RData")
     }
@@ -106,18 +82,6 @@ detectObjectBatch <- function(mdsession, images, min_conf = 0.1, batch_size = 1,
     # if results file exists prompt user to load it and resume
     if (!is.null(resultsfile) & file.exists(resultsfile)) {
       if (tolower(readline(prompt = "Results file exists, would you like to resume? y/n: ")) == "y") {
-=======
-detectObjectBatch<-function(mdsession,images,min_conf=0.1,batch_size=1,resultsfile=NULL,checkpoint=5000){
-  if(!("mdsession" %in% class(mdsession)))stop("Expecting a mdsession object.")
-  if(!is.null(resultsfile)){
-    if(!dir.exists(dirname(resultsfile)))stop("Results file directory does not exist.\n")
-    if(tolower(substr(resultsfile,nchar(resultsfile)-5,nchar(resultsfile))) != ".rdata")
-      resultsfile<-paste0(resultsfile,".RData")
-
-    #if results file exists prompt user to load it and resume
-    if(!is.null(resultsfile) & file.exists(resultsfile)){
-      if(tolower(readline(prompt="Results file exists, would you like to resume? y/n: "))=="y"){
->>>>>>> origin
         load(resultsfile)
         images <- images[!(images %in% sapply(results, function(x) x$file))]
         cat(length(results), "records loaded.\n")
@@ -131,19 +95,14 @@ detectObjectBatch<-function(mdsession,images,min_conf=0.1,batch_size=1,resultsfi
     results <- list()
   }
 
-<<<<<<< HEAD
   # create data generator
   dataset <- ImageGenerator(images, standardize = FALSE, batch_size = batch_size)
-=======
-  #create data generator
-  dataset<-ImageGenerator(images,standardize = FALSE,batch_size = batch_size)
 
-  #get tensors
-  image_tensor = mdsession$graph$get_tensor_by_name('image_tensor:0')
-  box_tensor = mdsession$graph$get_tensor_by_name('detection_boxes:0')
-  score_tensor = mdsession$graph$get_tensor_by_name('detection_scores:0')
-  class_tensor = mdsession$graph$get_tensor_by_name('detection_classes:0')
->>>>>>> origin
+  # get tensors
+  image_tensor <- mdsession$graph$get_tensor_by_name("image_tensor:0")
+  box_tensor <- mdsession$graph$get_tensor_by_name("detection_boxes:0")
+  score_tensor <- mdsession$graph$get_tensor_by_name("detection_scores:0")
+  class_tensor <- mdsession$graph$get_tensor_by_name("detection_classes:0")
 
   # get tensors
   image_tensor <- mdsession$graph$get_tensor_by_name("image_tensor:0")
@@ -182,7 +141,7 @@ detectObjectBatch<-function(mdsession,images,min_conf=0.1,batch_size=1,resultsfi
   }
   pbapply::setpb(pb, steps)
   pbapply::closepb(pb)
-  save(results,file=resultsfile)
+  save(results, file = resultsfile)
   results
 }
 
@@ -201,18 +160,13 @@ detectObjectBatch<-function(mdsession,images,min_conf=0.1,batch_size=1,resultsfi
 #' mdmodel <- "megadetector_v4.1.pb"
 #' mdsession <- loadMDModel(mdmodel)
 #' }
-<<<<<<< HEAD
 loadMDModel <- function(modelfile) {
+  if (!file.exists(modelfile)) {
+    stop("The given MD model does not exist. Check path.")
+  }
   tfsession <- tf$compat$v1$Session()
   f <- tf$io$gfile$GFile(modelfile, "rb")
   tfgraphdef <- tf$compat$v1$GraphDef()
-=======
-loadMDModel<-function(modelfile){
-  if(!file.exists(modelfile)){stop("The given MD model does not exist. Check path.")}
-  tfsession<-tf$compat$v1$Session()
-  f<-tf$io$gfile$GFile(modelfile,"rb")
-  tfgraphdef<-tf$compat$v1$GraphDef()
->>>>>>> origin
   tfgraphdef$ParseFromString(f$read())
   tfsession$graph$as_default()
   tf$import_graph_def(tfgraphdef, name = "")

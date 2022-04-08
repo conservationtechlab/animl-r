@@ -10,18 +10,14 @@
 #' \dontrun{
 #' testMD(imagesall, mdsession)
 #' }
-<<<<<<< HEAD
 testMD <- function(imagesall, mdsession) {
+  if (!is(animals, "data.frame")) {
+    stop("'animals' must be DataFrame")
+  }
+  if (!("mdsession" %in% class(mdsession))) stop("Expecting a mdsession object.")
+
   f <- dplyr::sample_n(imagesall, 1)
   jpg <- jpeg::readJPEG(f$Frame)
-=======
-testMD <- function(imagesall,mdsession){
-  if(!is(animals,"data.frame"){stop("'animals' must be DataFrame")}
-  if(!("mdsession" %in% class(mdsession)))stop("Expecting a mdsession object.")
-
-  f <- dplyr::sample_n(imagesall,1)
-  jpg<-jpeg::readJPEG(f$Frame)
->>>>>>> origin
   plot(as.raster(jpg))
   mdres <- detectObject(mdsession, f$Frame)
   plotBoxes(mdres)

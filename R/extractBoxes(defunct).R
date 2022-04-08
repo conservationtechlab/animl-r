@@ -45,9 +45,10 @@ extractBoxes <- function(image, min_conf = 0, buffer = 2, plot = TRUE, return.cr
     s <- image$detections
 
     # extract bounding box
-    if (return.crops) 
+    if (return.crops) {
       crops <- list()
-    
+    }
+
     c <- 1
     for (j in 1:nrow(s)) {
       xmin <- max(0, round(s[j, ]$bbox1 * jpgx, 0))
@@ -60,23 +61,27 @@ extractBoxes <- function(image, min_conf = 0, buffer = 2, plot = TRUE, return.cr
       xmaxb <- min(jpgx, xmax + buffer2)
       yminb <- max(0, ymin - buffer2)
       ymaxb <- min(jpgy, ymax + buffer2)
-      
-      if (length(dim(jpg)) == 2) 
+
+      if (length(dim(jpg)) == 2) {
         dim(jpg) <- c(dim(jpg)[1], dim(jpg)[2], 1)
-      
+      }
+
       crop <- jpg[yminb:ymaxb, xminb:xmaxb, ]
 
       # resize and pad if requested
-      if (!is.na(resize)) 
+      if (!is.na(resize)) {
         crop <- resize_pad(crop, resize)
+      }
 
       # if we return crops save crop in list
-      if (return.crops) 
+      if (return.crops) {
         crops[[c]] <- crop
+      }
 
       # plot cropped image if requested
-      if (plot) 
-        plot(grDevices::as.raster(crop)) ## not sure where raster comes in
+      if (plot) {
+        plot(grDevices::as.raster(crop))
+      } ## not sure where raster comes in
 
       # save image if requested
       imgname <- ""
@@ -87,9 +92,10 @@ extractBoxes <- function(image, min_conf = 0, buffer = 2, plot = TRUE, return.cr
           imgext <- strsplit(basename(imgname), "[.]")[[1]][2]
           imgname <- paste0(dirname(imgname), "/", imgbase, "_c", j, ".", imgext)
         }
-        if (!dir.exists(dirname(imgname))) 
+        if (!dir.exists(dirname(imgname))) {
           dir.create(dirname(imgname), recursive = TRUE)
-        
+        }
+
         jpeg::writeJPEG(crop, imgname, quality = quality)
       }
       line <- data.frame(
@@ -160,10 +166,14 @@ extractAllBoxes <- function(images, min_conf = 0, buffer = 2, save = FALSE, resi
     # set random number generator for cluster
     parallel::clusterSetRNGStream(cl)
 
-    results <- pbapply::pblapply(1:length(images), function(x) { run.parallel(x) }, cl = cl)
+    results <- pbapply::pblapply(1:length(images), function(x) {
+      run.parallel(x)
+    }, cl = cl)
     parallel::stopCluster(cl)
   } else {
-    results <- pbapply::pblapply(1:length(images), function(x) { run.parallel(x) })
+    results <- pbapply::pblapply(1:length(images), function(x) {
+      run.parallel(x)
+    })
   }
   results <- do.call(rbind, results)
   results
@@ -189,9 +199,10 @@ extractAllBoxes <- function(images, min_conf = 0, buffer = 2, save = FALSE, resi
 #' crops <- extractBoxesFromFlat(mdresflat[1, ], save = TRUE, out)
 #' }
 extractBoxesFromFlat <- function(image, min_conf = 0, buffer = 0, plot = TRUE, save = FALSE, resize = NA, outdir = "", quality = 0.8) {
-  if (save & !dir.exists(outdir)) 
+  if (save & !dir.exists(outdir)) {
     stop("Output directory invalid.\n")
-  
+  }
+
   # load image
   jpg <- jpeg::readJPEG(image$image_path)
   jpgy <- dim(jpg)[1]
@@ -209,25 +220,29 @@ extractBoxesFromFlat <- function(image, min_conf = 0, buffer = 0, plot = TRUE, s
   xmaxb <- min(jpgx, xmax + buffer2)
   yminb <- max(0, ymin - buffer2)
   ymaxb <- min(jpgy, ymax + buffer2)
-  if (length(dim(jpg)) == 2) 
+  if (length(dim(jpg)) == 2) {
     dim(jpg) <- c(dim(jpg)[1], dim(jpg)[2], 1)
-  
+  }
+
   crop <- jpg[yminb:ymaxb, xminb:xmaxb, ]
 
   # resize and pad if requested
-  if (!is.na(resize)) 
+  if (!is.na(resize)) {
     crop <- resize_pad(crop, resize)
+  }
 
   # plot cropped image if requested
-  if (plot) 
+  if (plot) {
     plot(grDevices::as.raster(crop))
+  }
 
   # save image if requested
   if (save) {
     imgname <- paste0(outdir, image$crop_rel_path)
-    if (!dir.exists(dirname(imgname))) 
+    if (!dir.exists(dirname(imgname))) {
       dir.create(dirname(imgname), recursive = T)
-    
+    }
+
     jpeg::writeJPEG(crop, imgname, quality = quality)
   }
 }

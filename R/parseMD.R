@@ -10,24 +10,25 @@
 #' \dontrun{
 #' mdresults <- parseMDsimple(mdres)
 #' }
-parseMD<-function(allframes, mdresults){
-  if(!is(allframes,"data.frame"){stop("'images' must be Data Frame.")}
-  if(!is(mdresults,"data.frame"){stop("'mdresults' must be Data Frame.")}
-
-  f<-function(data){
-    if(nrow(data$detections)>0){
-      data.frame(Frame=data$FilePath,max_conf=data$max_detection_conf,max_detection_category=data$max_detection_category,data$detections,stringsAsFactors = F)
-    }else{
-      data.frame(Frame=data$FilePath,max_conf=data$max_detection_conf,max_detection_category=0,category=0,conf=NA,bbox1=NA,bbox2=NA,bbox3=NA,bbox4=NA,stringsAsFactors = F)}
+parseMD <- function(allframes, mdresults) {
+  if (!is(allframes, "data.frame")) {
+    stop("'images' must be Data Frame.")
   }
-  results<-do.call(rbind.data.frame,sapply(mdresults,f,simplify = F))
-  allframes<-merge(allframes,results)
+  if (!is(mdresults, "data.frame")) {
+    stop("'mdresults' must be Data Frame.")
+  }
+
+  f <- function(data) {
+    if (nrow(data$detections) > 0) {
+      data.frame(Frame = data$FilePath, max_conf = data$max_detection_conf, max_detection_category = data$max_detection_category, data$detections, stringsAsFactors = F)
+    } else {
+      data.frame(Frame = data$FilePath, max_conf = data$max_detection_conf, max_detection_category = 0, category = 0, conf = NA, bbox1 = NA, bbox2 = NA, bbox3 = NA, bbox4 = NA, stringsAsFactors = F)
+    }
+  }
+  results <- do.call(rbind.data.frame, sapply(mdresults, f, simplify = F))
+  allframes <- merge(allframes, results)
   allframes
 }
-
-
-
-
 
 #' parse MD JSON results file
 #'
@@ -68,7 +69,8 @@ parseMDjson <- function(json) {
       }
       results[[n]] <- results[[n]][c(1, 2, 4, 3)]
     }
-    if ((n %% round(length(results) / 100, 0)) == 0) pbapply::setpb(pb, n) # setTxtProgressBar(pb, n)
+    if ((n %% round(length(results) / 100, 0)) == 0) 
+      pbapply::setpb(pb, n) # setTxtProgressBar(pb, n)
   }
   pbapply::setpb(pb, length(results))
   pbapply::closepb(pb)
@@ -79,7 +81,6 @@ parseMDjson <- function(json) {
   }
 }
 
-<<<<<<< HEAD:R/parseMDjson.R
 #' parse MD JSON results file into a simple dataframe
 #'
 #' @param imagesall dataframe containing all frames
@@ -104,5 +105,3 @@ parseMDsimple <- function(imagesall, mdresults) {
   imagesall <- merge(imagesall, results)
   imagesall
 }
-=======
->>>>>>> origin:R/parseMD.R

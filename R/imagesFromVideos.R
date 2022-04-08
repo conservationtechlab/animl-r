@@ -16,24 +16,18 @@
 #'
 #' @examples
 #' \dontrun{
-#' frames <- imagesFromVideos(videos, outdir="C:\\Users\\usr\\Videos\\", frames=5)
+#' frames <- imagesFromVideos(videos, outdir = "C:\\Users\\usr\\Videos\\", frames = 5)
 #' }
-<<<<<<< HEAD
-imagesFromVideos <- function(files, outdir = tempfile(), format = "jpg", fps = NULL, frames = NULL, parallel = FALSE, nproc = 1) {
+imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format = "jpg", fps = NULL, frames = NULL, parallel = FALSE, nproc = 1) {
+  if (!is(files, "data.frame")) {
+    stop("Error: 'mdresults' must be Data Frame.")
+  }
   if (outdir != "" & !dir.exists(outdir)) {
     if (!dir.create(outdir, recursive = TRUE)) {
       stop("Output directory invalid.\n")
     }
   }
   if (!is.null(fps) & !is.null(frames)) {
-=======
-imagesFromVideos<-function (files, outdir = tempfile(), outfile=NULL, format = "jpg", fps = NULL,frames=NULL,parallel=FALSE,nproc=1) {
-  if(!is(files,"data.frame"){stop("Error: 'mdresults' must be Data Frame.")}
-  if(outdir!="" & !dir.exists(outdir)){
-    if(!dir.create(outdir,recursive = TRUE))
-      stop("Output directory invalid.\n")}
-  if(!is.null(fps) & !is.null(frames))
->>>>>>> origin
     message("If both fps and frames are defined fps will be used.")
   }
   if (is.null(fps) & is.null(frames)) {
@@ -83,28 +77,22 @@ imagesFromVideos<-function (files, outdir = tempfile(), outfile=NULL, format = "
     parallel::clusterSetRNGStream(cl)
 
     parallel::clusterEvalQ(cl, library(av))
-    results <- pbapply::pblapply(videos$FilePath, function(x) { try(run.parallel(x)) }, cl = cl)
+    results <- pbapply::pblapply(videos$FilePath, function(x) {
+      try(run.parallel(x))
+    }, cl = cl)
     parallel::stopCluster(cl)
-    
   } else {
-    results <- pbapply::pblapply(videos$FilePath, function(x) { try(run.parallel(x)) })
+    results <- pbapply::pblapply(videos$FilePath, function(x) {
+      try(run.parallel(x))
+    })
   }
 
-<<<<<<< HEAD
   results <- do.call(rbind, results)
   videoframes <- merge(videos, results)
-  imagesall <- rbind(images, videoframes)
+  allframes <- rbind(images, videoframes)
 
-  # assumes setDirectory()
-  # try(write.csv(imagesall,file=paste0(datadir,imageframes),row.names = F,quote = F))
-=======
-  results<-do.call(rbind,results)
-  videoframes<-merge(videos,results)
-  allframes <- rbind(images,videoframes)
-
-  #save frames
-  saveData(allframes,outfile)
->>>>>>> origin
+  # save frames
+  saveData(allframes, outfile)
 
   allframes
 }

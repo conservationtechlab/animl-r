@@ -13,38 +13,30 @@
 #'
 #' @examples
 #' \dontrun{
-#' setLocation(files,basedir)
+#' setLocation(files, basedir)
 #' }
-<<<<<<< HEAD
 setLocation <- function(files, basedir, adjust = 0, rename = TRUE, region = NA, site = NA, camera = NA) {
   basedepth <- length(strsplit(basedir, split = "/")[[1]]) + adjust
-  
   if (is.na(region)) {
     files$Region <- sapply(files$Directory, function(x) strsplit(x, "/")[[1]][basedepth])
   } else {
     files$Region <- region
   }
-  
   if (is.na(site)) {
     files$Site <- sapply(files$Directory, function(x) strsplit(x, "/")[[1]][basedepth + 1])
   } else {
     files$Site <- site
-=======
-setLocation <- function(files,basedir,adjust = 0,rename=TRUE,region=NA,site=NA,camera=NA){
-  basedepth=length(strsplit(basedir,split="/")[[1]]) + adjust
-  if(is.na(region)){
-    files$Region<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth])
-  }else{files$Region<-region}
-  if(is.na(site)){files$Site<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+1])
-  }else{files$Site<-site}
-  if(is.na(camera)){files$Camera<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+2])
-  }else{files$Camera<-camera}
-
-  if(rename){
-    files$NewName=paste(files$Region,files$Site,format(files$DateTimeOriginal,format="%Y%m%d_%H%M%S"),files$FileName,sep="_")
->>>>>>> origin
   }
-  
+  if (is.na(camera)) {
+    files$Camera <- sapply(files$Directory, function(x) strsplit(x, "/")[[1]][basedepth + 2])
+  } else {
+    files$Camera <- camera
+  }
+
+  if (rename) {
+    files$NewName <- paste(files$Region, files$Site, format(files$DateTimeOriginal, format = "%Y%m%d_%H%M%S"), files$FileName, sep = "_")
+  }
+
   if (is.na(camera)) {
     files$Camera <- sapply(files$Directory, function(x) strsplit(x, "/")[[1]][basedepth + 2])
   } else {

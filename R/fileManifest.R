@@ -11,30 +11,27 @@
 #' \dontrun{
 #' images <- extractFiles("C:\\Users\\usr\\Pictures\\")
 #' }
-<<<<<<< HEAD
-buildFileManifest <- function(imagedir, timezone_offset = 0) {
+buildFileManifest <- function(imagedir, outfile = NULL, timezone_offset = 0) {
   if (!dir.exists(imagedir)) {
-    stop("Error: the given directory does not exist")
+    stop("The given directory does not exist.")
   }
 
-  images <- exifr::read_exif(imagedir, tags = c("filename", "directory", "DateTimeOriginal", "FileModifyDate"), recursive = TRUE)
+  images <- tryCatch(
+    {
+      exifr::read_exif(imagedir, tags = c("filename", "directory", "DateTimeOriginal", "FileModifyDate"), recursive = TRUE)
+    },
+    error = function(cond) {
+      return(NULL)
+    },
+    warning = function(cond) {},
+    finally = {}
+  )
+  if (length(images) == 0) {
+    stop("No files found in directory.")
+  }
+
   colnames(images)[1] <- "FilePath"
   images <- as.data.frame(images)
-=======
-buildFileManifest <- function(imagedir,outfile=NULL,timezone_offset=0){
-  if(!dir.exists(imagedir)){stop("The given directory does not exist.")}
-
-  images <- tryCatch(
-    {exifr::read_exif(imagedir,tags=c("filename","directory","DateTimeOriginal","FileModifyDate"), recursive = TRUE)},
-    error=function(cond) {return(NULL)},
-    warning=function(cond) {},
-    finally={}
-  )
-  if(length(images)==0){stop("No files found in directory.")}
-
-  colnames(images)[1]<-"FilePath"
-  images<-as.data.frame(images)
->>>>>>> origin
 
   if (!"DateTimeOriginal" %in% names(images)) {
     images$DateTime <- as.POSIXct(images$FileModifyDate, format = "%Y:%m:%d %H:%M:%S")
@@ -45,13 +42,8 @@ buildFileManifest <- function(imagedir,outfile=NULL,timezone_offset=0){
   images$DateTimeModified <- as.POSIXct(images$FileModifyDate, format = "%Y:%m:%d %H:%M:%S")
   images$DateTimeAdjusted <- as.POSIXct(images$FileModifyDate, format = "%Y:%m:%d %H:%M:%S") + timezone_offset * 3600
 
-<<<<<<< HEAD
-  # assumes global variables datadir and filemanifest
-  # try(write.csv(files,file=paste0(images,filemanifest),row.names = F,quote = F))
-=======
   # Save file manifest
-  saveData(images,outfile)
->>>>>>> origin
+  saveData(images, outfile)
 
   return(images)
 }

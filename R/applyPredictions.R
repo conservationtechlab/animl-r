@@ -12,22 +12,23 @@
 #'
 #' @examples
 #' \dontrun{
-<<<<<<< HEAD
-#' alldata <- applyPredictions(animals, empty, classfile, pred, counts = FALSE)
-#' }
-applyPredictions <- function(animals, empty, classfile, pred, counts = FALSE) {
-  classes <- read.table(classfile, stringsAsFactors = F)$x
-=======
 #' alldata <- applyPredictions(animals,empty,classfile,pred,counts = FALSE)
 #' }
-applyPredictions <- function(animals,empty,classfile,pred, outfile=NULL, counts = FALSE){
-  if(!is(animals,"data.frame"){stop("'animals' must be DataFrame.")}
-  if(!is(empty,"data.frame"){stop("'empty' must be DataFrame.")}
-  if(!file.exists(classfile)){stop("The given class file does not exist.")}
-  if(!is(pred,"data.frame"){stop("'pred' must be DataFrame.")}
+applyPredictions <- function(animals, empty, classfile, pred, outfile = NULL, counts = FALSE) {
+  if (!is(animals, "data.frame")) {
+    stop("'animals' must be DataFrame.")
+  }
+  if (!is(empty, "data.frame")) {
+    stop("'empty' must be DataFrame.")
+  }
+  if (!file.exists(classfile)) {
+    stop("The given class file does not exist.")
+  }
+  if (!is(pred, "data.frame")) {
+    stop("'pred' must be DataFrame.")
+  }
 
-  classes<-read.table(classfile,stringsAsFactors = F)$x
->>>>>>> origin
+  classes <- read.table(classfile, stringsAsFactors = F)$x
 
   animals$prediction <- classes[apply(pred, 1, which.max)]
   animals$confidence <- apply(pred, 1, max) * animals$conf
@@ -35,17 +36,11 @@ applyPredictions <- function(animals,empty,classfile,pred, outfile=NULL, counts 
   if (counts) {
     table(classes[apply(pred, 1, which.max)])
   }
-
-<<<<<<< HEAD
   # merge with empty data
   alldata <- rbind(animals, empty)
-=======
-  #merge with empty data
-  alldata <- rbind(animals,empty)
 
-  #save data
-  saveData(alldata,outfile)
+  # save data
+  saveData(alldata, outfile)
 
->>>>>>> origin
   alldata
 }
