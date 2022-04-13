@@ -11,8 +11,8 @@
 #' testMD(imagesall, mdsession)
 #' }
 testMD <- function(imagesall, mdsession) {
-  if (!is(animals, "data.frame")) {
-    stop("'animals' must be DataFrame")
+  if (!is(imagesall, "data.frame")) {
+    stop("'imagesall' must be DataFrame")
   }
   if (!("mdsession" %in% class(mdsession))) stop("Expecting a mdsession object.")
 
