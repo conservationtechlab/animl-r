@@ -4,13 +4,13 @@
 \alias{setEmpty}
 \title{Title}
 \usage{
-setEmpty(crops)
+setEmpty(allframes)
 }
 \arguments{
-\item{crops}{all megadetector crops}
+\item{allframes}{all megadetector allframes}
 }
 \value{
-list of empty/human/vehicle crops with md classification
+list of empty/human/vehicle allframes with md classification
 }
 \description{
 Title

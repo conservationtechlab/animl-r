@@ -4,7 +4,14 @@
 \alias{applyPredictions}
 \title{Apply Classifier Predictions and Merge DataFrames}
 \usage{
-applyPredictions(animals, empty, classfile, pred, counts = FALSE)
+applyPredictions(
+  animals,
+  empty,
+  classfile,
+  pred,
+  outfile = NULL,
+  counts = FALSE
+)
 }
 \arguments{
 \item{animals}{Set of animal crops}
@@ -14,6 +21,8 @@ applyPredictions(animals, empty, classfile, pred, counts = FALSE)
 \item{classfile}{.txt file containing common names for species classes}
 
 \item{pred}{Classifier predictions for animal crops}
+
+\item{outfile}{File to which results are saved}
 
 \item{counts}{Returns a table of all predictions, defaults to FALSE}
 }
@@ -25,6 +34,6 @@ Apply Classifier Predictions and Merge DataFrames
 }
 \examples{
 \dontrun{
-alldata <- applyPredictions(animals,empty,classfile,pred, counts = FALSE)
+alldata <- applyPredictions(animals,empty,classfile,pred,counts = FALSE)
 }
 }

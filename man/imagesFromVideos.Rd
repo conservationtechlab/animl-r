@@ -7,6 +7,7 @@
 imagesFromVideos(
   files,
   outdir = tempfile(),
+  outfile = NULL,
   format = "jpg",
   fps = NULL,
   frames = NULL,
@@ -18,6 +19,8 @@ imagesFromVideos(
 \item{files}{dataframe of videos}
 
 \item{outdir}{directory to save frames to}
+
+\item{outfile}{file to which results will be saved}
 
 \item{format}{output format for frames, defaults to jpg}
 
@@ -37,6 +40,6 @@ This function can take
 }
 \examples{
 \dontrun{
-frames <- imagesFromVideos(videos,outdir="C:\\\\Users\\\\usr\\\\Videos\\\\",frames=5)
+frames <- imagesFromVideos(videos, outdir = "C:\\\\Users\\\\usr\\\\Videos\\\\", frames = 5)
 }
 }
