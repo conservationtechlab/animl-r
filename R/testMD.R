@@ -11,14 +11,12 @@
 #' testMD(imagesall, mdsession)
 #' }
 testMD <- function(imagesall, mdsession) {
-  if (!is(imagesall, "data.frame")) {
-    stop("'imagesall' must be DataFrame")
-  }
-  if (!("mdsession" %in% class(mdsession))) stop("Expecting a mdsession object.")
+  if (!is(imagesall, "data.frame")) {stop("'imagesall' must be DataFrame")}
+  if (!("mdsession" %in% class(mdsession))) {stop("Expecting a mdsession object.")}
 
-  f <- dplyr::sample_n(imagesall, 1)
-  jpg <- jpeg::readJPEG(f$Frame)
+  sample <- dplyr::slice_sample(imagesall, n = 1)
+  jpg <- jpeg::readJPEG(sample$Frame)
   plot(as.raster(jpg))
-  mdres <- detectObject(mdsession, f$Frame)
+  mdres <- detectObject(mdsession, sample$Frame)
   plotBoxes(mdres)
 }
