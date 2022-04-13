@@ -14,9 +14,6 @@ parseMD <- function(allframes, mdresults) {
   if (!is(allframes, "data.frame")) {
     stop("'images' must be Data Frame.")
   }
-  if (!is(mdresults, "data.frame")) {
-    stop("'mdresults' must be Data Frame.")
-  }
 
   f <- function(data) {
     if (nrow(data$detections) > 0) {
