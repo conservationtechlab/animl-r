@@ -46,10 +46,10 @@ mdsession<-loadMDModel("/mnt/machinelearning/megaDetector/megadetector_v4.1.pb")
 
 #+++++++++++++++++++++
 # Classify a single image to make sure everything works before continuing
-testMD(imagesall,mdsession)
+testMD(allframes,mdsession)
 #+++++++++++++++++++++
 
-mdres <- detectObjectBatch(mdsession,allframes$Frame, outfile = mdresults, checkpoint = 2500)
+mdres <- detectObjectBatch(mdsession,allframes$Frame, resultsfile = mdresults, checkpoint = 2500)
 
 allframes <- parseMD(allframes, mdres)
 
