@@ -20,10 +20,9 @@
 #'  mdres <- classifyImageMD(mdsession, images$FilePath[1])
 #' }
 detectObject <- function(mdsession, imagefile, min_conf = 0.1) {
-  if (!("mdsession" %in% class(mdsession))) stop("Error: expecting a mdsession object.")
-  if (!file.exists(imagefile)) {
-    stop("Error: the given image does not exist.")
-  }
+  if (!("mdsession" %in% class(mdsession))) {stop("Error: expecting a mdsession object.")}
+  if (!file.exists(imagefile)) {stop("Error: the given image does not exist.")}
+  
   np <- reticulate::import("numpy")
   image <- keras::image_load(imagefile)
   image_tensor <- mdsession$graph$get_tensor_by_name("image_tensor:0")

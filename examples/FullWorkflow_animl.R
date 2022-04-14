@@ -31,7 +31,7 @@ setupDirectory(imagedir)
 files <- buildFileManifest(imagedir,outfile = filemanifest)
 
 # Set Region/Site/Camera names
-files <- setLocation(files, imagedir, adjust = -2)
+files <- setLocation(files, imagedir, outfile = filemanifest, adjust = -2)
 
 # Process videos, extract frames for ID
 allframes<-imagesFromVideos(files,outdir=vidfdir,outfile=imageframes,frames=5,parallel=T,nproc=12)
@@ -51,7 +51,7 @@ testMD(allframes,mdsession)
 
 mdres <- detectObjectBatch(mdsession,allframes$Frame, resultsfile = mdresults, checkpoint = 2500)
 
-allframes <- parseMD(allframes, mdres)
+allframes <- parseMD(allframes, mdres, outfile = resultsfile)
 
 
 #null out low-confidence crops
@@ -76,7 +76,7 @@ alldata <- applyPredictions(animals,empty,"/mnt/machinelearning/Models/Southwest
 
 # Classify sequences
 #mdanimals <- classifySequence(mdanimals,pred,classes,18,maxdiff=60)
-alldata <- poolCrops(alldata)
+alldata <- poolCrops(alldata, outfile = predresults)
 
 
 

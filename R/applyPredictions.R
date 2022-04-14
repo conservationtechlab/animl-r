@@ -15,6 +15,13 @@
 #' alldata <- applyPredictions(animals,empty,classfile,pred,counts = FALSE)
 #' }
 applyPredictions <- function(animals, empty, classfile, pred, outfile = NULL, counts = FALSE) {
+  if (!is.na(outfile) && file.exists(outfile)) {
+    date <- exifr::read_exif(outfile, tags = "FileModifyDate")[[2]]
+    date <- strsplit(date, split = " ")[[1]][1]
+    if (tolower(readline(prompt = sprintf("Output file already exists and was last modified %s, would you like to load it? y/n: ", date)) == "y")) {
+      return(loadData(outfile))
+    }
+  }
   if (!is(animals, "data.frame")) {
     stop("'animals' must be DataFrame.")
   }
@@ -40,7 +47,9 @@ applyPredictions <- function(animals, empty, classfile, pred, outfile = NULL, co
   alldata <- rbind(animals, empty)
 
   # save data
-  saveData(alldata, outfile)
+  if(!is.na(outfile)){
+    saveData(alldata, outfile)
+  }
 
   alldata
 }

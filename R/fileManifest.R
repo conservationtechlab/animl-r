@@ -4,18 +4,24 @@
 #' @param outfile file path to which the data frame should be saved
 #' @param timezone_offset integer to adjust file modify time
 #'
-#' @return images
+#' @return images dataframe 
 #' @export
 #'
 #' @examples
 #' \dontrun{
 #' images <- extractFiles("C:\\Users\\usr\\Pictures\\")
 #' }
-buildFileManifest <- function(imagedir, outfile = NULL, timezone_offset = 0) {
-  if (!dir.exists(imagedir)) {
-    stop("The given directory does not exist.")
+buildFileManifest <- function(imagedir, outfile = NA, timezone_offset = 0) {
+  if (!is.na(outfile) && file.exists(outfile)) {
+    date <- exifr::read_exif(outfile, tags = "FileModifyDate")[[2]]
+    date <- strsplit(date, split = " ")[[1]][1]
+    if (tolower(readline(prompt = sprintf("Output file already exists and was last modified %s, would you like to load it? y/n: ", date)) == "y")) {
+      return(loadData(outfile))
+    }
   }
+  if (!dir.exists(imagedir)) {stop("The given directory does not exist.")}
 
+  # Reads images in directory and extracts their EXIF data
   images <- tryCatch(
     {
       exifr::read_exif(imagedir, tags = c("filename", "directory", "DateTimeOriginal", "FileModifyDate"), recursive = TRUE)
@@ -26,9 +32,8 @@ buildFileManifest <- function(imagedir, outfile = NULL, timezone_offset = 0) {
     warning = function(cond) {},
     finally = {}
   )
-  if (length(images) == 0) {
-    stop("No files found in directory.")
-  }
+  
+  if (length(images) == 0) {stop("No files found in directory.")}
 
   colnames(images)[1] <- "FilePath"
   images <- as.data.frame(images)
@@ -43,9 +48,12 @@ buildFileManifest <- function(imagedir, outfile = NULL, timezone_offset = 0) {
   images$DateTimeAdjusted <- as.POSIXct(images$FileModifyDate, format = "%Y:%m:%d %H:%M:%S") + timezone_offset * 3600
 
   # Save file manifest
-  saveData(images, outfile)
+  if (!is.na(outfile)){
+    saveData(images, outfile)
+  }
+  
 
-  return(images)
+  images
 }
 
 #' #' Extract exif data using parallel processing *NEEDS CORRECTING
