@@ -34,7 +34,7 @@ Classifies Crops Using Specified Models
 }
 \examples{
 \dontrun{
-pred<-classifySpecies(imagesallanimal,paste0(modelfile,".h5"),
-                      resize=456,standardize=FALSE,batch_size = 64,workers=8)
+pred <- classifySpecies(imagesallanimal, paste0(modelfile, ".h5"),
+                      resize = 456, standardize = FALSE, batch_size = 64, workers = 8)
 }
 }

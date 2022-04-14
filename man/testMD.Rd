@@ -2,7 +2,7 @@
 % Please edit documentation in R/testMD.R
 \name{testMD}
 \alias{testMD}
-\title{Title}
+\title{Select a Random Image and Run Through MegaDetector}
 \usage{
 testMD(imagesall, mdsession)
 }
@@ -15,10 +15,10 @@ testMD(imagesall, mdsession)
 Null, plots box on image
 }
 \description{
-Title
+Select a Random Image and Run Through MegaDetector
 }
 \examples{
 \dontrun{
-testMD(imagesall,mdsession)
+testMD(imagesall, mdsession)
 }
 }

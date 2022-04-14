@@ -37,6 +37,6 @@ Set Region/Site/Camera Information for Each Image
 }
 \examples{
 \dontrun{
-setLocation(files,basedir)
+setLocation(files, basedir)
 }
 }

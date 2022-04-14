@@ -1,4 +1,4 @@
-# animl
+# animl v1.0.0
 
 Animl comprises a variety of machine learning tools for analyzing ecological data. The package includes a set of functions to classify subjects within camera trap field data and can handle both images and videos. 
 

@@ -4,10 +4,12 @@
 \alias{buildFileManifest}
 \title{Extract exif data and create dataframe, adjust time if necessary.}
 \usage{
-buildFileManifest(imagedir, timezone_offset = 0)
+buildFileManifest(imagedir, outfile = NULL, timezone_offset = 0)
 }
 \arguments{
 \item{imagedir}{file path}
+
+\item{outfile}{file path to which the data frame should be saved}
 
 \item{timezone_offset}{integer to adjust file modify time}
 }
