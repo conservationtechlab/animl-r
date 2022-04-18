@@ -11,13 +11,11 @@
 #'  saveData(files,"path/to/newfile.csv")
 #' }
 saveData <- function(data, outfile) {
-  if (!is.null(outfile)) {
-    if (file.exists(outfile)) {
-      if (tolower(readline(prompt = "Output file exists, would you like to overwrite? y/n: ")) == "y") {
-        write.csv(data, file = outfile, row.names = F, quote = F)
-      }
-    } else {
+  if (file.exists(outfile)) {
+    if (tolower(readline(prompt = "Output file exists, would you like to overwrite? y/n: ")) == "y") {
       write.csv(data, file = outfile, row.names = F, quote = F)
     }
+  } else {
+    write.csv(data, file = outfile, row.names = F, quote = F)
   }
 }

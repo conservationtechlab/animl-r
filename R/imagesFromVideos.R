@@ -18,21 +18,14 @@
 #' \dontrun{
 #' frames <- imagesFromVideos(videos, outdir = "C:\\Users\\usr\\Videos\\", frames = 5)
 #' }
-imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format = "jpg", fps = NULL, frames = NULL, parallel = FALSE, nproc = 1) {
-  if (!is(files, "data.frame")) {
-    stop("Error: 'mdresults' must be Data Frame.")
-  }
+imagesFromVideos <- function(files, outdir = tempfile(), outfile = NA, format = "jpg", fps = NULL, frames = NULL, parallel = FALSE, nproc = 1) {
+  if (checkFile(outfile)) { return(loadData(outfile))}
+  if (!is(files, "data.frame")) { stop("Error: 'mdresults' must be Data Frame.")}
   if (outdir != "" & !dir.exists(outdir)) {
-    if (!dir.create(outdir, recursive = TRUE)) {
-      stop("Output directory invalid.\n")
-    }
+    if (!dir.create(outdir, recursive = TRUE)) { stop("Output directory invalid.\n")}
   }
-  if (!is.null(fps) & !is.null(frames)) {
-    message("If both fps and frames are defined fps will be used.")
-  }
-  if (is.null(fps) & is.null(frames)) {
-    stop("Either fps or frames need to be defined.")
-  }
+  if (!is.null(fps) & !is.null(frames)) { message("If both fps and frames are defined fps will be used.")}
+  if (is.null(fps) & is.null(frames)) { stop("Either fps or frames need to be defined.")}
 
   images <- files[tools::file_ext(files$FileName) %in% c("jpg", "JPG", "png", "PNG"), ]
   images$Frame <- images$FilePath
@@ -91,8 +84,8 @@ imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format 
   videoframes <- merge(videos, results)
   allframes <- rbind(images, videoframes)
 
-  # save frames
-  saveData(allframes, outfile)
+  # save frames to files
+  if(!is.na(outfile)) { saveData(allframes, outfile)}
 
   allframes
 }

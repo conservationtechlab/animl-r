@@ -2,7 +2,8 @@
 #'
 #' @param allframes dataframe containing all frames
 #' @param mdresults raw MegaDetector output
-#'
+#' @param outfile file path to save dataframe to
+#' 
 #' @return original dataframe including md results
 #' @export
 #'
@@ -10,10 +11,9 @@
 #' \dontrun{
 #' mdresults <- parseMDsimple(mdres)
 #' }
-parseMD <- function(allframes, mdresults) {
-  if (!is(allframes, "data.frame")) {
-    stop("'images' must be Data Frame.")
-  }
+parseMD <- function(allframes, mdresults, outfile = NA) {
+  if (checkFile(outfile)) { return(loadData(outfile))}
+  if (!is(allframes, "data.frame")) { stop("'images' must be Data Frame.")}
 
   f <- function(data) {
     if (nrow(data$detections) > 0) {
@@ -24,6 +24,9 @@ parseMD <- function(allframes, mdresults) {
   }
   results <- do.call(rbind.data.frame, sapply(mdresults, f, simplify = F))
   allframes <- merge(allframes, results)
+  
+  # Save file
+  if(!is.na(outfile)) { saveData(allframes, outfile)}
   allframes
 }
 

@@ -2,6 +2,7 @@
 #'
 #' @param animals dataframe of all frames including species classification
 #' @param how method for selecting best prediction, defaults to most frequent
+#' @param outfile file path to which the data frame should be saved
 #'
 #' @return dataframe with new prediction in "Species" column
 #' @export
@@ -10,10 +11,9 @@
 #' \dontrun{
 #' mdanimals <- classifyVideo(mdanimals)
 #' }
-poolCrops <- function(animals, how = "count") {
-  if (!is(animals, "data.frame")) {
-    stop("'animals' must be DataFrame")
-  }
+poolCrops <- function(animals, how = "count", outfile = NA) {
+  if (checkFile(outfile)) { return(loadData(outfile))}
+  if (!is(animals, "data.frame")) { stop("'animals' must be DataFrame")}
 
   animals$Species <- animals$prediction
 
@@ -47,5 +47,8 @@ poolCrops <- function(animals, how = "count") {
   }
   pbapply::setpb(pb, steps)
   pbapply::closepb(pb)
+  
+  # save data
+  if(!is.na(outfile)){ saveData(animals, outfile)}
   animals
 }
