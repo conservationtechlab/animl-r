@@ -2,6 +2,7 @@
 #'
 #' @param files file manifest data frame
 #' @param basedir directory from which files are obtained
+#' @param outfile File to which results are saved
 #' @param adjust adjust starting position in folder hierarchy, defaults to 0
 #' @param rename create a new unique name from region/site/camera/date, defaults to true
 #' @param region general region of camera deployment, can be inputted manually or pulled from directory
@@ -16,13 +17,7 @@
 #' setLocation(files, basedir)
 #' }
 setLocation <- function(files, basedir, outfile = NA, adjust = 0, rename = TRUE, region = NA, site = NA, camera = NA) {
-  if (!is.na(outfile) && file.exists(outfile)) {
-    date <- exifr::read_exif(outfile, tags = "FileModifyDate")[[2]]
-    date <- strsplit(date, split = " ")[[1]][1]
-    if (tolower(readline(prompt = sprintf("Output file already exists and was last modified %s, would you like to load it? y/n: ", date)) == "y")) {
-      return(loadData(outfile))
-    }
-  }
+  if (checkFile(outfile)) { return(loadData(outfile))}
   basedepth <- length(strsplit(basedir, split = "/")[[1]]) + adjust
   if (is.na(region)) {
     files$Region <- sapply(files$Directory, function(x) strsplit(x, "/")[[1]][basedepth])
@@ -57,9 +52,7 @@ setLocation <- function(files, basedir, outfile = NA, adjust = 0, rename = TRUE,
   }
   
   # Save file manifest
-  if(!is.na(outfile)){
-    saveData(files, outfile)
-  }
+  if(!is.na(outfile)) { saveData(files, outfile)}
   files
 }
 

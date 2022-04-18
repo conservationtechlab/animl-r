@@ -12,14 +12,8 @@
 #' mdresults <- parseMDsimple(mdres)
 #' }
 parseMD <- function(allframes, mdresults, outfile = NA) {
-  if (!is.na(outfile) && file.exists(outfile)) {
-    date <- exifr::read_exif(outfile, tags = "FileModifyDate")[[2]]
-    date <- strsplit(date, split = " ")[[1]][1]
-    if (tolower(readline(prompt = sprintf("Output file already exists and was last modified %s, would you like to load it? y/n: ", date)) == "y")) {
-      return(loadData(outfile))
-    }
-  }
-  if (!is(allframes, "data.frame")) {stop("'images' must be Data Frame.")}
+  if (checkFile(outfile)) { return(loadData(outfile))}
+  if (!is(allframes, "data.frame")) { stop("'images' must be Data Frame.")}
 
   f <- function(data) {
     if (nrow(data$detections) > 0) {
@@ -32,9 +26,7 @@ parseMD <- function(allframes, mdresults, outfile = NA) {
   allframes <- merge(allframes, results)
   
   # Save file
-  if(!is.null(outfile)){
-    saveData(allframes, outfile)
-  }
+  if(!is.na(outfile)) { saveData(allframes, outfile)}
   allframes
 }
 

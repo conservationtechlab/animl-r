@@ -12,16 +12,8 @@
 #' mdanimals <- classifyVideo(mdanimals)
 #' }
 poolCrops <- function(animals, how = "count", outfile = NA) {
-  if (!is.na(outfile) && file.exists(outfile)) {
-    date <- exifr::read_exif(outfile, tags = "FileModifyDate")[[2]]
-    date <- strsplit(date, split = " ")[[1]][1]
-    if (tolower(readline(prompt = sprintf("Output file already exists and was last modified %s, would you like to load it? y/n: ", date)) == "y")) {
-      return(loadData(outfile))
-    }
-  }
-  if (!is(animals, "data.frame")) {
-    stop("'animals' must be DataFrame")
-  }
+  if (checkFile(outfile)) { return(loadData(outfile))}
+  if (!is(animals, "data.frame")) { stop("'animals' must be DataFrame")}
 
   animals$Species <- animals$prediction
 
@@ -57,8 +49,6 @@ poolCrops <- function(animals, how = "count", outfile = NA) {
   pbapply::closepb(pb)
   
   # save data
-  if(!is.na(outfile)){
-    saveData(animals, outfile)
-  }
+  if(!is.na(outfile)){ saveData(animals, outfile)}
   animals
 }

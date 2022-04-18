@@ -23,14 +23,8 @@
 #' animals <- classifySequences(images,predictions,classes,17,maxdiff=60)
 #' }
 classifySequence <- function(animals, mlpredictions, classfile, outfile = NA, maxdiff=60){
-  if (!is.na(outfile) && file.exists(outfile)) {
-    date <- exifr::read_exif(outfile, tags = "FileModifyDate")[[2]]
-    date <- strsplit(date, split = " ")[[1]][1]
-    if (tolower(readline(prompt = sprintf("Output file already exists and was last modified %s, would you like to load it? y/n: ", date)) == "y")) {
-      return(loadData(outfile))
-    }
-  }
-  if(!file.exists(imagedir)){stop("Error: the given class file does not exist")}
+  if (checkFile(outfile)) { return(loadData(outfile))}
+  if(!file.exists(imagedir)) { stop("Error: the given class file does not exist")}
   classes<-read.table(classfile,stringsAsFactors = F)$x
   emptycol<-which(classes %in% c("empty","Empty","EMTPY","blank","Blank","BLANK"))
 
@@ -104,8 +98,6 @@ classifySequence <- function(animals, mlpredictions, classfile, outfile = NA, ma
     i=j
   })
   # save classified images
-  if(!is.null(outfile)){
-    saveData(animals, outfile)
-  }
+  if(!is.null(outfile)) { saveData(animals, outfile)}
   animals
 }

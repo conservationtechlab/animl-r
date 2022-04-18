@@ -12,13 +12,8 @@
 #' images <- extractFiles("C:\\Users\\usr\\Pictures\\")
 #' }
 buildFileManifest <- function(imagedir, outfile = NA, timezone_offset = 0) {
-  if (!is.na(outfile) && file.exists(outfile)) {
-    date <- exifr::read_exif(outfile, tags = "FileModifyDate")[[2]]
-    date <- strsplit(date, split = " ")[[1]][1]
-    if (tolower(readline(prompt = sprintf("Output file already exists and was last modified %s, would you like to load it? y/n: ", date)) == "y")) {
-      return(loadData(outfile))
-    }
-  }
+  if (checkFile(outfile)) { return(loadData(outfile))}
+
   if (!dir.exists(imagedir)) {stop("The given directory does not exist.")}
 
   # Reads images in directory and extracts their EXIF data
@@ -48,10 +43,7 @@ buildFileManifest <- function(imagedir, outfile = NA, timezone_offset = 0) {
   images$DateTimeAdjusted <- as.POSIXct(images$FileModifyDate, format = "%Y:%m:%d %H:%M:%S") + timezone_offset * 3600
 
   # Save file manifest
-  if (!is.na(outfile)){
-    saveData(images, outfile)
-  }
-  
+  if (!is.na(outfile)) { saveData(images, outfile)}
 
   images
 }
