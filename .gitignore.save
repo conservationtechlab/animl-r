@@ -1,0 +1,5 @@
+.Rproj.user
+inst/PocketAniml/**
+.toml
+.cfg
+.ipynb

@@ -4,6 +4,7 @@
 #' @param basedir directory from which files are obtained
 #' @param outfile File to which results are saved
 #' @param adjust adjust starting position in folder hierarchy, defaults to 0
+#' @param timezone_offset integer to adjust file modify time
 #' @param rename create a new unique name from region/site/camera/date, defaults to true
 #' @param region general region of camera deployment, can be inputted manually or pulled from directory
 #' @param site site of camera deployment, can be inputted manually or pulled from directory
@@ -16,7 +17,7 @@
 #' \dontrun{
 #' setLocation(files, basedir)
 #' }
-setLocation <- function(files, basedir, outfile = NA, adjust = 0, rename = TRUE, region = NA, site = NA, camera = NA) {
+setLocation <- function(files, basedir, outfile = NA, adjust = 0, timezone_offset = 0, rename = TRUE, region = NA, site = NA, camera = NA) {
   if (checkFile(outfile)) { return(loadData(outfile))}
   basedepth <- length(strsplit(basedir, split = "/")[[1]]) + adjust
   if (is.na(region)) {
@@ -50,7 +51,7 @@ setLocation <- function(files, basedir, outfile = NA, adjust = 0, rename = TRUE,
   } else {
     files$NewName <- files$FileName
   }
-  
+  files$DateTimeAdjusted <- as.POSIXct(files$FileModifyDate, format = "%Y:%m:%d %H:%M:%S") + timezone_offset * 3600
   # Save file manifest
   if(!is.na(outfile)) { saveData(files, outfile)}
   files

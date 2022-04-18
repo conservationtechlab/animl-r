@@ -2,24 +2,23 @@
 #'
 #' @param imagedir file path
 #' @param outfile file path to which the data frame should be saved
-#' @param timezone_offset integer to adjust file modify time
 #'
-#' @return images dataframe 
+#' @return files dataframe 
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' images <- extractFiles("C:\\Users\\usr\\Pictures\\")
+#' files <- extractFiles("C:\\Users\\usr\\Pictures\\")
 #' }
-buildFileManifest <- function(imagedir, outfile = NA, timezone_offset = 0) {
+buildFileManifest <- function(imagedir, outfile = NA) {
   if (checkFile(outfile)) { return(loadData(outfile))}
 
   if (!dir.exists(imagedir)) {stop("The given directory does not exist.")}
 
-  # Reads images in directory and extracts their EXIF data
-  images <- tryCatch(
+  # Reads files in directory and extracts their EXIF data
+  files <- tryCatch(
     {
-      exifr::read_exif(imagedir, tags = c("filename", "directory", "DateTimeOriginal", "FileModifyDate"), recursive = TRUE)
+      exifr::read_exif(imagedir, tags = c("filename", "directory", "FileModifyDate"), recursive = TRUE)
     },
     error = function(cond) {
       return(NULL)
@@ -28,24 +27,15 @@ buildFileManifest <- function(imagedir, outfile = NA, timezone_offset = 0) {
     finally = {}
   )
   
-  if (length(images) == 0) {stop("No files found in directory.")}
+  if (length(files) == 0) {stop("No files found in directory.")}
 
-  colnames(images)[1] <- "FilePath"
-  images <- as.data.frame(images)
-
-  if (!"DateTimeOriginal" %in% names(images)) {
-    images$DateTime <- as.POSIXct(images$FileModifyDate, format = "%Y:%m:%d %H:%M:%S")
-  } else {
-    images$DateTime <- as.POSIXct(images$DateTimeOriginal, format = "%Y:%m:%d %H:%M:%S")
-  }
-
-  images$DateTimeModified <- as.POSIXct(images$FileModifyDate, format = "%Y:%m:%d %H:%M:%S")
-  images$DateTimeAdjusted <- as.POSIXct(images$FileModifyDate, format = "%Y:%m:%d %H:%M:%S") + timezone_offset * 3600
-
+  colnames(files)[1] <- "FilePath"
+  files <- as.data.frame(files)
+  
   # Save file manifest
-  if (!is.na(outfile)) { saveData(images, outfile)}
+  if (!is.na(outfile)) { saveData(files, outfile)}
 
-  images
+  files
 }
 
 #' #' Extract exif data using parallel processing *NEEDS CORRECTING
@@ -101,15 +91,15 @@ buildFileManifest <- function(imagedir, outfile = NA, timezone_offset = 0) {
 #'   }else{
 #'     command_length <- 50 * 1024
 #'   }
-#'   images_per_command <- length(path)
+#'   files_per_command <- length(path)
 #'   commands <- exiftool_command(args = args, fnames = path)
 #'   ngroups <- 1
 #'   groups <- rep(1, length(path))
 #'   while (any(nchar(commands) >= (command_length * 0.75)) &&
-#'          (images_per_command >= 2)) {
-#'     images_per_command <- images_per_command%/%2
-#'     ngroups <- (length(path) + images_per_command - 1)%/%images_per_command
-#'     groups <- rep(seq_len(ngroups), rep(images_per_command,
+#'          (files_per_command >= 2)) {
+#'     files_per_command <- files_per_command%/%2
+#'     ngroups <- (length(path) + files_per_command - 1)%/%files_per_command
+#'     groups <- rep(seq_len(ngroups), rep(files_per_command,
 #'                                         ngroups))[seq_along(path)]
 #'     commands <- vapply(split(path, groups), function(fnames) exiftool_command(args = args,
 #'                                                                               fnames = fnames), character(1))

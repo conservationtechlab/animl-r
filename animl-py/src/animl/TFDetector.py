@@ -36,23 +36,14 @@ Reference:
 https://github.com/tensorflow/models/blob/master/research/object_detection/inference/detection_inference.py
 """
 
-
 #%% Constants, imports, environment
-
-import argparse
-import glob
 import os
-import statistics
-import sys
-import time
 import warnings
 from datetime import datetime
 import humanfriendly
 import numpy as np
 from tqdm import tqdm
 
-
-import visualization.visualization_utils as viz_utils
 
 # ignoring all "PIL cannot read EXIF metainfo for the images" warnings
 warnings.filterwarnings('ignore', '(Possibly )?corrupt EXIF data', UserWarning)
@@ -77,48 +68,6 @@ def truncate_float(x, precision=3):
     else:
         factor = math.pow(10, precision - 1 - math.floor(math.log10(abs(x))))
         return math.floor(x * factor)/factor
-
-
-
-#%% Classes
-
-class ImagePathUtils:
-    """A collection of utility functions supporting this stand-alone script"""
-
-    # Stick this into filenames before the extension for the rendered result
-    DETECTION_FILENAME_INSERT = '_detections'
-
-    image_extensions = ['.jpg', '.jpeg', '.gif', '.png', '.mp4']
-
-    @staticmethod
-    def is_image_file(s):
-        """
-        Check a file's extension against a hard-coded set of image file extensions    '
-        """
-        ext = os.path.splitext(s)[1]
-        return ext.lower() in ImagePathUtils.image_extensions
-
-    @staticmethod
-    def find_image_files(strings):
-        """
-        Given a list of strings that are potentially image file names, look for strings
-        that actually look like image file names (based on extension).
-        """
-        return [s for s in strings if ImagePathUtils.is_image_file(s)]
-
-    @staticmethod
-    def find_images(dir_name, recursive=True):
-        """
-        Find all files in a directory that look like image file names
-        """
-        if recursive:
-            strings = glob.glob(os.path.join(dir_name, '**', '*.*'), recursive=True)
-        else:
-            strings = glob.glob(os.path.join(dir_name, '*.*'))
-
-        image_strings = ImagePathUtils.find_image_files(strings)
-
-        return image_strings
 
 
 class TFDetector:
