@@ -16,6 +16,8 @@ Below are the steps required for automatic identification of animals within came
 First, build the file manifest of a given directory.
 
 ```R
+library(animl)
+
 imagedir <- "examples/TestData"
 
 #create save-file placeholders and working directories
@@ -79,9 +81,6 @@ alldata <- poolCrops(alldata)
 
 ```
 
-
-
-
 ## Models
 All of our pre-trained classification models can be obtained at [https://]
 
@@ -93,5 +92,24 @@ Geographical regions represented:
 ## Installation
 
 #### Requirements
-animl (R package) requires R >= 4.0
+* R >= 4.0 
+* Python >= 3.7
+* Tensorflow >= 2.5
+
+We recommend running animl on a computer with a dedicated GPU.
+
+#### Python
+animl depends on python and will install python package dependencies if they are not available if installed via CRAN. <br> 
+However, we recommend setting up a conda environment using the provided config file. 
+
+[Instructions to install conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html)
+
+The file **animl-env.yml** describes the python version and various dependencies with specific version numbers. 
+To create the enviroment, from within the animl directory run the following line in a terminal:
+```
+conda env create -f animl-env.yml
+```
+The first line creates the enviroment from the specifications file which only needs to be done once. 
+This environment is also necessary for the [python version of animl.](https://pypi.org/project/animl/) 
+
 
