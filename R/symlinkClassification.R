@@ -1,12 +1,14 @@
-#' Title
+#' Create SymLink Directories and Sort Classified Images
 #'
-#' @param alldata 
+#' @param alldata DataFrame of classified images 
+#' @param linkdir Destination directory for symlinks
 #'
-#' @return
-#' @export
+#' @return none
+#' @export 
 #'
 #' @examples
-symlinkClassification <- function(alldata, linkdir) {
+#' \dontrun{}
+symlinkClasses <- function(alldata, linkdir) {
 
   # create link
   alldata$Link <- paste0(linkdir, alldata$Species, "/", alldata$NewName)

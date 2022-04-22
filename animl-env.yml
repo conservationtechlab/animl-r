@@ -1,0 +1,10 @@
+name: animl-env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+    python=3.4
+    tensorflow=2.5.*
+ 
+    
+

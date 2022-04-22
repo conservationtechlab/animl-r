@@ -4,12 +4,14 @@
 \alias{poolCrops}
 \title{Select Best Classification From Multiple Frames}
 \usage{
-poolCrops(animals, how = "count")
+poolCrops(animals, how = "count", outfile = NA)
 }
 \arguments{
 \item{animals}{dataframe of all frames including species classification}
 
 \item{how}{method for selecting best prediction, defaults to most frequent}
+
+\item{outfile}{file path to which the data frame should be saved}
 }
 \value{
 dataframe with new prediction in "Species" column

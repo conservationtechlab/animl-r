@@ -14,12 +14,13 @@ load_img_resize_crop(data, height = 299, width = 299, standardize = FALSE)
 \item{width}{the width the cropped image will be resized to.}
 
 \item{standardize}{standardize the image, TRUE or FALSE.}
-
-\item{batch_size}{the batch size for the image generator.}
 }
 \value{
 A Tensorflow image data generator.
 }
 \description{
 Load a JPEG image and crop it to a bounding box. Internal function to be called by image generator function.
+}
+\examples{
+\dontrun{}
 }

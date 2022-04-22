@@ -21,3 +21,6 @@ An image tensor.
 \description{
 Load and resize an image and return an image tensor. Internal function to be called by image generator function.
 }
+\examples{
+\dontrun{}
+}

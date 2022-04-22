@@ -30,5 +30,5 @@ A Tensorflow image data generator.
 Creates an image data generator that resizes images if requested.
 }
 \examples{
-
+\dontrun{}
 }

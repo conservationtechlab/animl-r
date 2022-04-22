@@ -33,5 +33,5 @@ A Tensorflow image data generator.
 Creates an image data generator that crops images based on bounding box coordinates.
 }
 \examples{
-
+\dontrun{}
 }

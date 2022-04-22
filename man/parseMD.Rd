@@ -4,12 +4,14 @@
 \alias{parseMD}
 \title{parse MD JSON results file into a simple dataframe}
 \usage{
-parseMD(allframes, mdresults)
+parseMD(allframes, mdresults, outfile = NA)
 }
 \arguments{
 \item{allframes}{dataframe containing all frames}
 
 \item{mdresults}{raw MegaDetector output}
+
+\item{outfile}{file path to save dataframe to}
 }
 \value{
 original dataframe including md results

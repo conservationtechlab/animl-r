@@ -4,23 +4,21 @@
 \alias{buildFileManifest}
 \title{Extract exif data and create dataframe, adjust time if necessary.}
 \usage{
-buildFileManifest(imagedir, outfile = NULL, timezone_offset = 0)
+buildFileManifest(imagedir, outfile = NA)
 }
 \arguments{
 \item{imagedir}{file path}
 
 \item{outfile}{file path to which the data frame should be saved}
-
-\item{timezone_offset}{integer to adjust file modify time}
 }
 \value{
-images
+files dataframe
 }
 \description{
 Extract exif data and create dataframe, adjust time if necessary.
 }
 \examples{
 \dontrun{
-images <- extractFiles("C:\\\\Users\\\\usr\\\\Pictures\\\\")
+files <- extractFiles("C:\\\\Users\\\\usr\\\\Pictures\\\\")
 }
 }

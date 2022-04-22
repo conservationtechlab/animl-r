@@ -23,5 +23,4 @@ Load image and return a tensor with an image and a corresponding label. Internal
 }
 \examples{
 
-
 }

@@ -10,7 +10,7 @@
 #'
 #' @param animals subselection of all images that contain MD animals
 #' @param mlpredictions classifier predictions
-#' @param classes list of all possible classes
+#' @param classfile list of all possible classes
 #' @param outfile file to which results will be saved
 #' @param maxdiff maximum difference between images in seconds to be included in a sequence, defaults to 60
 #'

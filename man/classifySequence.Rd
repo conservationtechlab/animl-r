@@ -4,16 +4,18 @@
 \alias{classifySequence}
 \title{Leverage sequences to classify images}
 \usage{
-classifySequence(animals, mlpredictions, classfile, maxdiff = 60)
+classifySequence(animals, mlpredictions, classfile, outfile = NA, maxdiff = 60)
 }
 \arguments{
 \item{animals}{subselection of all images that contain MD animals}
 
 \item{mlpredictions}{classifier predictions}
 
-\item{maxdiff}{maximum difference between images in seconds to be included in a sequence, defaults to 60}
+\item{classfile}{list of all possible classes}
 
-\item{classes}{list of all possible classes}
+\item{outfile}{file to which results will be saved}
+
+\item{maxdiff}{maximum difference between images in seconds to be included in a sequence, defaults to 60}
 }
 \value{
 reclassified animals dataframe

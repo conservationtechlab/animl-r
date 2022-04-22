@@ -11,7 +11,7 @@
 #'
 #' @return A Tensorflow image data generator.
 #' @examples
-#'
+#' \dontrun{}
 #' @export
 #' @import tensorflow
 #'
@@ -35,7 +35,7 @@ cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width =
   dataset <- tfdatasets::dataset_map_and_batch(dataset, function(x) load_img_resize_crop(x, resize_height, resize_width, standardize), batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
   dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
   # dataset<-dataset$apply(tf$data$experimental$ignore_errors())
-  dataset <- tfdatasets::as_iterator(dataset)
+  dataset <- reticulate::as_iterator(dataset)
   dataset
 }
 
@@ -51,7 +51,7 @@ cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width =
 #'
 #' @return A Tensorflow image data generator.
 #' @examples
-#'
+#' \dontrun{}
 #' @export
 #' @import tensorflow
 #'
@@ -83,6 +83,7 @@ ImageGenerator <- function(files, resize_height = NULL, resize_width = NULL, sta
 #'
 #' @return An image tensor.
 #' @examples
+#' \dontrun{}
 #' @import tensorflow
 #'
 load_img <- function(file, standardize = FALSE) {
@@ -107,6 +108,7 @@ load_img <- function(file, standardize = FALSE) {
 #'
 #' @return An image tensor.
 #' @examples
+#' \dontrun{}
 #' @import tensorflow
 #'
 load_img_resize <- function(file, height = 299, width = 299, standardize = FALSE) {
@@ -137,10 +139,10 @@ load_img_resize <- function(file, height = 299, width = 299, standardize = FALSE
 #' @param height the height the cropped image will be resized to.
 #' @param width the width the cropped image will be resized to.
 #' @param standardize standardize the image, TRUE or FALSE.
-#' @param batch_size the batch size for the image generator.
 #'
 #' @return A Tensorflow image data generator.
-#' @examples
+#' @examples 
+#' \dontrun{}
 #' @import tensorflow
 #'
 load_img_resize_crop <- function(data, height = 299, width = 299, standardize = FALSE) {
@@ -178,7 +180,6 @@ load_img_resize_crop <- function(data, height = 299, width = 299, standardize = 
 #'
 #' @return An image and label tensor.
 #' @examples
-#'
 #'
 image_label <- function(data, height = 299, width = 299, standardize = FALSE) {
   image <- load_img_resize(data[[1]], height, width, standardize)
