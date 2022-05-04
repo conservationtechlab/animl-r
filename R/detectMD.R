@@ -23,18 +23,9 @@
 #' }
 detectObject <- function(mdsession, imagefile, min_conf = 0.1) {
   if (!("mdsession" %in% class(mdsession))) stop("Expecting a mdsession object.")
-  # results <- list()
-  # 
-  # 
-  # dataset <- tfdatasets::tensors_dataset(imagefile)
-  # 
-  # dataset <- tfdatasets::dataset_map_and_batch(dataset, function(x) loadImg(x, FALSE), 1, num_parallel_calls = tf$data$experimental$AUTOTUNE)
-  # 
-  # dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
-  # dataset
   # create data generator
  # dataset <- ImageGenerator(imagefile, standardize = FALSE, batch_size = 1)
- image <- loadImg(imagefile, FALSE)
+  image <- loadImg(imagefile, FALSE)
 #  print(image)
   # get tensors
   image_tensor <- mdsession$graph$get_tensor_by_name("image_tensor:0")
@@ -44,78 +35,19 @@ detectObject <- function(mdsession, imagefile, min_conf = 0.1) {
   
   np <- reticulate::import("numpy")
   res <- mdsession$run(list(box_tensor, score_tensor, class_tensor), feed_dict = list("image_tensor:0" = np$expand_dims(image, axis = F)))
-  
-  # 
-  # if (!inherits(try(img <- imagefile, silent = T), "try-error")) {
-  #   res <- mdsession$run(list(box_tensor, score_tensor, class_tensor), feed_dict = list("image_tensor:0" = img$numpy()))
-  #   for (l in 1:dim(res[[1]])[1]) {
-  #     resfilter <- which(res[[2]] >= min_conf)
-  #     results[[length(results) + 1]] <- list(
-  #       FilePath = images[(i * batch_size - batch_size) + l], max_detection_conf = max(res[[2]][l, ]),
-  #       max_detection_category = res[[3]][which(res[[2]][l, ] == max(res[[2]][l, ]))][1],
-  #       detections = data.frame(
-  #         category = res[[3]][l, resfilter], conf = res[[2]][l, resfilter],
-  #         bbox1 = res[[1]][l, resfilter, 2],
-  #         bbox2 = res[[1]][l, resfilter, 1],
-  #         bbox3 = res[[1]][l, resfilter, 4] - res[[1]][l, resfilter, 2],
-  #         bbox4 = res[[1]][l, resfilter, 3] - res[[1]][l, resfilter, 1]
-  #       )
-  #     )
-  #   }
-  }
-testMD(allframes,mdsession)
-  
-  
-  #res <- mdsession$run(list(box_tensor, score_tensor, class_tensor), feed_dict = list("image_tensor:0" = np$expand_dims(image, axis = F)))
-  # #  res <- mdsession$run(list(box_tensor, score_tensor, class_tensor),
-  # #                       feed_dict = list("image_tensor:0" = listarrays::expand_dims(image)))
-  # resfilter <- which(res[[2]] >= min_conf)
-  # list(
-  #   FilePath = imagefile, max_detection_conf = max(res[[2]]), max_detection_category = res[[3]][which(res[[2]] == max(res[[2]]))][1],
-  #   detections = data.frame(
-  #     category = res[[3]][resfilter], conf = res[[2]][resfilter],
-  #     bbox1 = res[[1]][1, resfilter, 2], bbox2 = res[[1]][1, resfilter, 1],
-  #     bbox3 = res[[1]][1, resfilter, 4] - res[[1]][1, resfilter, 2],
-  #     bbox4 = res[[1]][1, resfilter, 3] - res[[1]][1, resfilter, 1]
-  #   )
-  # )
+  resfilter <- which(res[[2]] >= min_conf)
+  list(
+    FilePath = imagefile, max_detection_conf = max(res[[2]]), max_detection_category = res[[3]][which(res[[2]] == max(res[[2]]))][1],
+    detections = data.frame(
+      category = res[[3]][resfilter], conf = res[[2]][resfilter],
+      bbox1 = res[[1]][1, resfilter, 2], bbox2 = res[[1]][1, resfilter, 1],
+      bbox3 = res[[1]][1, resfilter, 4] - res[[1]][1, resfilter, 2],
+      bbox4 = res[[1]][1, resfilter, 3] - res[[1]][1, resfilter, 1]
+    )
+  )
 }
+  
 
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-#   
-#   
-#   if (!("mdsession" %in% class(mdsession))) {stop("Error: expecting a mdsession object.")}
-#   if (!file.exists(imagefile)) {stop("Error: the given image does not exist.")}
-#   
-#   np <- reticulate::import("numpy")
-#   image <- keras::image_load(imagefile)
-#   image_tensor <- mdsession$graph$get_tensor_by_name("image_tensor:0")
-#   box_tensor <- mdsession$graph$get_tensor_by_name("detection_boxes:0")
-#   score_tensor <- mdsession$graph$get_tensor_by_name("detection_scores:0")
-#   class_tensor <- mdsession$graph$get_tensor_by_name("detection_classes:0")
-#   res <- mdsession$run(list(box_tensor, score_tensor, class_tensor), feed_dict = list("image_tensor:0" = np$expand_dims(image, axis = F)))
-# #  res <- mdsession$run(list(box_tensor, score_tensor, class_tensor), 
-# #                       feed_dict = list("image_tensor:0" = listarrays::expand_dims(image)))
-#   resfilter <- which(res[[2]] >= min_conf)
-#   list(
-#     FilePath = imagefile, max_detection_conf = max(res[[2]]), max_detection_category = res[[3]][which(res[[2]] == max(res[[2]]))][1],
-#     detections = data.frame(
-#       category = res[[3]][resfilter], conf = res[[2]][resfilter],
-#       bbox1 = res[[1]][1, resfilter, 2], bbox2 = res[[1]][1, resfilter, 1],
-#       bbox3 = res[[1]][1, resfilter, 4] - res[[1]][1, resfilter, 2],
-#       bbox4 = res[[1]][1, resfilter, 3] - res[[1]][1, resfilter, 1]
-#     )
-#   )
-# }
 
 #' Run MegaDetector on a batch of images
 #'

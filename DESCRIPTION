@@ -9,14 +9,6 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
-Config/reticulate:
-  list(
-    packages = list(
-      list(package = "tensorflow", version = "2.6.0", pip = TRUE),
-      list(package = "numpy", version = "1.19.2", pip = TRUE),
-      list(package = "pillow", version = "9.0.1", pip = TRUE)
-    )
-  )
 Imports:
     methods,
     pbapply,

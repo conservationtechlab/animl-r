@@ -9,16 +9,13 @@
 #-------------------------------------------------------------------------------
 
 library(reticulate)
-use_condaenv("mlgpu")
+use_condaenv("animl-env")
+library(animl)
 library(tensorflow)
 library(keras)
-library(animl)
-library(jpeg)
-library(dplyr)
 
 
-
-imagedir <- "/mnt/projects/Local_Lion/delaRosa_Cougar/BF/Animal/"
+imagedir <- "/mnt/machinelearning/Test Images/Svalbard/"
 
 #create global variable file and directory names
 setupDirectory(imagedir)
@@ -28,10 +25,15 @@ setupDirectory(imagedir)
 #===============================================================================
 
 # Read exif data for all images within base directory
-files <- buildFileManifest(imagedir,outfile = filemanifest)
+files <- buildFileManifest(imagedir)
 
-# Set Region/Site/Camera names
-files <- setLocation(files, imagedir, outfile = filemanifest, adjust = -2)
+
+
+basedepth=length(strsplit(basedir,split="/")[[1]])-1
+
+
+files$NewName=paste(files$Region,files$Site,format(files$DateTime,format="%Y%m%d_%H%M%S"),files$FileName,sep="_")
+files$NewName=files$FileName
 
 # Process videos, extract frames for ID
 allframes<-imagesFromVideos(files,outdir=vidfdir,outfile=imageframes,frames=5,parallel=T,nproc=12)

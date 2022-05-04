@@ -16,7 +16,7 @@ plotBoxes <- function(image, label = FALSE, minconf = 0) {
   if (!file.exists(image$FilePath)) {
     stop("The given image file does not exist.")
   }
-  jpg <- jpeg::readJPEG(image$Frame)
+  jpg <- jpeg::readJPEG(image$FilePath)
   plot(grDevices::as.raster(jpg)) ## where is this from??
   jpgy <- dim(jpg)[1]
   jpgx <- dim(jpg)[2]

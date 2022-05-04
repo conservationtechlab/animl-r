@@ -3,8 +3,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-    python=3.4
-    tensorflow=2.5.*
- 
-    
-
+  - python=3.8
+  - tensorflow=2.6.*
+  - numpy=1.21.*
+  - pillow=9.0.*
