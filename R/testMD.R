@@ -10,13 +10,17 @@
 #' \dontrun{
 #' testMD(imagesall, mdsession)
 #' }
-testMD <- function(imagesall, mdsession) {
+testMD <- function(imagesall, mdsession, frame = NA) {
   if (!is(imagesall, "data.frame")) {stop("'imagesall' must be DataFrame")}
   if (!("mdsession" %in% class(mdsession))) {stop("Expecting a mdsession object.")}
-
-  sample <- dplyr::slice_sample(imagesall, n = 1)
+  if(is.na(frame)){ sample <- dplyr::slice_sample(imagesall, n = 1)}
+  else{sample <- imagesall[frame,]}
   jpg <- jpeg::readJPEG(sample$Frame)
   plot(as.raster(jpg))
   mdres <- detectObject(mdsession, sample$Frame)
+  print(mdres)
   plotBoxes(mdres)
 }
+testMD(allframes,mdsession,frame=123)
+
+

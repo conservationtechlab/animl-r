@@ -51,7 +51,9 @@ cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width =
 #'
 #' @return A Tensorflow image data generator.
 #' @examples
-#' \dontrun{}
+#' \dontrun{
+#' dataset <- ImageGenerator(images, standardize = FALSE, batch_size = batch_size)
+#' }
 #' @export
 #' @import tensorflow
 #'
@@ -63,13 +65,13 @@ ImageGenerator <- function(files, resize_height = NULL, resize_width = NULL, sta
   dataset <- tfdatasets::tensor_slices_dataset(files)
   if (is.null(resize_height) || is.null(resize_width)) {
     message("No values were provided for resize, returning full-size images.")
-    dataset <- tfdatasets::dataset_map_and_batch(dataset, function(x) load_img(x, standardize), batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
+    dataset <- tfdatasets::dataset_map_and_batch(dataset, function(x) loadImg(x, standardize), batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
     # dataset<-dataset$apply(tf$data$experimental$ignore_errors())
   } else {
-    dataset <- tfdatasets::dataset_map_and_batch(dataset, function(x) load_img_resize(x, resize_height, resize_width, standardize), batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
+    dataset <- tfdatasets::dataset_map_and_batch(dataset, function(x) loadImage_Resize(x, resize_height, resize_width, standardize), batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
   }
   dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
-  dataset <- tfdatasets::as_iterator(dataset)
+  dataset <- reticulate::as_iterator(dataset)
   dataset
 }
 
@@ -86,7 +88,7 @@ ImageGenerator <- function(files, resize_height = NULL, resize_width = NULL, sta
 #' \dontrun{}
 #' @import tensorflow
 #'
-load_img <- function(file, standardize = FALSE) {
+loadImg <- function(file, standardize = FALSE) {
   # catch error caused by missing files and zero-length files
   if (!is.null(tryCatch(image <- tf$io$read_file(file), error = function(e) NULL))) {
     image <- tf$image$decode_jpeg(image, channels = 3, try_recover_truncated = T)
@@ -111,7 +113,7 @@ load_img <- function(file, standardize = FALSE) {
 #' \dontrun{}
 #' @import tensorflow
 #'
-load_img_resize <- function(file, height = 299, width = 299, standardize = FALSE) {
+loadImage_Resize <- function(file, height = 299, width = 299, standardize = FALSE) {
   size <- as.integer(c(height, width))
 
   # catch error caused by missing files and zero-length files
@@ -182,7 +184,7 @@ load_img_resize_crop <- function(data, height = 299, width = 299, standardize = 
 #' @examples
 #'
 image_label <- function(data, height = 299, width = 299, standardize = FALSE) {
-  image <- load_img_resize(data[[1]], height, width, standardize)
+  image <- loadImage_Resize(data[[1]], height, width, standardize)
   list(image, data[[2]])
 }
 

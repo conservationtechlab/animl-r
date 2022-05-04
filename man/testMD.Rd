@@ -4,7 +4,7 @@
 \alias{testMD}
 \title{Select a Random Image and Run Through MegaDetector}
 \usage{
-testMD(imagesall, mdsession)
+testMD(imagesall, mdsession, frame = NA)
 }
 \arguments{
 \item{imagesall}{dataframe of all images}

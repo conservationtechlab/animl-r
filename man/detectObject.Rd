@@ -23,7 +23,9 @@ loaded (see loadMDModel() ) and the file path of the image in question.
 }
 \examples{
 \dontrun{
- images <- read_exif(imagedir, tags = c("filename", "directory", "FileModifyDate"), recursive = TRUE)
+ images <- read_exif(imagedir, 
+                     tags = c("filename", "directory", "FileModifyDate"), 
+                     recursive = TRUE)
  colnames(images)[1] <- "FilePath"
  mdsession <- loadMDModel(mdmodel)
  mdres <- classifyImageMD(mdsession, images$FilePath[1])

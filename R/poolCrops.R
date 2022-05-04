@@ -17,9 +17,6 @@ poolCrops <- function(animals, how = "count", outfile = NA) {
 
   animals$Species <- animals$prediction
 
-  sort <- with(animals, order(Site, Camera, NewName))
-  animals <- animals[sort, ]
-
   videonames <- unique(animals$NewName)
 
   steps <- length(videonames)

@@ -30,5 +30,7 @@ A Tensorflow image data generator.
 Creates an image data generator that resizes images if requested.
 }
 \examples{
-\dontrun{}
+\dontrun{
+dataset <- ImageGenerator(images, standardize = FALSE, batch_size = batch_size)
+}
 }

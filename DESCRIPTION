@@ -8,16 +8,17 @@ Description: Functions required to classify subjects within camera trap field da
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2.9000
+RoxygenNote: 7.1.2
 Config/reticulate:
   list(
-    packages = list(list(package = "animl-py", version = "1.0.0", pip = TRUE),
-                         package = "tesorflow", version = "2.5.0", pip = TRUE),                   
+    packages = list(
+      list(package = "tensorflow", version = "2.6.0", pip = TRUE),
+      list(package = "numpy", version = "1.19.2", pip = TRUE),
+      list(package = "pillow", version = "9.0.1", pip = TRUE)
     )
   )
 Imports:
     methods,
-    tensorflow (>= 2.5.0),
     pbapply,
     jpeg,
     keras,
@@ -29,9 +30,12 @@ Imports:
     data.table,
     dplyr,
     stats,
-    imager
+    imager,
+    listarrays
 Suggests: 
     knitr,
     rmarkdown
-Depends: R (>= 3.5.0)
+Depends: 
+    R (>= 4.0.0),
+    tensorflow (>= 2.5.0)
 VignetteBuilder: knitr
