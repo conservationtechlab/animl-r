@@ -1,6 +1,6 @@
 # modified from CameraTraps/MegaDetector
-import TFDetector
-import tqdm
+from TFDetector import TFDetector
+from tqdm import tqdm
 import cv2
 import json
 from FileManagement import load_image

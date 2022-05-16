@@ -40,10 +40,8 @@ https://github.com/tensorflow/models/blob/master/research/object_detection/infer
 import os
 import warnings
 from datetime import datetime
-import humanfriendly
 import numpy as np
-from tqdm import tqdm
-
+import math
 
 # ignoring all "PIL cannot read EXIF metainfo for the images" warnings
 warnings.filterwarnings('ignore', '(Possibly )?corrupt EXIF data', UserWarning)
