@@ -1,6 +1,13 @@
 # modified from CameraTraps/MegaDetector
+import TFDetector
+import tqdm
+import cv2
+import json
+from FileManagement import load_image
+
+
 def load_and_run_detector_batch(image_file_names, checkpoint_path,
-                                confidence_threshold, checkpoint_frequency, results):
+                                confidence_threshold, checkpoint_frequency, results, detector_file):
 
     already_processed = set([i['file'] for i in results])
 
