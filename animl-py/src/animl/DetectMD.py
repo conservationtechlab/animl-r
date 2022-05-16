@@ -6,8 +6,8 @@ import json
 from FileManagement import load_image
 
 
-def load_and_run_detector_batch(image_file_names, checkpoint_path,
-                                confidence_threshold, checkpoint_frequency, results, detector_file):
+def load_and_run_detector_batch(image_file_names, detector_file, checkpoint_path,
+                                confidence_threshold, checkpoint_frequency, results):
 
     already_processed = set([i['file'] for i in results])
 

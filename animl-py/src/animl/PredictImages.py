@@ -6,7 +6,7 @@ import os
 from ImageCropGenerator import GenerateCropsFromFile
 
 
-def predict_images(images, model, tf_file,out_dir, confidence=0.5):
+def predict_images(images, model, tf_file, out_dir, confidence=0.5):
     if len(images) > 0:
         results = load_and_run_detector_batch(images, checkpoint_path="NA", confidence_threshold=confidence,
                                               checkpoint_frequency=-1, results=[], detector_file=tf_file)
