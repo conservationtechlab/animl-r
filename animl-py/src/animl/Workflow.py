@@ -65,7 +65,7 @@ def main():
         print('Restored {} entries from the checkpoint'.format(len(results)))
     else:
         results = []
-        images = imagesFromVideos(args.image_dir, out_dir=args.output_dir, fps=None, frames=5)
+    images = imagesFromVideos(args.image_dir, out_dir=args.output_dir, fps=None, frames=5)
 
     # test that we can write to the output_file's dir if checkpointing requested
     if args.checkpoint_frequency != -1:
