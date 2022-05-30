@@ -1,4 +1,4 @@
-  name: Animl
+name: animl-env
 channels:
   - defaults
 dependencies:
