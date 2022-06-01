@@ -115,16 +115,29 @@ def imagesFromVideos(image_dir, out_dir=None, outfile=None, format="jpg", fps=No
     if parallel:
         cpu_count = mp.cpu_count()
         pool = mp.Pool(cpu_count)
-        videoframes = [pool.apply(extractImages, args=(video, out_dir, fps, frames)) for video in videos]
+        videoFrames = [pool.apply(extractImages, args=(video, out_dir, fps, frames)) for video in videos]
         pool.close()
-
+        for x in videoFrames:
+            images += x
     else:
         for video in videos:
             images += (extractImages(video, out_dir=out_dir, fps=fps, frames=frames))
     return images
 
-def symlinkClassification(data, linkdir):
-    pass
+def symlinkClassification(data, linkdir, classes):
+    table = pd.read_table(classes, sep=" ", index_col=0)
+    for i in range(0, len(table.index)):
+        directory = str(table['x'].values[i])
+        if not os.path.isdir(linkdir + directory):
+            os.makedirs(linkdir + directory)
+
+    for i in range(0, len(data.index)):
+        try:
+            os.symlink(data.at[i, 'file'],
+                       linkdir + data.at[i, 'class'] + "/" + os.path.basename(data.at[i, 'file']))
+        except Exception as e:
+            print('File already exists. Exception: {}'.format(e))
+            continue
 
 def buildFileManifest(image_dir, outfile=None):
     if outfile: pass

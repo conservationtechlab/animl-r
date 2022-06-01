@@ -5,17 +5,9 @@ import os
 import pandas as pd
 from datetime import datetime
 from ImageCropGenerator import GenerateCropsFromFile
-from FileManagement import imagesFromVideos, parseMD, filterImages
+from FileManagement import imagesFromVideos, parseMD, filterImages, symlinkClassification
 from DetectMD import load_and_run_detector_batch
 from tensorflow import keras
-
-#MegaDetector_file = "megadetector_v4.1.pb"
-MegaDetector_file = '/home/edgar/mnt/machinelearning/megaDetector/megadetector_v4.1.pb'
-#Classification_file = "EfficientNetB5_456_Unfrozen_01_0.58_0.82.h5"
-Classification_file = "/home/edgar/mnt/machinelearning/Models/Southwest/EfficientNetB5_456_Unfrozen_01_0.58_0.82.h5"
-#classes = "classes.txt"
-classes = '/home/edgar/mnt/machinelearning/Models/Southwest/classes.txt'
-output_file = "MD_results.json"
 
 
 def main():
@@ -30,6 +22,38 @@ def main():
         'output_dir',
         type=str,
         help='Output directory including site name and date')
+
+    parser.add_argument(
+        'megadetector_model',
+        type=str,
+        help='Path to the megadetector model')
+
+    parser.add_argument(
+        'classification_model',
+        type=str,
+        help='Path to the classification model')
+
+    parser.add_argument(
+        'classes',
+        type=str,
+        help='Path to the classes text file for the classification model')
+
+    parser.add_argument(
+        '--fps',
+        type=int,
+        default=None,
+        help='Number of frames per second to be used when extracting images from videos')
+
+    parser.add_argument(
+        '--frames',
+        type=int,
+        default=5,
+        help='Number of frames to be extracted from videos')
+
+    parser.add_argument(
+        '--parallel',
+        action='store_true',
+        help='Run the program in a parallel fashion using multiple cores')
 
     parser.add_argument(
         '--threshold',
@@ -52,6 +76,9 @@ def main():
         parser.exit()
 
     args = parser.parse_args()
+    MegaDetector_file = args.megadetector_model
+    Classification_file = args.classification_model
+    classes = args.classes
 
     # load the checkpoint if available
     # relative file names are only output at the end; all file paths in the checkpoint are still full paths
@@ -65,7 +92,7 @@ def main():
         print('Restored {} entries from the checkpoint'.format(len(results)))
     else:
         results = []
-        images = imagesFromVideos(args.image_dir, out_dir=args.output_dir, fps=None, frames=5)
+    images = imagesFromVideos(args.image_dir, out_dir=args.output_dir, fps=args.fps, frames=args.frames,parallel=args.parallel)
 
     # test that we can write to the output_file's dir if checkpointing requested
     if args.checkpoint_frequency != -1:
@@ -85,30 +112,38 @@ def main():
     df = parseMD(detections)
     # filter out all non animal detections
     animalDataframe, otherDataframe = filterImages(df)
-    # Run generator for classification model
+    animalDataframe = animalDataframe.reset_index(drop=True)
+    otherDataframe = otherDataframe.reset_index(drop=True)
+    otherDataframe = otherDataframe[['file', 'category']]
+    otherDataframe = otherDataframe.rename(columns={'category': 'class'})
+    if not otherDataframe.empty:
+        for idx in range(0, len(otherDataframe.index)):
+            category = otherDataframe.at[idx, 'class']
+            if category == 2:
+                otherDataframe.at[idx, 'class'] = 12
+            else:
+                otherDataframe.at[idx, 'class'] = 8
+    # Create generator for classification model
     generator = GenerateCropsFromFile(animalDataframe)
+
     # Create and predict model
     model = keras.models.load_model(Classification_file)
     predictions = model.predict(generator)
+
     # Format Classification results
     predictionsDataframe = pd.DataFrame(predictions)
     maxDataframe = predictionsDataframe.idxmax(axis=1).to_frame(name='class')
     maxDataframe.insert(0, 'file', animalDataframe.iloc[:, 0].to_numpy())
+    maxDataframe = maxDataframe.append(otherDataframe, ignore_index=True)
+
     # Read Classification Txt file
     table = pd.read_table(classes, sep=" ", index_col=0)
     for i in range(0, len(maxDataframe.index)):
         maxDataframe.at[i, 'class'] = table['x'].values[int(maxDataframe.at[i, 'class'])]
 
+
     # Symlink
-    for i in range(0, len(table.index)):
-        directory = str(table['x'].values[i])
-        if not os.path.isdir(args.output_dir + directory):
-            os.makedirs(args.output_dir + directory)
-
-    for i in range(0, len(maxDataframe.index)):
-        os.symlink(maxDataframe.at[i, 'file'],
-                   args.output_dir + maxDataframe.at[i, 'class'] + "/" + os.path.basename(maxDataframe.at[i, 'file']))
-
+    symlinkClassification(maxDataframe, args.output_dir, classes)
 
 
 if __name__ == '__main__':
