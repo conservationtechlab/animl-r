@@ -75,9 +75,9 @@ def extractImages(file_path, out_dir, fps=None, frames=None):
     return frames_saved
 
 
-def imagesFromVideos(files, outdir=None, outfile=None, format="jpg", fps=None, frames=None, parallel=False, nproc=1):
+def imagesFromVideos(files, out_dir=None, outfile=None, format="jpg", fps=None, frames=None, parallel=False, nproc=1):
     # assert type(files) == "DataFrame", "'files' must be Data Frame."
-    if not os.path.isdir(outdir): os.makedirs(outdir)
+    if not os.path.isdir(out_dir): os.makedirs(out_dir)
 
     if (fps != None) and (frames != None):
         print("If both fps and frames are defined fps will be used.")
@@ -95,23 +95,23 @@ def imagesFromVideos(files, outdir=None, outfile=None, format="jpg", fps=None, f
     if parallel:
         cpu_count = mp.cpu_count()
         pool = mp.Pool(cpu_count)
-        videoframes = [pool.apply(extractImages, args=(video, outdir, fps, frames)) for video in videos]
+        videoframes = [pool.apply(extractImages, args=(video, out_dir, fps, frames)) for video in videos]
         pool.close()
 
     else:
         videoframes = []
         for video in videos:
-            videoframes.append(extractImages(video, out_dir=outdir, fps=fps, frames=frames))
+            videoframes.append(extractImages(video, out_dir=out_dir, fps=fps, frames=frames))
     return videoframes
 
 
-def buildFileManifest(imagedir, outfile=None):
+def buildFileManifest(image_dir, outfile=None):
     if outfile: pass
     # load file manifest
-    if not os.path.isdir(imagedir):
+    if not os.path.isdir(image_dir):
         return "The given directory does not exist."
 
-    files = glob.glob(os.path.join(imagedir, '**', '*.*'), recursive=True)
+    files = glob.glob(os.path.join(image_dir, '**', '*.*'), recursive=True)
     images = [s for s in files if is_image(s)]
 
     images = pd.DataFrame(images, columns=["FilePath"])
