@@ -20,6 +20,28 @@ loadData <- function(file) {
   }
 }
 
+#' Save Data to Given File
+#'
+#' @param data the dataframe to be saved
+#' @param outfile the full path of the saved file
+#'
+#' @return none
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#'  saveData(files,"path/to/newfile.csv")
+#' }
+saveData <- function(data, outfile) {
+  if (file.exists(outfile)) {
+    if (tolower(readline(prompt = "Output file exists, would you like to overwrite? y/n: ")) == "y") {
+      write.csv(data, file = outfile, row.names = F, quote = F)
+    }
+  } else {
+    write.csv(data, file = outfile, row.names = F, quote = F)
+  }
+}
+
 
 
 
@@ -36,7 +58,7 @@ loadData <- function(file) {
 #'   checkFile("path/to/newfile.csv")
 #' }
 checkFile <- function(file) {
-  if (!is.na(file) && file.exists(file)) {
+  if (!is.null(file) && file.exists(file)) {
     date <- exifr::read_exif(file, tags = "FileModifyDate")[[2]]
     date <- strsplit(date, split = " ")[[1]][1]
     if (tolower(readline(prompt = sprintf("Output file already exists and was last modified %s, would you like to load it? y/n: ", date)) == "y")) {

@@ -18,7 +18,7 @@
 #' \dontrun{
 #' frames <- imagesFromVideos(videos, outdir = "C:\\Users\\usr\\Videos\\", frames = 5)
 #' }
-imagesFromVideos <- function(files, outdir = tempfile(), outfile = NA, format = "jpg", fps = NULL, frames = NULL, parallel = FALSE, nproc = 1) {
+imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format = "jpg", fps = NULL, frames = NULL, parallel = FALSE, nproc = 1) {
   if (checkFile(outfile)) { return(loadData(outfile))}
   if (!is(files, "data.frame")) { stop("Error: 'mdresults' must be Data Frame.")}
   if (outdir != "" & !dir.exists(outdir)) {
@@ -85,7 +85,7 @@ imagesFromVideos <- function(files, outdir = tempfile(), outfile = NA, format = 
   allframes <- rbind(images, videoframes)
 
   # save frames to files
-  if(!is.na(outfile)) { saveData(allframes, outfile)}
+  if(!is.null(outfile)) { saveData(allframes, outfile)}
 
   allframes
 }

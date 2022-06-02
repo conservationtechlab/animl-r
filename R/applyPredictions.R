@@ -14,12 +14,11 @@
 #' \dontrun{
 #' alldata <- applyPredictions(animals,empty,classfile,pred,counts = FALSE)
 #' }
-applyPredictions <- function(animals, empty, classfile, pred, outfile = NA, counts = FALSE) {
+applyPredictions <- function(animals, empty, classfile, pred, outfile = NULL, counts = FALSE) {
   if (checkFile(outfile)) { return(loadData(outfile))}
   if (!is(animals, "data.frame")) { stop("'animals' must be DataFrame.")}
   if (!is(empty, "data.frame")) { stop("'empty' must be DataFrame.")}
   if (!file.exists(classfile)) { stop("The given class file does not exist.")}
-  if (!is(pred, "data.frame")) { stop("'pred' must be DataFrame.")}
 
   classes <- read.table(classfile, stringsAsFactors = F)$x
 
@@ -31,7 +30,7 @@ applyPredictions <- function(animals, empty, classfile, pred, outfile = NA, coun
   alldata <- rbind(animals, empty)
 
   # save data
-  if(!is.na(outfile)) { saveData(alldata, outfile)}
+  if(!is.null(outfile)) { saveData(alldata, outfile)}
 
   alldata
 }

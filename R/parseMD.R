@@ -11,7 +11,7 @@
 #' \dontrun{
 #' mdresults <- parseMDsimple(mdres)
 #' }
-parseMD <- function(allframes, mdresults, outfile = NA) {
+parseMD <- function(allframes, mdresults, outfile = NULL) {
   if (checkFile(outfile)) { return(loadData(outfile))}
   if (!is(allframes, "data.frame")) { stop("'images' must be Data Frame.")}
 
@@ -26,7 +26,7 @@ parseMD <- function(allframes, mdresults, outfile = NA) {
   allframes <- merge(allframes, results)
   
   # Save file
-  if(!is.na(outfile)) { saveData(allframes, outfile)}
+  if(!is.null(outfile)) { saveData(allframes, outfile)}
   allframes
 }
 

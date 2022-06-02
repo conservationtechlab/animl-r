@@ -9,13 +9,12 @@
 #-------------------------------------------------------------------------------
 
 library(reticulate)
-use_condaenv("animl-env")
+use_condaenv("animl")
 library(animl)
 library(tensorflow)
-library(keras)
 
 
-imagedir <- "/mnt/machinelearning/Test Images/Svalbard/"
+imagedir <- "/home/kyra/animl/examples/test_data/Southwest/"
 
 #create global variable file and directory names
 setupDirectory(imagedir)
@@ -31,12 +30,15 @@ files <- buildFileManifest(imagedir)
 
 basedepth=length(strsplit(basedir,split="/")[[1]])-1
 
+files$Region<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth])
+files$Site<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+1])
+files$Camera<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+2])
 
 files$NewName=paste(files$Region,files$Site,format(files$DateTime,format="%Y%m%d_%H%M%S"),files$FileName,sep="_")
 files$NewName=files$FileName
 
 # Process videos, extract frames for ID
-allframes<-imagesFromVideos(files,outdir=vidfdir,outfile=imageframes,frames=5,parallel=T,nproc=12)
+allframes<-imagesFromVideos(files,outfile=NULL,frames=5,parallel=T,nproc=12)
 
 
 #===============================================================================
@@ -44,16 +46,16 @@ allframes<-imagesFromVideos(files,outdir=vidfdir,outfile=imageframes,frames=5,pa
 #===============================================================================
 
 # Load the MegaDetector model
-mdsession<-loadMDModel("/mnt/machinelearning/megaDetector/megadetector_v4.1.pb")
+mdsession <- loadMDModel("/mnt/machinelearning/megaDetector/megadetector_v4.1.pb")
 
 #+++++++++++++++++++++
 # Classify a single image to make sure everything works before continuing
 testMD(allframes,mdsession)
 #+++++++++++++++++++++
 
-mdres <- detectObjectBatch(mdsession,allframes$Frame, resultsfile = mdresults, checkpoint = 2500)
+mdres <- detectObjectBatch(mdsession,allframes$Frame, resultsfile = NULL, checkpoint = 2500)
 
-allframes <- parseMD(allframes, mdres, outfile = resultsfile)
+allframes <- parseMD(allframes, mdres)
 
 
 #null out low-confidence crops
@@ -90,8 +92,8 @@ alldata <- poolCrops(alldata, outfile = predresults)
 #create link
 alldata$link<-paste0(linkdir,alldata$Common,"/",alldata$NewName)
 
-topchoice = alldata[order(alldata[,'NewName']),]
-topchoice = topchoice[!duplicated(topchoice$NewName),]
+topchoice <- alldata[order(alldata[,'NewName']),]
+topchoice <- topchoice[!duplicated(topchoice$NewName),]
 
 # place low-confidence images into "Unknown" category
 topchoice$Common[topchoice$confidence<0.5 & !(topchoice$Common %in% c("empty","human","vehicle"))]<-"unknown"

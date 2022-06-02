@@ -4,7 +4,7 @@
 \alias{buildFileManifest}
 \title{Extract exif data and create dataframe, adjust time if necessary.}
 \usage{
-buildFileManifest(imagedir, outfile = NA)
+buildFileManifest(imagedir, outfile = NULL)
 }
 \arguments{
 \item{imagedir}{file path}

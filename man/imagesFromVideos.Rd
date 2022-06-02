@@ -7,7 +7,7 @@
 imagesFromVideos(
   files,
   outdir = tempfile(),
-  outfile = NA,
+  outfile = NULL,
   format = "jpg",
   fps = NULL,
   frames = NULL,

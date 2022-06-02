@@ -10,7 +10,7 @@
 #' \dontrun{
 #' files <- extractFiles("C:\\Users\\usr\\Pictures\\")
 #' }
-buildFileManifest <- function(imagedir, outfile = NA) {
+buildFileManifest <- function(imagedir, outfile = NULL) {
   if (checkFile(outfile)) { return(loadData(outfile))}
 
   if (!dir.exists(imagedir)) {stop("The given directory does not exist.")}
@@ -33,7 +33,7 @@ buildFileManifest <- function(imagedir, outfile = NA) {
   files <- as.data.frame(files)
   
   # Save file manifest
-  if (!is.na(outfile)) { saveData(files, outfile)}
+  if (!is.null(outfile)) { saveData(files, outfile)}
 
   files
 }

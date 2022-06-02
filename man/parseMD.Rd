@@ -4,7 +4,7 @@
 \alias{parseMD}
 \title{parse MD JSON results file into a simple dataframe}
 \usage{
-parseMD(allframes, mdresults, outfile = NA)
+parseMD(allframes, mdresults, outfile = NULL)
 }
 \arguments{
 \item{allframes}{dataframe containing all frames}
