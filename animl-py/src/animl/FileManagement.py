@@ -32,6 +32,27 @@ def is_image(s):
     return ext in image_extensions
 
 
+def parseMD(results):
+    if len(results) > 0:
+        df = pd.DataFrame()
+        for dictionary in results:
+            detections = dictionary['detections']
+            for detection in detections:
+                bbox = detection['bbox']
+                data = {'file': dictionary['file'], 'max_detection_conf': dictionary['max_detection_conf'],
+                        'category': detection['category'], 'conf': detection['conf'], 'bbox1': bbox[0], 'bbox2': bbox[1],
+                        'bbox3': bbox[2], 'bbox4': bbox[3]}
+                df = df.append(data, ignore_index=True)
+        return df
+
+
+def filterImages(dataframe):
+    # Removes all images that MegaDetector gave no detection for
+    animaldf = dataframe[dataframe['category'].astype(int) == 1]
+    otherdf = dataframe[dataframe['category'].astype(int) != 1]
+    return animaldf, otherdf
+
+
 def extractImages(file_path, out_dir, fps=None, frames=None):
     cap = cv2.VideoCapture(file_path)
     filename = os.path.basename(file_path)
@@ -39,9 +60,7 @@ def extractImages(file_path, out_dir, fps=None, frames=None):
     frames_saved = []
 
     if fps is None:
-        video_fps = cap.get(cv2.CAP_PROP_FPS)
         frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        duration = frame_count / video_fps
         frame_capture = 0
         increment = int(frame_count / frames)
         while cap.isOpened() and (len(frames_saved) < frames):
@@ -75,10 +94,11 @@ def extractImages(file_path, out_dir, fps=None, frames=None):
     return frames_saved
 
 
-def imagesFromVideos(files, out_dir=None, outfile=None, format="jpg", fps=None, frames=None, parallel=False, nproc=1):
-    # assert type(files) == "DataFrame", "'files' must be Data Frame."
+def imagesFromVideos(image_dir, out_dir=None, outfile=None, format="jpg", fps=None, frames=None, parallel=False,
+                     nproc=1):
+    assert os.path.isdir(image_dir), "image_dir does not exist"
     if not os.path.isdir(out_dir): os.makedirs(out_dir)
-
+    files = [image_dir + x for x in os.listdir(image_dir)]
     if (fps != None) and (frames != None):
         print("If both fps and frames are defined fps will be used.")
     assert (fps != None) or (frames != None), "Either fps or frames need to be defined."
@@ -87,7 +107,7 @@ def imagesFromVideos(files, out_dir=None, outfile=None, format="jpg", fps=None, 
     for file in files:
         filename, extension = os.path.splitext(file)
         extension = extension.lower()
-        if extension == 'jpg' or extension == 'png':
+        if extension == '.jpg' or extension == '.png':
             images.append(file)
         else:
             videos.append(file)
@@ -95,15 +115,29 @@ def imagesFromVideos(files, out_dir=None, outfile=None, format="jpg", fps=None, 
     if parallel:
         cpu_count = mp.cpu_count()
         pool = mp.Pool(cpu_count)
-        videoframes = [pool.apply(extractImages, args=(video, out_dir, fps, frames)) for video in videos]
+        videoFrames = [pool.apply(extractImages, args=(video, out_dir, fps, frames)) for video in videos]
         pool.close()
-
+        for x in videoFrames:
+            images += x
     else:
-        videoframes = []
         for video in videos:
-            videoframes.append(extractImages(video, out_dir=out_dir, fps=fps, frames=frames))
-    return videoframes
+            images += (extractImages(video, out_dir=out_dir, fps=fps, frames=frames))
+    return images
 
+def symlinkClassification(data, linkdir, classes):
+    table = pd.read_table(classes, sep=" ", index_col=0)
+    for i in range(0, len(table.index)):
+        directory = str(table['x'].values[i])
+        if not os.path.isdir(linkdir + directory):
+            os.makedirs(linkdir + directory)
+
+    for i in range(0, len(data.index)):
+        try:
+            os.symlink(data.at[i, 'file'],
+                       linkdir + data.at[i, 'class'] + "/" + os.path.basename(data.at[i, 'file']))
+        except Exception as e:
+            print('File already exists. Exception: {}'.format(e))
+            continue
 
 def buildFileManifest(image_dir, outfile=None):
     if outfile: pass
