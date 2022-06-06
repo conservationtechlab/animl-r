@@ -4,7 +4,14 @@
 \alias{applyPredictions}
 \title{Apply Classifier Predictions and Merge DataFrames}
 \usage{
-applyPredictions(animals, empty, classfile, pred, outfile = NA, counts = FALSE)
+applyPredictions(
+  animals,
+  empty,
+  classfile,
+  pred,
+  outfile = NULL,
+  counts = FALSE
+)
 }
 \arguments{
 \item{animals}{Set of animal crops}

@@ -9,9 +9,9 @@
 #-------------------------------------------------------------------------------
 
 library(reticulate)
-use_condaenv("animl")
+use_condaenv("mlgpu")
 library(animl)
-library(tensorflow)
+library(magrittr)
 
 
 imagedir <- "/home/kyra/animl/examples/test_data/Southwest/"
@@ -27,18 +27,20 @@ setupDirectory(imagedir)
 files <- buildFileManifest(imagedir)
 
 
-
 basedepth=length(strsplit(basedir,split="/")[[1]])-1
+
 
 files$Region<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth])
 files$Site<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+1])
 files$Camera<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+2])
 
+
+#files must have a new name for symlink
 files$NewName=paste(files$Region,files$Site,format(files$DateTime,format="%Y%m%d_%H%M%S"),files$FileName,sep="_")
 files$NewName=files$FileName
 
 # Process videos, extract frames for ID
-allframes<-imagesFromVideos(files,outfile=NULL,frames=5,parallel=T,nproc=12)
+allframes<-imagesFromVideos(files,outfile=imageframes,frames=5,parallel=T,nproc=12)
 
 
 #===============================================================================
@@ -53,7 +55,7 @@ mdsession <- loadMDModel("/mnt/machinelearning/megaDetector/megadetector_v4.1.pb
 testMD(allframes,mdsession)
 #+++++++++++++++++++++
 
-mdres <- detectObjectBatch(mdsession,allframes$Frame, resultsfile = NULL, checkpoint = 2500)
+mdres <- detectObjectBatch(mdsession,allframes$Frame, resultsfile = mdresults, checkpoint = 2500)
 
 allframes <- parseMD(allframes, mdres)
 
@@ -78,36 +80,32 @@ pred <- classifySpecies(animals,modelfile,resize=456,standardize=FALSE,batch_siz
 alldata <- applyPredictions(animals,empty,"/mnt/machinelearning/Models/Southwest/classes.txt",pred,
                             outfile = predresults, counts = TRUE)
 
-# Classify sequences
+
+# Classify sequences / select best prediction
 #mdanimals <- classifySequence(mdanimals,pred,classes,18,maxdiff=60)
 alldata <- poolCrops(alldata, outfile = predresults)
-
-
 
 
 #===============================================================================
 # Symlinks
 #===============================================================================
 
+# place low-confidence images into "Unknown" category  (this step is skippable)
+alldata$prediction[alldata$confidence<0.25 & !(alldata$prediction %in% c("empty","human","vehicle"))]<-"unknown"
+
 #create link
-alldata$link<-paste0(linkdir,alldata$Common,"/",alldata$NewName)
-
-topchoice <- alldata[order(alldata[,'NewName']),]
-topchoice <- topchoice[!duplicated(topchoice$NewName),]
-
-# place low-confidence images into "Unknown" category
-topchoice$Common[topchoice$confidence<0.5 & !(topchoice$Common %in% c("empty","human","vehicle"))]<-"unknown"
+alldata$link<-paste0(linkdir,alldata$prediction,"/",alldata$NewName)
 
 # create species directories
-for(s in unique(topchoice$Common)){
+for(s in unique(alldata$prediction)){
   if(!dir.exists(paste0(linkdir,s)))dir.create(paste0(linkdir,s),recursive=T)}
 
 #link images to species directory
-mapply(file.link,topchoice$FilePath,topchoice$link)
+mapply(file.link,alldata$FilePath,alldata$link)
 
 
 #delete simlinks
-#sapply(imagesum$link,file.remove)
+#sapply(alldata$link,file.remove)
 
 #===============================================================================
 # Export to Camera Base

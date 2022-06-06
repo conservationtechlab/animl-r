@@ -20,6 +20,7 @@ Imports:
     exifr,
     av,
     data.table,
+    magrittr,
     dplyr,
     stats,
     imager,
