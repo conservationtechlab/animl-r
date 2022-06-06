@@ -94,7 +94,7 @@ def extractImages(file_path, out_dir, fps=None, frames=None):
     return frames_saved
 
 
-def imagesFromVideos(image_dir, out_dir=None, outfile=None, format="jpg", fps=None, frames=None, parallel=False,
+def imagesFromVideos(image_dir, out_dir, outfile=None, format="jpg", fps=None, frames=None, parallel=False,
                      nproc=1):
     assert os.path.isdir(image_dir), "image_dir does not exist"
     if not os.path.isdir(out_dir): os.makedirs(out_dir)
