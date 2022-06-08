@@ -14,10 +14,16 @@ library(animl)
 library(magrittr)
 
 
-imagedir <- "/home/kyra/animl/examples/test_data/Southwest/"
+imagedir <- "/home/kyra/animl/examples/test_data/Southwest"
 
 #create global variable file and directory names
 setupDirectory(imagedir)
+
+
+#load data if needed
+#mdres <- loadData(mdresults)
+#alldata <- loadData(predresults)
+#alldata <- loadData(classifiedimages)
 
 #===============================================================================
 # Extract EXIF data
@@ -26,7 +32,7 @@ setupDirectory(imagedir)
 # Read exif data for all images within base directory
 files <- buildFileManifest(imagedir)
 
-
+#build new name
 basedepth=length(strsplit(basedir,split="/")[[1]])-1
 
 
@@ -83,29 +89,23 @@ alldata <- applyPredictions(animals,empty,"/mnt/machinelearning/Models/Southwest
 
 # Classify sequences / select best prediction
 #mdanimals <- classifySequence(mdanimals,pred,classes,18,maxdiff=60)
-alldata <- poolCrops(alldata, outfile = predresults)
+alldata <- poolCrops(alldata, outfile = classifiedimages)
 
 
 #===============================================================================
 # Symlinks
 #===============================================================================
 
-# place low-confidence images into "Unknown" category  (this step is skippable)
-alldata$prediction[alldata$confidence<0.25 & !(alldata$prediction %in% c("empty","human","vehicle"))]<-"unknown"
+#symlink species predictions
+alldata <- symlinkClasses(alldata, linkdir)
 
-#create link
-alldata$link<-paste0(linkdir,alldata$prediction,"/",alldata$NewName)
+mapply(file.link, alldata$FilePath, alldata$Link)
 
-# create species directories
-for(s in unique(alldata$prediction)){
-  if(!dir.exists(paste0(linkdir,s)))dir.create(paste0(linkdir,s),recursive=T)}
-
-#link images to species directory
-mapply(file.link,alldata$FilePath,alldata$link)
-
+#symlink MD detections only
+symlinkMD(alldata,linkdir)
 
 #delete simlinks
-#sapply(alldata$link,file.remove)
+sapply(alldata$Link,file.remove)
 
 #===============================================================================
 # Export to Camera Base
