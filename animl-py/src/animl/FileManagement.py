@@ -40,7 +40,8 @@ def parseMD(results):
             for detection in detections:
                 bbox = detection['bbox']
                 data = {'file': dictionary['file'], 'max_detection_conf': dictionary['max_detection_conf'],
-                        'category': detection['category'], 'conf': detection['conf'], 'bbox1': bbox[0], 'bbox2': bbox[1],
+                        'category': detection['category'], 'conf': detection['conf'], 'bbox1': bbox[0],
+                        'bbox2': bbox[1],
                         'bbox3': bbox[2], 'bbox4': bbox[3]}
                 df = df.append(data, ignore_index=True)
         return df
@@ -97,11 +98,12 @@ def extractImages(file_path, out_dir, fps=None, frames=None):
 def imagesFromVideos(image_dir, out_dir, outfile=None, format="jpg", fps=None, frames=None, parallel=False,
                      nproc=1):
     assert os.path.isdir(image_dir), "image_dir does not exist"
-    if not os.path.isdir(out_dir): os.makedirs(out_dir)
+    if not os.path.isdir(out_dir):
+        os.makedirs(out_dir)
     files = [image_dir + x for x in os.listdir(image_dir)]
-    if (fps != None) and (frames != None):
+    if (fps is not None) and (frames is not None):
         print("If both fps and frames are defined fps will be used.")
-    assert (fps != None) or (frames != None), "Either fps or frames need to be defined."
+    assert (fps is not None) or (frames is not None), "Either fps or frames need to be defined."
     images = []
     videos = []
     for file in files:
@@ -124,6 +126,7 @@ def imagesFromVideos(image_dir, out_dir, outfile=None, format="jpg", fps=None, f
             images += (extractImages(video, out_dir=out_dir, fps=fps, frames=frames))
     return images
 
+
 def symlinkClassification(data, linkdir, classes):
     table = pd.read_table(classes, sep=" ", index_col=0)
     for i in range(0, len(table.index)):
@@ -139,8 +142,10 @@ def symlinkClassification(data, linkdir, classes):
             print('File already exists. Exception: {}'.format(e))
             continue
 
+
 def buildFileManifest(image_dir, outfile=None):
-    if outfile: pass
+    if outfile:
+        pass
     # load file manifest
     if not os.path.isdir(image_dir):
         return "The given directory does not exist."
