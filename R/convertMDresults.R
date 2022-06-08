@@ -89,7 +89,7 @@ convertMDresults <- function(mdresults){
 #' }
 convertMDResultsSimple<-function(mdresults){
   f<-function(data){
-    if(nrow(data$detections)>0){data.frame(file=data$file,max_detection_conf=data$max_detection_conf,
+    if(class(data$detections)=="data.frame" && nrow(data$detections)>0){data.frame(file=data$file,max_detection_conf=data$max_detection_conf,
                                            max_detection_category=data$max_detection_category,data$detections,stringsAsFactors = F)
     }else{data.frame(file=data$file,max_detection_conf=data$max_detection_conf,
                      max_detection_category=data$max_detection_category,category=0,conf=NA,
