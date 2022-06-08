@@ -148,7 +148,6 @@ loadImage_Resize <- function(file, height = 299, width = 299, standardize = FALS
 #' @import tensorflow
 #'
 load_img_resize_crop <- function(data, height = 299, width = 299, standardize = FALSE) {
-
   # catch error caused by missing files and zero-length files
   if (!is.null(tryCatch(image <- tf$io$read_file(data[[1]]), error = function(e) NULL))) {
     image <- tf$cond(
@@ -156,12 +155,18 @@ load_img_resize_crop <- function(data, height = 299, width = 299, standardize = 
       function() {
         image <- tf$image$decode_jpeg(image, channels = 3, try_recover_truncated = T)
         imgdim <- tf$cast(tf$unstack(tf$shape(image)), tf$float32)
+        img_height<- tf$cast(imgdim[[1]], tf$int32)
+        img_width <- tf$cast(imgdim[[0]], tf$int32)
         crop_top <- tf$cast(imgdim[[1]] * data[[2]], tf$int32)
         crop_left <- tf$cast(imgdim[[0]] * data[[3]], tf$int32)
         crop_height <- tf$cast(imgdim[[1]] * data[[4]], tf$int32)
         crop_width <- tf$cast(imgdim[[0]] * data[[5]], tf$int32)
-        image <- tf$image$crop_to_bounding_box(image, crop_left, crop_top, crop_width, crop_height) %>%
-          tf$image$resize_with_pad(as.integer(height), as.integer(width), method = "bicubic")
+        crop_height <- tf$cond(tf$greater((crop_top+crop_height),img_height),function()tf$cast(img_height-crop_top, tf$int32),function()crop_height)
+        crop_width  <- tf$cond(tf$greater((crop_left+crop_width),img_width),function()crop_height<-tf$cast(img_width-crop_left, tf$int32),function()crop_width)
+        crop_height <- tf$cond(tf$equal(crop_height,as.integer(0)),function()tf$cast(1, tf$int32),function()crop_height)
+        crop_width  <- tf$cond(tf$equal(crop_width,as.integer(0)),function()crop_height<-tf$cast(1, tf$int32),function()crop_width)
+        image <- tf$image$crop_to_bounding_box(image, crop_left, crop_top, crop_width, crop_height)
+        image <- tf$image$resize_with_pad(image, as.integer(height), as.integer(width), method = "bicubic")
       }
     )
     if (standardize) images <- tf$image$convert_image_dtype(image, dtype = tf$float32)
@@ -170,6 +175,7 @@ load_img_resize_crop <- function(data, height = 299, width = 299, standardize = 
   }
   image
 }
+
 
 #' @title Load image and return a tensor with an image and a corresponding label.
 #'

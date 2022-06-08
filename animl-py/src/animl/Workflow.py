@@ -2,6 +2,7 @@ import argparse
 import sys
 import json
 import os
+
 import pandas as pd
 from datetime import datetime
 from ImageCropGenerator import GenerateCropsFromFile
@@ -19,11 +20,6 @@ def main():
         help='A directory of images and/or videos to be processed')
 
     parser.add_argument(
-        'output_dir',
-        type=str,
-        help='Output directory including site name and date')
-
-    parser.add_argument(
         'megadetector_model',
         type=str,
         help='Path to the megadetector model')
@@ -37,6 +33,12 @@ def main():
         'classes',
         type=str,
         help='Path to the classes text file for the classification model')
+
+    parser.add_argument(
+        '-output_dir',
+        default=None,
+        type=str,
+        help='Output directory including site name and date')
 
     parser.add_argument(
         '--fps',
@@ -79,7 +81,6 @@ def main():
     MegaDetector_file = args.megadetector_model
     Classification_file = args.classification_model
     classes = args.classes
-
     # load the checkpoint if available
     # relative file names are only output at the end; all file paths in the checkpoint are still full paths
     if args.resume_from_checkpoint:
@@ -92,7 +93,7 @@ def main():
         print('Restored {} entries from the checkpoint'.format(len(results)))
     else:
         results = []
-    images = imagesFromVideos(args.image_dir, out_dir=args.output_dir, fps=args.fps, frames=args.frames,parallel=args.parallel)
+    images = imagesFromVideos(args.image_dir, out_dir=args.output_dir, fps=args.fps, frames=args.frames, parallel=args.parallel)
 
     # test that we can write to the output_file's dir if checkpointing requested
     if args.checkpoint_frequency != -1:
@@ -140,7 +141,6 @@ def main():
     table = pd.read_table(classes, sep=" ", index_col=0)
     for i in range(0, len(maxDataframe.index)):
         maxDataframe.at[i, 'class'] = table['x'].values[int(maxDataframe.at[i, 'class'])]
-
 
     # Symlink
     symlinkClassification(maxDataframe, args.output_dir, classes)
