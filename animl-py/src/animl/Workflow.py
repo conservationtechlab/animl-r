@@ -2,7 +2,6 @@ import argparse
 import sys
 import json
 import os
-import tempfile
 
 import pandas as pd
 from datetime import datetime
@@ -94,7 +93,7 @@ def main():
         print('Restored {} entries from the checkpoint'.format(len(results)))
     else:
         results = []
-    images = imagesFromVideos(args.image_dir, out_dir=args.output_dir, fps=args.fps, frames=args.frames,parallel=args.parallel)
+    images = imagesFromVideos(args.image_dir, out_dir=args.output_dir, fps=args.fps, frames=args.frames, parallel=args.parallel)
 
     # test that we can write to the output_file's dir if checkpointing requested
     if args.checkpoint_frequency != -1:
@@ -142,7 +141,6 @@ def main():
     table = pd.read_table(classes, sep=" ", index_col=0)
     for i in range(0, len(maxDataframe.index)):
         maxDataframe.at[i, 'class'] = table['x'].values[int(maxDataframe.at[i, 'class'])]
-
 
     # Symlink
     symlinkClassification(maxDataframe, args.output_dir, classes)

@@ -8,7 +8,6 @@ from FileManagement import load_image
 
 def load_and_run_detector_batch(image_file_names, detector_file, checkpoint_path,
                                 confidence_threshold, checkpoint_frequency, results):
-
     already_processed = set([i['file'] for i in results])
 
     # load the detector
@@ -16,10 +15,11 @@ def load_and_run_detector_batch(image_file_names, detector_file, checkpoint_path
 
     count = 0  # does not count those already processed
     for im_file in tqdm(image_file_names):
-        if im_file in already_processed: continue # will not add additional entries not in the starter checkpoint
+        if im_file in already_processed:
+            continue  # will not add additional entries not in the starter checkpoint
         if im_file.lower().endswith(".mp4"):
             try:
-                _,image = cv2.VideoCapture(im_file).read()  #get first frame
+                _, image = cv2.VideoCapture(im_file).read()  # get first frame
             except Exception as e:
                 print('Video {} cannot be loaded. Exception: {}'.format(im_file, e))
                 result = {
@@ -28,7 +28,7 @@ def load_and_run_detector_batch(image_file_names, detector_file, checkpoint_path
                 }
                 results.append(result)
                 continue
-        else: 
+        else:
             try:
                 image = load_image(im_file)
             except Exception as e:
@@ -56,5 +56,3 @@ def load_and_run_detector_batch(image_file_names, detector_file, checkpoint_path
                 json.dump({'images': results}, f)
 
     return results  # actually modified in place
-
-

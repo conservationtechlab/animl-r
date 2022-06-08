@@ -36,12 +36,14 @@ Reference:
 https://github.com/tensorflow/models/blob/master/research/object_detection/inference/detection_inference.py
 """
 
-#%% Constants, imports, environment
+# Constants, imports, environment
 import os
 import warnings
 from datetime import datetime
 import numpy as np
 import math
+import tensorflow as tf
+
 
 # ignoring all "PIL cannot read EXIF metainfo for the images" warnings
 warnings.filterwarnings('ignore', '(Possibly )?corrupt EXIF data', UserWarning)
@@ -51,10 +53,8 @@ warnings.filterwarnings('ignore', 'Metadata warning', UserWarning)
 
 # Numpy FutureWarnings from tensorflow import
 warnings.filterwarnings('ignore', category=FutureWarning)
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' 
-
-import tensorflow as tf
 tf.get_logger().setLevel('ERROR')
 tf.autograph.set_verbosity(3)
 
@@ -65,7 +65,7 @@ def truncate_float(x, precision=3):
         return 0
     else:
         factor = math.pow(10, precision - 1 - math.floor(math.log10(abs(x))))
-        return math.floor(x * factor)/factor
+        return math.floor(x * factor) / factor
 
 
 class TFDetector:
@@ -214,7 +214,7 @@ class TFDetector:
             result['max_detection_conf'] = truncate_float(float(max_detection_conf),
                                                           precision=TFDetector.CONF_DIGITS)
             result['detections'] = detections_cur_image
-            
+
             result['date'] = datetime.fromtimestamp(os.path.getmtime(image_id)).strftime('%Y-%m-%d')
         except Exception as e:
             result['failure'] = TFDetector.FAILURE_TF_INFER

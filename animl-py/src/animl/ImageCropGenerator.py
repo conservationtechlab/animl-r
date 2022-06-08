@@ -7,7 +7,8 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 def resize_with_padding(img, expected_size):
-    if img.size[0] == 0 or img.size[1] == 0: return img
+    if img.size[0] == 0 or img.size[1] == 0:
+        return img
     if img.size[0] > img.size[1]:
         new_size = (expected_size[0], int(expected_size[1] * img.size[1] / img.size[0]))
     else:
