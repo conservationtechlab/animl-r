@@ -1,3 +1,9 @@
-^animl\.Rproj$
+^animl/.Rproj$
+^/.Rproj/.user$
+^LICENSE/.md$
+^examples/
+^animl-env.yml
+^.Rhistory
+^animl-py/
+^.*\.Rproj$
 ^\.Rproj\.user$
-^LICENSE\.md$
