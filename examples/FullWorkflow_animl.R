@@ -14,17 +14,12 @@ library(animl)
 library(magrittr)
 
 
-imagedir <- "/home/kyra/animl/examples/test_data/Southwest"
+imagedir <- "/home/kyra/animl/examples/test_data/Southwest/"
 
 #create global variable file and directory names
 setupDirectory(imagedir)
 
-
-#load data if needed
-#mdres <- loadData(mdresults)
 #alldata <- loadData(predresults)
-#alldata <- loadData(classifiedimages)
-
 #===============================================================================
 # Extract EXIF data
 #===============================================================================
@@ -32,7 +27,7 @@ setupDirectory(imagedir)
 # Read exif data for all images within base directory
 files <- buildFileManifest(imagedir)
 
-#build new name
+
 basedepth=length(strsplit(basedir,split="/")[[1]])-1
 
 
@@ -80,32 +75,34 @@ empty <- setEmpty(allframes)
 #===============================================================================
 
 modelfile <- "/mnt/machinelearning/Models/Southwest/EfficientNetB5_456_Unfrozen_01_0.58_0.82.h5"
+modelfile <- "/mnt/machinelearning/Models/Kenya/2022/EfficientNetB5_456_Unfrozen_04_0.60_0.89.h5"
 
 pred <- classifySpecies(animals,modelfile,resize=456,standardize=FALSE,batch_size = 64,workers=8)
 
-alldata <- applyPredictions(animals,empty,"/mnt/machinelearning/Models/Southwest/classes.txt",pred,
+alldata <- applyPredictions(animals,empty,"/mnt/machinelearning/Models/Kenya/2022/classes.txt",pred,
                             outfile = predresults, counts = TRUE)
 
 
 # Classify sequences / select best prediction
 #mdanimals <- classifySequence(mdanimals,pred,classes,18,maxdiff=60)
-alldata <- poolCrops(alldata, outfile = classifiedimages)
+alldata <- poolCrops(alldata, outfile = predresults)
 
+#view results
+table(alldata$prediction)
 
+saveData(alldata,resultsfile)
 #===============================================================================
 # Symlinks
 #===============================================================================
 
-#symlink species predictions
-alldata <- symlinkClasses(alldata, linkdir)
+symlinkClasses(alldata, linkdir, outfile=resultsfile, copy=FALSE)
 
-mapply(file.link, alldata$FilePath, alldata$Link)
-
-#symlink MD detections only
-symlinkMD(alldata,linkdir)
+#symlink MD detections only, copy = TRUE copies the file, copy = FALSE creates a link
+#symlinkMD(alldata,linkdir, copy=TRUE)
 
 #delete simlinks
-sapply(alldata$Link,file.remove)
+#sapply(alldata$Link,file.remove)
+
 
 #===============================================================================
 # Export to Camera Base

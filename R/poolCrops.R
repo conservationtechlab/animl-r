@@ -28,7 +28,7 @@ poolCrops <- function(animals, how = "count", outfile = NA) {
     guesses <- sequence %>%
       dplyr::group_by(sequence$prediction) %>%
       dplyr::summarise(mean = mean(sequence$confidence), n = dplyr::n())
-
+    guesses <- dplyr::rename(guesses, prediction = "sequence$prediction")
     if (how == "conf") {
       best <- guesses[which.max(guesses$mean), ]
     } else {
@@ -39,7 +39,7 @@ poolCrops <- function(animals, how = "count", outfile = NA) {
         guess <- newguesses[which.max(newguesses$mean), ]
       }
     }
-    animals[animals$NewName == v, ]$Species <- guess$prediction
+    animals[animals$NewName == v, ]$prediction <- guess$prediction
     pbapply::setpb(pb, i)
   }
   pbapply::setpb(pb, steps)
