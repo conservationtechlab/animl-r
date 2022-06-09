@@ -4,7 +4,7 @@
 \alias{poolCrops}
 \title{Select Best Classification From Multiple Frames}
 \usage{
-poolCrops(animals, how = "count", outfile = NA)
+poolCrops(animals, how = "count", shrink = FALSE, outfile = NA)
 }
 \arguments{
 \item{animals}{dataframe of all frames including species classification}

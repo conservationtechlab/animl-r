@@ -11,24 +11,24 @@
 #' \dontrun{
 #' mdanimals <- classifyVideo(mdanimals)
 #' }
-poolCrops <- function(animals, how = "count", outfile = NA) {
+poolCrops <- function(animals, how = "count", shrink = FALSE, outfile = NA) {
   if (checkFile(outfile)) { return(loadData(outfile))}
   if (!is(animals, "data.frame")) { stop("'animals' must be DataFrame")}
-
-  animals$Species <- animals$prediction
-
+  
+  animals$prediction <- animals$prediction
+  
   videonames <- unique(animals$NewName)
-
+  
   steps <- length(videonames)
   pb <- pbapply::startpb(1, steps)
-
+  
   for (i in 1:steps) {
     v <- videonames[i]
     sequence <- animals[animals$NewName == v, ]
     guesses <- sequence %>%
       dplyr::group_by(sequence$prediction) %>%
       dplyr::summarise(mean = mean(sequence$confidence), n = dplyr::n())
-    guesses <- dplyr::rename(guesses, prediction = "sequence$prediction")
+    
     if (how == "conf") {
       best <- guesses[which.max(guesses$mean), ]
     } else {
@@ -44,6 +44,11 @@ poolCrops <- function(animals, how = "count", outfile = NA) {
   }
   pbapply::setpb(pb, steps)
   pbapply::closepb(pb)
+  
+  if(shrink){
+    topchoice = animals[order(animals[,'FilePath'],-animals[,'confidence']),]
+    animals = topchoice[!duplicated(topchoice$NewName),]
+  }
   
   # save data
   if(!is.na(outfile)){ saveData(animals, outfile)}
