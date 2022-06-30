@@ -18,16 +18,16 @@
 cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width = 456, standardize = FALSE, batch_size = 32) {
   # create data generator for  training (image/label pair)
   if (!(is.vector(files) && class(files) == "character")) {
-    stop("Files needs to be a vector of file names.\n")
+    stop("files needs to be a vector of file names.\n")
   }
   if (ncol(boxes) != 4) {
-    stop("Boxes must have four columns.\n")
+    stop("boxes must have four columns.\n")
   }
   if (sum(apply(boxes, 2, is.numeric)) != 4) {
     stop("boxes must be numeric.\n")
   }
   if (length(files) != nrow(boxes)) {
-    stop("Boxes must have the same number of rows as the length of files.\n")
+    stop("boxes must have the same number of rows as the length of files.\n")
   }
 
   data <- data.frame(file = files, boxes)
@@ -65,7 +65,7 @@ ImageGenerator <- function(files, resize_height = NULL, resize_width = NULL, sta
   dataset <- tfdatasets::tensor_slices_dataset(files)
   if (is.null(resize_height) || is.null(resize_width)) {
     message("No values were provided for resize, returning full-size images.")
-    dataset <- tfdatasets::dataset_map_and_batch(dataset, function(x) loadImg(x, standardize), batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
+    dataset <- tfdatasets::dataset_map_and_batch(dataset, function(x) loadImage(x, standardize), batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
     # dataset<-dataset$apply(tf$data$experimental$ignore_errors())
   } else {
     dataset <- tfdatasets::dataset_map_and_batch(dataset, function(x) loadImage_Resize(x, resize_height, resize_width, standardize), batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
@@ -88,7 +88,7 @@ ImageGenerator <- function(files, resize_height = NULL, resize_width = NULL, sta
 #' \dontrun{}
 #' @import tensorflow
 #'
-loadImg <- function(file, standardize = FALSE) {
+loadImage <- function(file, standardize = FALSE) {
   # catch error caused by missing files and zero-length files
   if (!is.null(tryCatch(image <- tf$io$read_file(file), error = function(e) NULL))) {
     image <- tf$image$decode_jpeg(image, channels = 3, try_recover_truncated = T)
@@ -113,19 +113,25 @@ loadImg <- function(file, standardize = FALSE) {
 #' \dontrun{}
 #' @import tensorflow
 #'
-loadImage_Resize <- function(file, height = 299, width = 299, standardize = FALSE) {
+loadImage_Resize <- function(file, height = 299, width = 299, pad=FALSE,standardize = FALSE) {
   size <- as.integer(c(height, width))
-
+  
   # catch error caused by missing files and zero-length files
   if (!is.null(tryCatch(image <- tf$io$read_file(file), error = function(e) NULL))) {
     image <- tf$cond(
       tf$equal(tf$strings$length(image), as.integer(0)), function() tf$zeros(as.integer(c(height, width, 3)), dtype = tf$float32),
       function() {
-        tf$image$decode_jpeg(image, channels = 3, try_recover_truncated = T) %>%
-          tf$image$resize(size = size)
+        image<-tf$image$decode_jpeg(image, channels = 3, try_recover_truncated = T)
+        image <- tf$image$convert_image_dtype(image, dtype = tf$float32)
+        if(pad==TRUE){
+          image<-tf$image$resize_with_pad(image, as.integer(height), as.integer(width), method = "bicubic")
+        }else{
+          image<-tf$image$resize(image,size = size)
+        }
+        if (!standardize) images <- tf$image$convert_image_dtype(image, dtype = tf$uint8)
+        image
       }
     )
-    if (standardize) images <- tf$image$convert_image_dtype(image, dtype = tf$float32)
   } else {
     image <- tf$zeros(as.integer(c(height, width, 3)), dtype = tf$float32)
   }
@@ -165,11 +171,12 @@ load_img_resize_crop <- function(data, height = 299, width = 299, standardize = 
         crop_width  <- tf$cond(tf$greater((crop_left+crop_width),img_width),function()crop_height<-tf$cast(img_width-crop_left, tf$int32),function()crop_width)
         crop_height <- tf$cond(tf$equal(crop_height,as.integer(0)),function()tf$cast(1, tf$int32),function()crop_height)
         crop_width  <- tf$cond(tf$equal(crop_width,as.integer(0)),function()crop_height<-tf$cast(1, tf$int32),function()crop_width)
+        image <- tf$image$convert_image_dtype(image, dtype = tf$float32)
         image <- tf$image$crop_to_bounding_box(image, crop_left, crop_top, crop_width, crop_height)
         image <- tf$image$resize_with_pad(image, as.integer(height), as.integer(width), method = "bicubic")
       }
     )
-    if (standardize) images <- tf$image$convert_image_dtype(image, dtype = tf$float32)
+    if (!standardize) images <- tf$image$convert_image_dtype(image, dtype = tf$uint8)
   } else {
     image <- tf$zeros(as.integer(c(height, width, 3)), dtype = tf$float32)
   }
