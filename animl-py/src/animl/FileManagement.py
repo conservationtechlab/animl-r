@@ -46,11 +46,37 @@ def parseMD(results):
                 df = df.append(data, ignore_index=True)
         return df
 
+def parseCM(animaldf, otherdf, predictions, classes):
+    # Format Classification results
+    predictionsDataframe = pd.DataFrame(predictions)
+    maxDataframe = predictionsDataframe.idxmax(axis=1).to_frame(name='class')
+    maxDataframe.insert(0, 'file', animaldf.iloc[:, 0].to_numpy())
+    maxDataframe = maxDataframe.append(otherdf, ignore_index=True)
+
+    # Read Classification Txt file
+    table = pd.read_table(classes, sep=" ", index_col=0)
+    for i in range(0, len(maxDataframe.index)):
+        maxDataframe.at[i, 'class'] = table['x'].values[int(maxDataframe.at[i, 'class'])]
+    return maxDataframe
+
 
 def filterImages(dataframe):
     # Removes all images that MegaDetector gave no detection for
     animaldf = dataframe[dataframe['category'].astype(int) == 1]
     otherdf = dataframe[dataframe['category'].astype(int) != 1]
+    animaldf = animaldf.reset_index(drop=True)
+    otherdf = otherdf.reset_index(drop=True)
+    otherdf = otherdf[['file', 'category']]
+    otherdf = otherdf.rename(columns={'category': 'class'})
+    # Numbers the class of the non-animals correctly
+    if not otherdf.empty:
+        for idx in range(len(otherdf.index)):
+            category = otherdf.at[idx, 'class']
+            if category == 2:
+                otherdf.at[idx, 'class'] = 12
+            else:
+                otherdf.at[idx, 'class'] = 8
+
     return animaldf, otherdf
 
 
