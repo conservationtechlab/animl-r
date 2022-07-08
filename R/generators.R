@@ -32,7 +32,7 @@ cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width =
 
   data <- data.frame(file = files, boxes)
   dataset <- tfdatasets::tensor_slices_dataset(data)
-  dataset <- tfdatasets::dataset_map_and_batch(dataset, function(x) load_img_resize_crop(x, resize_height, resize_width, standardize), batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
+  dataset <- tfdatasets::dataset_map_and_batch(dataset, function(x) loadImage_Resize_Crop(x, resize_height, resize_width, standardize), batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
   dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
   # dataset<-dataset$apply(tf$data$experimental$ignore_errors())
   dataset <- reticulate::as_iterator(dataset)
@@ -69,6 +69,45 @@ ImageGenerator <- function(files, resize_height = NULL, resize_width = NULL, sta
     # dataset<-dataset$apply(tf$data$experimental$ignore_errors())
   } else {
     dataset <- tfdatasets::dataset_map_and_batch(dataset, function(x) loadImage_Resize(x, resize_height, resize_width, standardize), batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
+  }
+  dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
+  dataset <- reticulate::as_iterator(dataset)
+  dataset
+}
+
+
+#' @title Tensorflow data generator that resizes images and returns original image size.
+#'
+#' @description Creates an image data generator that resizes images if requested and also returns the origianl images size needed for MegaDetector.
+#'
+#' @param files a vector of file names
+#' @param resize_height the height the cropped image will be resized to. If NULL returns original size images.
+#' @param resize_width the width the cropped image will be resized to. If NULL returns original size images..
+#' @param pad pad the image instead of stretching it, TRUE or FALSE.
+#' @param standardize standardize the image to the range 0 to 1, TRUE or FALSE.
+#' @param batch_size the batch size for the image generator.
+#'
+#' @return A Tensorflow image data generator.
+#' @examples
+#' \dontrun{
+#' dataset <- ImageGenerator(images, standardize = FALSE, batch_size = batch_size)
+#' }
+#' @export
+#' @import tensorflow
+#'
+ImageGeneratorSize <- function(files, resize_height = NULL, resize_width = NULL, pad=FALSE, standardize = FALSE, batch_size = 32) {
+  # create data generator for  training (image/label pair)
+  if (!(is.vector(files) && class(files) == "character")) {
+    stop("Please provide a vector of file names.\n")
+  }
+  dataset <- tfdatasets::tensor_slices_dataset(files)
+  if (is.null(resize_height) || is.null(resize_width)) {
+    message("No values were provided for resize, returning full-size images.")
+    dataset <- tfdatasets::dataset_map_and_batch(dataset, function(x) loadImage(x, standardize), batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
+    # dataset<-dataset$apply(tf$data$experimental$ignore_errors())
+  } else {
+    dataset <- tfdatasets::dataset_map_and_batch(dataset, function(x) loadImage_Resize_Size(x, height=resize_height, width=resize_width, pad=pad,standardize=standardize), batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
+    #dataset <- tfdatasets::dataset_map_and_batch(dataset, function(x) loadImage_Resize(x, resize_height, resize_width,standardize=standardize), batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE)
   }
   dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
   dataset <- reticulate::as_iterator(dataset)
@@ -139,6 +178,50 @@ loadImage_Resize <- function(file, height = 299, width = 299, pad=FALSE,standard
 }
 
 
+#' @title Load and resize an image and return an image tensor as well as a tensor with the original image size.
+#'
+#' @description Load and resize an image and return an image tensor as well as a tensor with the original image size. Internal function to be called by image generator function.
+#'
+#' @param file path to a JPEG file
+#' @param height the height the cropped image will be resized to.
+#' @param width the width the cropped image will be resized to.
+#' @param pad pad the image instead of stretching it, TRUE or FALSE.
+#' @param standardize standardize the image, TRUE or FALSE.
+#'
+#' @return An image tensor.
+#' @examples
+#' \dontrun{}
+#' @import tensorflow
+#'
+loadImage_Resize_Size <- function(file, height = 299, width = 299, pad=FALSE,standardize = FALSE) {
+  # catch error caused by missing files and zero-length files
+  if (!is.null(tryCatch(image <- tf$io$read_file(file), error = function(e) NULL))) {
+    size <- as.integer(c(height, width))
+    image <- tf$cond(
+      tf$equal(tf$strings$length(image), as.integer(0)), function() list(image = tf$zeros(as.integer(c(height, width, 3)), dtype = tf$float32),width=as.integer(width),height=as.integer(height)),
+      function() {
+        image<-tf$image$decode_jpeg(image, channels = 3, try_recover_truncated = T)
+        imgdim <- tf$cast(tf$unstack(tf$shape(image)), tf$float32)
+        img_height<- tf$cast(imgdim[[0]], tf$int32)
+        img_width <- tf$cast(imgdim[[1]], tf$int32)
+        image <- tf$image$convert_image_dtype(image, dtype = tf$float32)
+        if(pad==TRUE){
+          image<-tf$image$resize_with_pad(image, as.integer(height), as.integer(width), method = "bicubic")
+        }else{
+          image2<-tf$image$resize(image,size = size)
+        }
+        if (!standardize) image <- tf$image$convert_image_dtype(image, dtype = tf$uint8)
+        list(image=image,width=img_width,height=img_height)
+        #image
+      }
+    )
+  } else {
+    image<-list(image = tf$zeros(as.integer(c(height, width, 3)), dtype = tf$float32),width=width,height=height)
+  }
+  image
+}
+
+
 #' @title Load, resize and crop an image and return an image tensor.
 #'
 #' @description Load a JPEG image and crop it to a bounding box. Internal function to be called by image generator function.
@@ -153,7 +236,7 @@ loadImage_Resize <- function(file, height = 299, width = 299, pad=FALSE,standard
 #' \dontrun{}
 #' @import tensorflow
 #'
-load_img_resize_crop <- function(data, height = 299, width = 299, standardize = FALSE) {
+loadImage_Resize_Crop <- function(data, height = 299, width = 299, standardize = FALSE) {
   # catch error caused by missing files and zero-length files
   if (!is.null(tryCatch(image <- tf$io$read_file(data[[1]]), error = function(e) NULL))) {
     image <- tf$cond(
