@@ -1,9 +1,9 @@
 # modified from CameraTraps/MegaDetector
-from TFDetector import TFDetector
+from animl.TFDetector import TFDetector
 from tqdm import tqdm
 import cv2
 import json
-from FileManagement import load_image
+from animl.FileManagement import load_image
 
 
 def load_and_run_detector_batch(image_file_names, detector_file, checkpoint_path,

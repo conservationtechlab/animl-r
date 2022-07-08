@@ -3,11 +3,10 @@ import sys
 import json
 import os
 
-import pandas as pd
 from datetime import datetime
-from ImageCropGenerator import GenerateCropsFromFile
-from FileManagement import imagesFromVideos, parseMD, filterImages, symlinkClassification
-from DetectMD import load_and_run_detector_batch
+from animl.ImageCropGenerator import GenerateCropsFromFile
+from animl.FileManagement import imagesFromVideos, parseMD, filterImages, symlinkClassification, parseCM
+from animl.DetectMD import load_and_run_detector_batch
 from tensorflow import keras
 
 
@@ -113,17 +112,7 @@ def main():
     df = parseMD(detections)
     # filter out all non animal detections
     animalDataframe, otherDataframe = filterImages(df)
-    animalDataframe = animalDataframe.reset_index(drop=True)
-    otherDataframe = otherDataframe.reset_index(drop=True)
-    otherDataframe = otherDataframe[['file', 'category']]
-    otherDataframe = otherDataframe.rename(columns={'category': 'class'})
-    if not otherDataframe.empty:
-        for idx in range(0, len(otherDataframe.index)):
-            category = otherDataframe.at[idx, 'class']
-            if category == 2:
-                otherDataframe.at[idx, 'class'] = 12
-            else:
-                otherDataframe.at[idx, 'class'] = 8
+
     # Create generator for classification model
     generator = GenerateCropsFromFile(animalDataframe)
 
@@ -132,16 +121,7 @@ def main():
     predictions = model.predict(generator)
 
     # Format Classification results
-    predictionsDataframe = pd.DataFrame(predictions)
-    maxDataframe = predictionsDataframe.idxmax(axis=1).to_frame(name='class')
-    maxDataframe.insert(0, 'file', animalDataframe.iloc[:, 0].to_numpy())
-    maxDataframe = maxDataframe.append(otherDataframe, ignore_index=True)
-
-    # Read Classification Txt file
-    table = pd.read_table(classes, sep=" ", index_col=0)
-    for i in range(0, len(maxDataframe.index)):
-        maxDataframe.at[i, 'class'] = table['x'].values[int(maxDataframe.at[i, 'class'])]
-
+    maxDataframe = parseCM(animalDataframe, otherDataframe, predictions, classes)
     # Symlink
     symlinkClassification(maxDataframe, args.output_dir, classes)
 
