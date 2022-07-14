@@ -21,30 +21,73 @@
 #'  mdsession <- loadMDModel(mdmodel)
 #'  mdres <- classifyImageMD(mdsession, images$FilePath[1])
 #' }
-detectObject <- function(mdsession, imagefile, min_conf = 0.1) {
+detectObject <- function(mdsession, imagefile,mdversion=5, min_conf = 0.1) {
   if (!("mdsession" %in% class(mdsession))) stop("Expecting a mdsession object.")
-  # create data generator
- # dataset <- ImageGenerator(imagefile, standardize = FALSE, batch_size = 1)
-  image <- loadImg(imagefile, FALSE)
-#  print(image)
-  # get tensors
-  image_tensor <- mdsession$graph$get_tensor_by_name("image_tensor:0")
-  box_tensor <- mdsession$graph$get_tensor_by_name("detection_boxes:0")
-  score_tensor <- mdsession$graph$get_tensor_by_name("detection_scores:0")
-  class_tensor <- mdsession$graph$get_tensor_by_name("detection_classes:0")
-  
-  np <- reticulate::import("numpy")
-  res <- mdsession$run(list(box_tensor, score_tensor, class_tensor), feed_dict = list("image_tensor:0" = np$expand_dims(image, axis = F)))
-  resfilter <- which(res[[2]] >= min_conf)
-  list(
-    FilePath = imagefile, max_detection_conf = max(res[[2]]), max_detection_category = res[[3]][which(res[[2]] == max(res[[2]]))][1],
-    detections = data.frame(
-      category = res[[3]][resfilter], conf = res[[2]][resfilter],
-      bbox1 = res[[1]][1, resfilter, 2], bbox2 = res[[1]][1, resfilter, 1],
-      bbox3 = res[[1]][1, resfilter, 4] - res[[1]][1, resfilter, 2],
-      bbox4 = res[[1]][1, resfilter, 3] - res[[1]][1, resfilter, 1]
+  if(mdversion<=4){
+    img <- loadImage(imagefile, FALSE)
+    # get tensors
+    image_tensor <- mdsession$graph$get_tensor_by_name("image_tensor:0")
+    box_tensor <- mdsession$graph$get_tensor_by_name("detection_boxes:0")
+    score_tensor <- mdsession$graph$get_tensor_by_name("detection_scores:0")
+    class_tensor <- mdsession$graph$get_tensor_by_name("detection_classes:0")
+    
+    np <- reticulate::import("numpy")
+    res <- mdsession$run(list(box_tensor, score_tensor, class_tensor), feed_dict = list("image_tensor:0" = np$expand_dims(img, axis = F)))
+    resfilter <- which(res[[2]] >= min_conf)
+    list(
+      FilePath = imagefile, max_detection_conf = max(res[[2]]), max_detection_category = res[[3]][which(res[[2]] == max(res[[2]]))][1],
+      detections = data.frame(
+        category = res[[3]][resfilter], conf = res[[2]][resfilter],
+        bbox1 = res[[1]][1, resfilter, 2], bbox2 = res[[1]][1, resfilter, 1],
+        bbox3 = res[[1]][1, resfilter, 4] - res[[1]][1, resfilter, 2],
+        bbox4 = res[[1]][1, resfilter, 3] - res[[1]][1, resfilter, 1]
+      )
     )
-  )
+  }else{
+    img <- loadImage_Resize_Size(imagefile,height=1280,width=1280,pad=TRUE,standardize=TRUE)
+    # get tensors
+    image_tensor=mdsession$graph$get_tensor_by_name('x:0')
+    output_tensor = mdsession$graph$get_tensor_by_name('Identity:0')
+    
+    np <- reticulate::import("numpy")
+    res<-mdsession$run(list(output_tensor),feed_dict=list("x:0"=np$expand_dims(img[[1]], axis = F)))
+    res<-res[[1]][1,,]
+    
+    resfilter<-tf$image$non_max_suppression(res[,1:4],res[,5],as.integer(100),score_threshold=min_conf)
+    resfilter<-as.matrix(resfilter)[,1]
+    
+    img_width<-img[[2]]$numpy()
+    img_height<-img[[3]]$numpy()
+    
+    a1<-as.vector((img_height-img_width)/img_height)
+    a2<-(img_width-img_height)/img_width
+    
+    #print(c(i,res[resfilter,1],res[resfilter,3]))
+    if(img_width>img_height){
+      list(FilePath = imagefile, max_detection_conf = max(res[,5]),
+           max_detection_category = which(apply(res[,6:8,drop=FALSE],2,max)==max(res[,6:8])),
+           detections = data.frame(
+             category = apply(res[resfilter,6:8,drop=FALSE],1,which.max), conf = apply(res[resfilter,6:8,drop=FALSE],1,max),
+             bbox1 = as.vector(res[resfilter,1])-as.vector(res[resfilter,3])/2,
+             bbox2 = ((as.vector(res[resfilter,2])-as.vector(res[resfilter,4])/2)-a2/2)/(1-a2),
+             bbox3 = as.vector(res[resfilter,3]),
+             bbox4 = as.vector(res[resfilter,4])/(1-a2)
+           )
+      )
+    }else{
+      list(FilePath = imagefile, max_detection_conf = max(res[,5]),
+           max_detection_category = which(apply(res[,6:8,drop=FALSE],2,max)==max(res[,6:8])),
+           detections = data.frame(
+             category = apply(res[resfilter,6:8,drop=FALSE],1,which.max), conf = apply(res[resfilter,6:8,drop=FALSE],1,max),
+             bbox1 = ((as.vector(res[resfilter,1])-as.vector(res[resfilter,3])/2)-a1/2)/(1-a1),
+             bbox2 = (as.vector(res[resfilter,2])-as.vector(res[resfilter,4])/2),
+             bbox3 = as.vector(res[resfilter,3])/(1-a1),
+             bbox4 = as.vector(res[resfilter,4])
+           )
+      )
+    } 
+    
+  }
 }
   
 
