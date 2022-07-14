@@ -33,12 +33,63 @@ cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width =
   data <- data.frame(file = files, boxes)
   dataset <- tfdatasets::tensor_slices_dataset(data)
   dataset <- tfdatasets::dataset_map(dataset, function(x) loadImage_Resize_Crop(x, resize_height, resize_width, standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
-  dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$AUTOTUNE,deterministic=TRUE)
+  dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
   dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
   # dataset<-dataset$apply(tf$data$experimental$ignore_errors())
   dataset <- reticulate::as_iterator(dataset)
   dataset
 }
+
+#' @title Tensorflow data generator for training that crops images to bounding box.
+#'
+#' @description Creates an image data generator that crops images based on bounding box coordinates and returnes an image/label pair.
+#'
+#' @param files a vector of file names
+#' @param boxes a data frame or matrix of bounding box coordinates in the format left, top, width, height.
+#' @param label a vector of labels
+#' @param resize_height the height the cropped image will be resized to.
+#' @param resize_width the width the cropped image will be resized to.
+#' @param standardize standardize the image to the range 0 to 1, TRUE or FALSE.
+#' @param augmentation use data augmentation, TRUE or FALSE.
+#' @param shuffle return data pairas in random order, TRUE or FALSE.
+#' @param batch_size the batch size for the image generator.
+#'
+#' @return A Tensorflow image data generator.
+#' @examples
+#' \dontrun{}
+#' @export
+#' @import tensorflow
+#'
+cropImageTrainGenerator <- function(files, boxes, label,resize_height = 456, resize_width = 456, standardize = FALSE, augmentation=FALSE,shuffle=FALSE,batch_size = 32) {
+  # create data generator for  training (image/label pair)
+  if (!(is.vector(files) && class(files) == "character")) {
+    stop("files needs to be a vector of file names.\n")
+  }
+  if (ncol(boxes) != 4) {
+    stop("boxes must have four columns.\n")
+  }
+  if (sum(apply(boxes, 2, is.numeric)) != 4) {
+    stop("boxes must be numeric.\n")
+  }
+  if (length(files) != nrow(boxes)) {
+    stop("boxes must have the same number of rows as the length of files.\n")
+  }
+  
+  data <- data.frame(file = files, boxes,label)
+  dataset <- tfdatasets::tensor_slices_dataset(data)
+  if(shuffle) 
+    dataset <- tfdatasets::dataset_shuffle(dataset,buffer_size=nrow(data), reshuffle_each_iteration=TRUE)
+  dataset <- tfdatasets::dataset_map(dataset, function(x) image_label_crop(x, resize_height, resize_width, standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
+  dataset <- tfdatasets::dataset_cache(dataset)
+  if(augmentation) 
+    dataset <- tfdatasets::dataset_map(dataset, imageAugmentation,num_parallel_calls = tf$data$experimental$AUTOTUNE)
+  dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
+  # dataset<-dataset$apply(tf$data$experimental$ignore_errors())
+  dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
+  dataset <- reticulate::as_iterator(dataset)
+  dataset
+}
+
 
 #' @title Tensorflow data generator that resizes images.
 #'
@@ -67,11 +118,11 @@ ImageGenerator <- function(files, resize_height = NULL, resize_width = NULL, sta
   if (is.null(resize_height) || is.null(resize_width)) {
     message("No values were provided for resize, returning full-size images.")
     dataset <- tfdatasets::dataset_map(dataset, function(x) loadImage(x, standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
-    dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$AUTOTUNE,deterministic=TRUE)
+    dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
     # dataset<-dataset$apply(tf$data$experimental$ignore_errors())
   } else {
     dataset <- tfdatasets::dataset_map(dataset, function(x) loadImage_Resize(x, resize_height, resize_width, standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
-    dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$AUTOTUNE,deterministic=TRUE)
+    dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
       }
   dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
   dataset <- reticulate::as_iterator(dataset)
@@ -107,13 +158,13 @@ ImageGeneratorSize <- function(files, resize_height = NULL, resize_width = NULL,
   if (is.null(resize_height) || is.null(resize_width)) {
     message("No values were provided for resize, returning full-size images.")
     dataset <- tfdatasets::dataset_map(dataset, function(x) loadImage(x, standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
-    dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$AUTOTUNE,deterministic=TRUE)
+    dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
     # dataset<-dataset$apply(tf$data$experimental$ignore_errors())
   } else {
     dataset <- tfdatasets::dataset_map(dataset, function(x) loadImage_Resize_Size(x, height=resize_height, width=resize_width, pad=pad,standardize=standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
-    dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$AUTOTUNE,deterministic=TRUE)
+    dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
   }
-  dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$AUTOTUNE)
+  dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
   dataset <- reticulate::as_iterator(dataset)
   dataset
 }
@@ -167,17 +218,17 @@ loadImage_Resize <- function(file, height = 299, width = 299, pad=FALSE,standard
         image<-tf$image$decode_jpeg(image, channels = 3, try_recover_truncated = T)
         image <- tf$image$convert_image_dtype(image, dtype = tf$float32)
         if(pad==TRUE){
-          image<-tf$image$resize_with_pad(image, as.integer(height), as.integer(width), method = "bicubic")
+          image<-tf$image$resize_with_pad(image, as.integer(height), as.integer(width), method = "bilinear")
         }else{
           image<-tf$image$resize(image,size = size)
         }
-        if (!standardize) images <- tf$image$convert_image_dtype(image, dtype = tf$uint8)
         image
       }
     )
   } else {
     image <- tf$zeros(as.integer(c(height, width, 3)), dtype = tf$float32)
   }
+  if (!standardize) image <- tf$image$convert_image_dtype(image, dtype = tf$uint8)
   image
 }
 
@@ -210,7 +261,7 @@ loadImage_Resize_Size <- function(file, height = 299, width = 299, pad=FALSE,sta
         img_width <- tf$cast(imgdim[[1]], tf$int32)
         image <- tf$image$convert_image_dtype(image, dtype = tf$float32)
         if(pad==TRUE){
-          image<-tf$image$resize_with_pad(image, as.integer(height), as.integer(width), method = "bicubic")
+          image<-tf$image$resize_with_pad(image, as.integer(height), as.integer(width), method = "bilinear")
         }else{
           image2<-tf$image$resize(image,size = size)
         }
@@ -260,13 +311,13 @@ loadImage_Resize_Crop <- function(data, height = 299, width = 299, standardize =
         crop_width  <- tf$cond(tf$equal(crop_width,as.integer(0)),function()crop_height<-tf$cast(1, tf$int32),function()crop_width)
         image <- tf$image$convert_image_dtype(image, dtype = tf$float32)
         image <- tf$image$crop_to_bounding_box(image, crop_left, crop_top, crop_width, crop_height)
-        image <- tf$image$resize_with_pad(image, as.integer(height), as.integer(width), method = "bicubic")
+        image <- tf$image$resize_with_pad(image, as.integer(height), as.integer(width), method = "bilinear")
       }
     )
-    if (!standardize) images <- tf$image$convert_image_dtype(image, dtype = tf$uint8)
   } else {
     image <- tf$zeros(as.integer(c(height, width, 3)), dtype = tf$float32)
   }
+  if (!standardize) image <- tf$image$convert_image_dtype(image, dtype = tf$uint8)
   image
 }
 
@@ -288,3 +339,41 @@ image_label <- function(data, height = 299, width = 299, standardize = FALSE) {
   list(image, data[[2]])
 }
 
+
+
+#' @title Load image, crop and return a tensor with an image and a corresponding label.
+#'
+#' @description Load image, crop and return a tensor with an image and a corresponding label. Internal function to be called by image generator function.
+#'
+#' @param data a list with the first element being an image file path, the next four elements being the bounding box coordinates and the last element a label
+#' @param height the height the cropped image will be resized to.
+#' @param width the width the cropped image will be resized to.
+#' @param standardize standardize the image, TRUE or FALSE.
+#'
+#' @return An image and label tensor.
+#' @examples
+#'
+image_label_crop <- function(data, height = 299, width = 299, standardize = FALSE) {
+  image <- loadImage_Resize_Crop2(list(data[[1]],data[[2]],data[[3]],data[[4]], data[[5]]), height, width, standardize)
+  list(image, data[[6]])
+}
+
+
+#' @title performed image augmentation on an image/label pair.
+#'
+#' @description Performes image augmentation on a image/label pair for training. Uses random brightness,contrast,saturation,hue, and horizontal flip.
+#'
+#' @param image an image tensor
+#' @param label a label tensor
+#'
+#' @return An image and label tensor.
+#' @examples
+#'
+imageAugmentation<-function(image,label){
+  image<-tf$image$random_brightness(image,0.2)
+  image<-tf$image$random_flip_left_right(image)
+  image<-tf$image$random_contrast(image,0.2,0.5)
+  image<-tf$image$random_saturation(image,1,3)
+  image<-tf$image$random_hue(image,0.2)
+  list(image,label)
+}
