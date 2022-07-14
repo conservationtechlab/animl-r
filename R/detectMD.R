@@ -21,7 +21,7 @@
 #'  mdsession <- loadMDModel(mdmodel)
 #'  mdres <- classifyImageMD(mdsession, images$FilePath[1])
 #' }
-detectObject <- function(mdsession, imagefile,mdversion=5, min_conf = 0.1) {
+detectObject <- function(mdsession, imagefile,mdversion=5 , min_conf = 0.1) {
   if (!("mdsession" %in% class(mdsession))) stop("Expecting a mdsession object.")
   if(mdversion<=4){
     img <- loadImage(imagefile, FALSE)
@@ -62,7 +62,6 @@ detectObject <- function(mdsession, imagefile,mdversion=5, min_conf = 0.1) {
     a1<-as.vector((img_height-img_width)/img_height)
     a2<-(img_width-img_height)/img_width
     
-    #print(c(i,res[resfilter,1],res[resfilter,3]))
     if(img_width>img_height){
       list(FilePath = imagefile, max_detection_conf = max(res[,5]),
            max_detection_category = which(apply(res[,6:8,drop=FALSE],2,max)==max(res[,6:8])),
@@ -191,7 +190,7 @@ detectObjectBatch <- function(mdsession, images,mdversion=5, min_conf = 0.1, bat
     batch_size=1 
     dataset <- ImageGeneratorSize(images,resize_height=1280,resize_width=1280, pad=TRUE, standardize = TRUE, batch_size = batch_size)
     
-    # # get tensors
+    # get tensors
     image_tensor=mdsession$graph$get_tensor_by_name('x:0')
     output_tensor = mdsession$graph$get_tensor_by_name('Identity:0')
     
@@ -214,7 +213,6 @@ detectObjectBatch <- function(mdsession, images,mdversion=5, min_conf = 0.1, bat
         a1<-as.vector((img_height-img_width)/img_height)
         a2<-(img_width-img_height)/img_width
         
-        #print(c(i,res[resfilter,1],res[resfilter,3]))
         if(img_width>img_height){
           results[[length(results) + 1]] <- list(
             FilePath = images[(i * batch_size - batch_size)+1], max_detection_conf = max(res[,5]),
