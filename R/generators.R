@@ -40,6 +40,7 @@ cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width =
   dataset
 }
 
+
 #' @title Tensorflow data generator for training that crops images to bounding box.
 #'
 #' @description Creates an image data generator that crops images based on bounding box coordinates and returnes an image/label pair.
@@ -60,7 +61,7 @@ cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width =
 #' @export
 #' @import tensorflow
 #'
-cropImageTrainGenerator <- function(files, boxes, label,resize_height = 456, resize_width = 456, standardize = FALSE, augmentation=FALSE,shuffle=FALSE,batch_size = 32) {
+cropImageTrainGenerator <- function(files, boxes, label,classes,resize_height = 456, resize_width = 456, standardize = FALSE, augmentation_color=FALSE,augmentation_geometry=FALSE,shuffle=FALSE,return_iterator=FALSE,batch_size = 32) {
   # create data generator for  training (image/label pair)
   if (!(is.vector(files) && class(files) == "character")) {
     stop("files needs to be a vector of file names.\n")
@@ -76,19 +77,27 @@ cropImageTrainGenerator <- function(files, boxes, label,resize_height = 456, res
   }
   
   data <- data.frame(file = files, boxes,label)
+  rng<-tf$random$Generator$from_seed(123,alg='philox')
+  auggeo<-imageAugmentationGeometry()
   dataset <- tfdatasets::tensor_slices_dataset(data)
   if(shuffle) 
     dataset <- tfdatasets::dataset_shuffle(dataset,buffer_size=nrow(data), reshuffle_each_iteration=TRUE)
-  dataset <- tfdatasets::dataset_map(dataset, function(x) image_label_crop(x, resize_height, resize_width, standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
+  dataset <- tfdatasets::dataset_map(dataset, function(x) imageLabelCrop(x, classes,resize_height, resize_width, standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
   dataset <- tfdatasets::dataset_cache(dataset)
-  if(augmentation) 
-    dataset <- tfdatasets::dataset_map(dataset, imageAugmentation,num_parallel_calls = tf$data$experimental$AUTOTUNE)
+  dataset <- tfdatasets::dataset_repeat(dataset)
+  if(augmentation_geometry) 
+    dataset <- tfdatasets::dataset_map(dataset,function(x,y)list(auggeo(x,training=TRUE),y),num_parallel_calls = tf$data$experimental$AUTOTUNE)
+  if(augmentation_color) 
+    dataset <- tfdatasets::dataset_map(dataset,function(x,y)imageAugmentationColor(x,y,rng),num_parallel_calls = tf$data$experimental$AUTOTUNE)
   dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
   # dataset<-dataset$apply(tf$data$experimental$ignore_errors())
   dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
-  dataset <- reticulate::as_iterator(dataset)
+  if(return_iterator)
+    dataset <- reticulate::as_iterator(dataset)
   dataset
 }
+
+
 
 
 #' @title Tensorflow data generator that resizes images.
@@ -334,9 +343,9 @@ loadImage_Resize_Crop <- function(data, height = 299, width = 299, standardize =
 #' @return An image and label tensor.
 #' @examples
 #'
-image_label <- function(data, height = 299, width = 299, standardize = FALSE) {
+imageLabel <- function(data,classes, height = 299, width = 299, standardize = FALSE) {
   image <- loadImage_Resize(data[[1]], height, width, standardize)
-  list(image, data[[2]])
+  list(image, tf$cast(classes==data[[6]],tf$int16))
 }
 
 
@@ -353,15 +362,15 @@ image_label <- function(data, height = 299, width = 299, standardize = FALSE) {
 #' @return An image and label tensor.
 #' @examples
 #'
-image_label_crop <- function(data, height = 299, width = 299, standardize = FALSE) {
-  image <- loadImage_Resize_Crop2(list(data[[1]],data[[2]],data[[3]],data[[4]], data[[5]]), height, width, standardize)
-  list(image, data[[6]])
+imageLabelCrop <- function(data,classes, height = 299, width = 299, standardize = FALSE) {
+  image <- loadImage_Resize_Crop(list(data[[1]],data[[2]],data[[3]],data[[4]], data[[5]]), height, width, standardize)
+  list(image, tf$cast(classes==data[[6]],tf$int16))
 }
 
 
-#' @title performed image augmentation on an image/label pair.
+#' @title Perform image augmentation through random color adjustments on an image/label pair.
 #'
-#' @description Performes image augmentation on a image/label pair for training. Uses random brightness,contrast,saturation,hue, and horizontal flip.
+#' @description Performs image augmentation on a image/label pair for training. Uses random brightness,contrast,saturation, and hue.
 #'
 #' @param image an image tensor
 #' @param label a label tensor
@@ -369,11 +378,28 @@ image_label_crop <- function(data, height = 299, width = 299, standardize = FALS
 #' @return An image and label tensor.
 #' @examples
 #'
-imageAugmentation<-function(image,label){
-  image<-tf$image$random_brightness(image,0.2)
-  image<-tf$image$random_flip_left_right(image)
-  image<-tf$image$random_contrast(image,0.2,0.5)
-  image<-tf$image$random_saturation(image,1,3)
-  image<-tf$image$random_hue(image,0.2)
+imageAugmentationColor<-function(image,label,rng){
+  seed=rng$make_seeds(as.integer(2))
+  seed=seed[1,]
+  image<-tf$image$stateless_random_brightness(image,0.2,seed)
+  image<-tf$image$stateless_random_contrast(image,0.3,0.7,seed)
+  image<-tf$image$stateless_random_saturation(image,0.5,2,seed)
+  image<-tf$image$stateless_random_hue(image,0.2,seed)
   list(image,label)
+}
+
+#' @title Perform random geometric transformations on an image.
+#'
+#' @description Returns a keras model that performs random geometric transformations on an image.
+#'
+#'
+#' @return A keras model.
+#' @examples
+#'
+imageAugmentationGeometry<-function(){
+  model<-keras_model_sequential()
+  model<-layer_random_flip(model,mode="horizontal")
+  model<-layer_random_zoom(model,c(0,-.2),c(0,-0.2),fill_mode="constant")
+  model<-layer_random_rotation(model,c(-0.1,0.1),fill_mode="constant")
+  model
 }
