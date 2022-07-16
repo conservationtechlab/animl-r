@@ -126,11 +126,11 @@ ImageGenerator <- function(files, resize_height = NULL, resize_width = NULL, sta
   dataset <- tfdatasets::tensor_slices_dataset(files)
   if (is.null(resize_height) || is.null(resize_width)) {
     message("No values were provided for resize, returning full-size images.")
-    dataset <- tfdatasets::dataset_map(dataset, function(x) loadImage(x, standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
+    dataset <- tfdatasets::dataset_map(dataset, function(x) loadImage(x, standardize=standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
     dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
     # dataset<-dataset$apply(tf$data$experimental$ignore_errors())
   } else {
-    dataset <- tfdatasets::dataset_map(dataset, function(x) loadImage_Resize(x, resize_height, resize_width, standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
+    dataset <- tfdatasets::dataset_map(dataset, function(x) loadImage_Resize(x, resize_height, resize_width, standardize=standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
     dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
       }
   dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
@@ -141,7 +141,7 @@ ImageGenerator <- function(files, resize_height = NULL, resize_width = NULL, sta
 
 #' @title Tensorflow data generator that resizes images and returns original image size.
 #'
-#' @description Creates an image data generator that resizes images if requested and also returns the origianl images size needed for MegaDetector.
+#' @description Creates an image data generator that resizes images if requested and also returns the original images size needed for MegaDetector.
 #'
 #' @param files a vector of file names
 #' @param resize_height the height the cropped image will be resized to. If NULL returns original size images.
@@ -195,7 +195,7 @@ loadImage <- function(file, standardize = FALSE) {
   # catch error caused by missing files and zero-length files
   if (!is.null(tryCatch(image <- tf$io$read_file(file), error = function(e) NULL))) {
     image <- tf$image$decode_jpeg(image, channels = 3, try_recover_truncated = T)
-    if (standardize) images <- tf$image$convert_image_dtype(image, dtype = tf$float32)
+    if (standardize) image <- tf$image$convert_image_dtype(image, dtype = tf$float32)
   } else {
     image <- tf$zeros(as.integer(c(299, 299, 3)), dtype = tf$float32)
   }
