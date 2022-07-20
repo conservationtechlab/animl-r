@@ -61,7 +61,7 @@ cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width =
 #' @export
 #' @import tensorflow
 #'
-cropImageTrainGenerator <- function(files, boxes, label,classes,resize_height = 456, resize_width = 456, standardize = FALSE, augmentation_color=FALSE,augmentation_geometry=FALSE,shuffle=FALSE,return_iterator=FALSE,batch_size = 32) {
+cropImageTrainGenerator <- function(files, boxes, label,classes,resize_height = 456, resize_width = 456, standardize = FALSE, augmentation_color=FALSE,augmentation_geometry=FALSE,shuffle=FALSE,cache=FALSE,cache_dir=NULL,return_iterator=FALSE,batch_size = 32) {
   # create data generator for  training (image/label pair)
   if (!(is.vector(files) && class(files) == "character")) {
     stop("files needs to be a vector of file names.\n")
@@ -75,15 +75,23 @@ cropImageTrainGenerator <- function(files, boxes, label,classes,resize_height = 
   if (length(files) != nrow(boxes)) {
     stop("boxes must have the same number of rows as the length of files.\n")
   }
-  
+  if(!is.null(cache_dir) && !dir.exists(cache_dir)){
+    stop("cache directory does not exist.\n")
+  }
   data <- data.frame(file = files, boxes,label)
-  rng<-tf$random$Generator$from_seed(123,alg='philox')
+  rng<-tf$random$Generator$from_seed(as.integer(123),alg='philox')
   auggeo<-imageAugmentationGeometry()
   dataset <- tfdatasets::tensor_slices_dataset(data)
   if(shuffle) 
     dataset <- tfdatasets::dataset_shuffle(dataset,buffer_size=nrow(data), reshuffle_each_iteration=TRUE)
   dataset <- tfdatasets::dataset_map(dataset, function(x) imageLabelCrop(x, classes,resize_height, resize_width, standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
-  dataset <- tfdatasets::dataset_cache(dataset)
+  if(cache){
+    if(is.null(cache_dir)){
+      dataset <- tfdatasets::dataset_cache(dataset)
+    }else{
+      dataset <- tfdatasets::dataset_cache(dataset,cache_dir)
+    }
+  }
   dataset <- tfdatasets::dataset_repeat(dataset)
   if(augmentation_geometry) 
     dataset <- tfdatasets::dataset_map(dataset,function(x,y)list(auggeo(x,training=TRUE),y),num_parallel_calls = tf$data$experimental$AUTOTUNE)
