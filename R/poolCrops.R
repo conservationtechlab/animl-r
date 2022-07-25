@@ -15,13 +15,12 @@ poolCrops <- function(animals, how = "count", shrink = FALSE, outfile = NA) {
   if (checkFile(outfile)) { return(loadData(outfile))}
   if (!is(animals, "data.frame")) { stop("'animals' must be DataFrame")}
   
-  animals$prediction <- animals$prediction
-  
   videonames <- unique(animals$NewName)
   
   steps <- length(videonames)
   pb <- pbapply::startpb(1, steps)
   
+  row <- 1
   for (i in 1:steps) {
     v <- videonames[i]
     sequence <- animals[animals$NewName == v, ]
@@ -29,9 +28,8 @@ poolCrops <- function(animals, how = "count", shrink = FALSE, outfile = NA) {
       dplyr::group_by(sequence$prediction) %>%
       dplyr::summarise(mean = mean(sequence$confidence), n = dplyr::n())
     
-    if (how == "conf") {
-      best <- guesses[which.max(guesses$mean), ]
-    } else {
+    if (how == "conf") { guess <- guesses[which.max(guesses$mean), ] } 
+    else {
       best <- which.max(guesses$n)
       guess <- guesses[best, ]
       if (guess$prediction == "empty" && nrow(guesses) > 1) {
@@ -39,6 +37,7 @@ poolCrops <- function(animals, how = "count", shrink = FALSE, outfile = NA) {
         guess <- newguesses[which.max(newguesses$mean), ]
       }
     }
+  
     animals[animals$NewName == v, ]$prediction <- guess$prediction
     pbapply::setpb(pb, i)
   }

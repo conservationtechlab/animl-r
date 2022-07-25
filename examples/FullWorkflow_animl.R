@@ -11,10 +11,9 @@
 library(reticulate)
 use_condaenv("mlgpu")
 library(animl)
-library(magrittr)
 
 
-imagedir <- "/home/kyra/animl/examples/test_data/Southwest/"
+imagedir <- "/mnt/projects/Stacy-Dawes_Kenya/WWK_2022-06-09/Workflow_G2_1"
 
 #create global variable file and directory names
 setupDirectory(imagedir)
@@ -53,12 +52,12 @@ mdsession <- loadMDModel("/mnt/machinelearning/megaDetector/megadetector_v4.1.pb
 
 #+++++++++++++++++++++
 # Classify a single image to make sure everything works before continuing
-testMD(allframes,mdsession)
+testMD(nacti,mdsession)
 #+++++++++++++++++++++
 
-mdres <- detectObjectBatch(mdsession,allframes$Frame, resultsfile = mdresults, checkpoint = 2500)
+mdres <- detectObjectBatch(mdsession, nacti$Frame, checkpoint = 1000)
 
-allframes <- parseMD(allframes, mdres)
+allframes <- parseMD(nacti, mdres)
 
 
 #null out low-confidence crops
@@ -85,17 +84,21 @@ alldata <- applyPredictions(animals,empty,"/mnt/machinelearning/Models/Kenya/202
 
 # Classify sequences / select best prediction
 #mdanimals <- classifySequence(mdanimals,pred,classes,18,maxdiff=60)
-alldata <- poolCrops(alldata, outfile = predresults)
+toupload <- poolCrops(alldata, how = "conf", outfile = NULL ,shrink = TRUE)
+
+topchoice = alldata[order(alldata[,'FilePath'],-alldata[,'confidence']),]
+topchoice = topchoice[!duplicated(topchoice$NewName),]
+
 
 #view results
-table(alldata$prediction)
+table(topchoice$prediction)
 
 saveData(alldata,resultsfile)
 #===============================================================================
 # Symlinks
 #===============================================================================
 
-symlinkClasses(alldata, linkdir, outfile=resultsfile, copy=FALSE)
+symlinkClasses(alldata, linkdir,copy=FALSE)
 
 #symlink MD detections only, copy = TRUE copies the file, copy = FALSE creates a link
 #symlinkMD(alldata,linkdir, copy=TRUE)
@@ -139,12 +142,16 @@ write.table(export,file="R:/BrazilNutImportCB.txt",sep="\t",row.names = F,quote 
 # Export to Zooniverse
 #===============================================================================
 
-source_python("ZooniverseFunctions.py")
+source_python("/home/kyra/animl/animl-py/src/animl/ZooniverseFunctions.py")
 
 data = "/mnt/mathias/Camera Trap Data Raw/BIG GRID/September 2021/Data/ImportZooniverse.csv"
 alldata = read.csv(data)
 
 imagesallanimal<-alldata[!(alldata$Common %in% c("Empty","empty","human","Human","vehicle","Vehicle")),]
+
+alldata <- loadData(resultsfile)
+
+connect_to_Panoptes("tkswanson","ShikokuInu9388!")
 
 # Confirm project name and subject set name
 # where the images will be added
@@ -156,16 +163,19 @@ topchoice2 = imagesallanimal[order(imagesallanimal[,'FileName'],-imagesallanimal
 topchoice2 = topchoice2[!duplicated(topchoice$NewName),]
 
 #change species name to the one used on Zooniverse
-zooconvert <- read.csv("Models/Kenya/Zooniverse_SpeciesList.csv")
-topchoice2$ZooniverseCode<-zooconvert[match(topchoice2$Common,zooconvert$Common),"ZooniverseCode"]
+zooconvert <- read.csv("/mnt/machinelearning/Models/Kenya/Zooniverse_SpeciesList.csv")
+topchoice$ZooniverseCode<-zooconvert[match(topchoice$prediction,zooconvert$Common),"ZooniverseCode"]
 
 
-toupload<-topchoice2[topchoice2$ZooniverseCode!="Human/Vehicle",]
+toupload<-topchoice[topchoice$ZooniverseCode!="Human/Vehicle",]
 toupload<-toupload[toupload$ZooniverseCode!="Nothing Here",]
 
 
-upload_to_Zooniverse(projectname,101729,toupload[58800,],tempdir)
+upload_to_Zooniverse_Simple(projectname,105783,alldata[111636:133835,],vidfdir)
 
+
+write.csv(toupload,resultsfile)
+toupload <- read.csv(resultsfile)
 
 create_SubjectSet(projectname,subjectset)
 
