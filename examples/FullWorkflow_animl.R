@@ -11,14 +11,20 @@
 library(reticulate)
 use_condaenv("mlgpu")
 library(animl)
+library(magrittr)
 
 
-imagedir <- "/mnt/projects/Stacy-Dawes_Kenya/WWK_2022-06-09/Workflow_G2_1"
+imagedir <- "/mnt/projects/Stacy-Dawes_Kenya/Images for ML_Oct_20/Loisaba_Round12_April-May 2019/L12/100EK113"
 
 #create global variable file and directory names
 setupDirectory(imagedir)
 
+
+#load data if needed
+#mdres <- loadData(mdresults)
 #alldata <- loadData(predresults)
+#alldata <- loadData(classifiedimages)
+
 #===============================================================================
 # Extract EXIF data
 #===============================================================================
@@ -26,7 +32,7 @@ setupDirectory(imagedir)
 # Read exif data for all images within base directory
 files <- buildFileManifest(imagedir)
 
-
+#build new name
 basedepth=length(strsplit(basedir,split="/")[[1]])-1
 
 
@@ -36,8 +42,8 @@ files$Camera<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+2
 
 
 #files must have a new name for symlink
-files$NewName=paste(files$Region,files$Site,format(files$DateTime,format="%Y%m%d_%H%M%S"),files$FileName,sep="_")
-files$NewName=files$FileName
+files$UniqueName=paste(files$Region,files$Site,format(files$DateTime,format="%Y%m%d_%H%M%S"),files$FileName,sep="_")
+files$UniqueName=files$FileName
 
 # Process videos, extract frames for ID
 allframes<-imagesFromVideos(files,outfile=imageframes,frames=5,parallel=T,nproc=12)
@@ -52,12 +58,12 @@ mdsession <- loadMDModel("/mnt/machinelearning/megaDetector/megadetector_v4.1.pb
 
 #+++++++++++++++++++++
 # Classify a single image to make sure everything works before continuing
-testMD(nacti,mdsession)
+testMD(allframes,mdsession)
 #+++++++++++++++++++++
 
-mdres <- detectObjectBatch(mdsession, nacti$Frame, checkpoint = 1000)
+mdres <- detectObjectBatch(mdsession,allframes$Frame, resultsfile = mdresults, checkpoint = 2500)
 
-allframes <- parseMD(nacti, mdres)
+allframes <- parseMD(allframes, mdres)
 
 
 #null out low-confidence crops
@@ -78,34 +84,29 @@ modelfile <- "/mnt/machinelearning/Models/Kenya/2022/EfficientNetB5_456_Unfrozen
 
 pred <- classifySpecies(animals,modelfile,resize=456,standardize=FALSE,batch_size = 64,workers=8)
 
-alldata <- applyPredictions(animals,empty,"/mnt/machinelearning/Models/Kenya/2022/classes.txt",pred,
+alldata <- applyPredictions(animals,empty,"/mnt/machinelearning/Models/Southwest/classes.txt",pred,
                             outfile = predresults, counts = TRUE)
 
 
 # Classify sequences / select best prediction
 #mdanimals <- classifySequence(mdanimals,pred,classes,18,maxdiff=60)
-toupload <- poolCrops(alldata, how = "conf", outfile = NULL ,shrink = TRUE)
-
-topchoice = alldata[order(alldata[,'FilePath'],-alldata[,'confidence']),]
-topchoice = topchoice[!duplicated(topchoice$NewName),]
+alldata <- poolCrops(alldata, outfile = classifiedimages)
 
 
-#view results
-table(topchoice$prediction)
-
-saveData(alldata,resultsfile)
 #===============================================================================
 # Symlinks
 #===============================================================================
 
-symlinkClasses(alldata, linkdir,copy=FALSE)
+#symlink species predictions
+alldata <- symlinkClasses(alldata, "/mnt/projects/Goldberg_Carnivore/Link")
 
-#symlink MD detections only, copy = TRUE copies the file, copy = FALSE creates a link
-#symlinkMD(alldata,linkdir, copy=TRUE)
+mapply(file.link, alldata$FilePath, alldata$Link)
+
+#symlink MD detections only
+symlinkMD(alldata,linkdir)
 
 #delete simlinks
-#sapply(alldata$Link,file.remove)
-
+sapply(alldata$Link,file.remove)
 
 #===============================================================================
 # Export to Camera Base
@@ -142,16 +143,12 @@ write.table(export,file="R:/BrazilNutImportCB.txt",sep="\t",row.names = F,quote 
 # Export to Zooniverse
 #===============================================================================
 
-source_python("/home/kyra/animl/animl-py/src/animl/ZooniverseFunctions.py")
+source_python("ZooniverseFunctions.py")
 
 data = "/mnt/mathias/Camera Trap Data Raw/BIG GRID/September 2021/Data/ImportZooniverse.csv"
 alldata = read.csv(data)
 
 imagesallanimal<-alldata[!(alldata$Common %in% c("Empty","empty","human","Human","vehicle","Vehicle")),]
-
-alldata <- loadData(resultsfile)
-
-connect_to_Panoptes("tkswanson","ShikokuInu9388!")
 
 # Confirm project name and subject set name
 # where the images will be added
@@ -163,19 +160,16 @@ topchoice2 = imagesallanimal[order(imagesallanimal[,'FileName'],-imagesallanimal
 topchoice2 = topchoice2[!duplicated(topchoice$NewName),]
 
 #change species name to the one used on Zooniverse
-zooconvert <- read.csv("/mnt/machinelearning/Models/Kenya/Zooniverse_SpeciesList.csv")
-topchoice$ZooniverseCode<-zooconvert[match(topchoice$prediction,zooconvert$Common),"ZooniverseCode"]
+zooconvert <- read.csv("Models/Kenya/Zooniverse_SpeciesList.csv")
+topchoice2$ZooniverseCode<-zooconvert[match(topchoice2$Common,zooconvert$Common),"ZooniverseCode"]
 
 
-toupload<-topchoice[topchoice$ZooniverseCode!="Human/Vehicle",]
+toupload<-topchoice2[topchoice2$ZooniverseCode!="Human/Vehicle",]
 toupload<-toupload[toupload$ZooniverseCode!="Nothing Here",]
 
 
-upload_to_Zooniverse_Simple(projectname,105783,alldata[111636:133835,],vidfdir)
+upload_to_Zooniverse(projectname,101729,toupload[58800,],tempdir)
 
-
-write.csv(toupload,resultsfile)
-toupload <- read.csv(resultsfile)
 
 create_SubjectSet(projectname,subjectset)
 

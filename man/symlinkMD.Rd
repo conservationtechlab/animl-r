@@ -21,3 +21,6 @@ none
 \description{
 Create SymLink Directories and Sort Classified Images Based on MD Results
 }
+\examples{
+\dontrun{}
+}
