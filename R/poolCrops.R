@@ -11,7 +11,7 @@
 #' \dontrun{
 #' mdanimals <- classifyVideo(mdanimals)
 #' }
-poolCrops <- function(animals, how = "count", shrink = FALSE, outfile = NA) {
+poolCrops <- function(animals, how = "count", count = FALSE, shrink = FALSE, outfile = NA) {
   if (checkFile(outfile)) { return(loadData(outfile))}
   if (!is(animals, "data.frame")) { stop("'animals' must be DataFrame")}
   
@@ -28,17 +28,22 @@ poolCrops <- function(animals, how = "count", shrink = FALSE, outfile = NA) {
       dplyr::group_by(sequence$prediction) %>%
       dplyr::summarise(mean = mean(sequence$confidence), n = dplyr::n())
     
-    if (how == "conf") { guess <- guesses[which.max(guesses$mean), ] } 
+    if (how == "conf"){ 
+      guess <- guesses[which.max(guesses$mean), ] 
+    }  
     else {
-      best <- which.max(guesses$n)
-      guess <- guesses[best, ]
-      if (guess$prediction == "empty" && nrow(guesses) > 1) {
-        newguesses <- guesses[-best, ]
-        guess <- newguesses[which.max(newguesses$mean), ]
+        best <- which.max(guesses$n)
+        guess <- guesses[best, ]
+        if (guess$prediction == "empty" && nrow(guesses) > 1) {
+          guesses <- guesses[-best, ]
+          guess <- guesses[which.max(guesses$mean), ]
+        }
       }
-    }
-  
+      
     animals[animals$NewName == v, ]$prediction <- guess$prediction
+    if(count){
+      animals[animals$NewName == v, ]$count <- guess$n
+    }} 
     pbapply::setpb(pb, i)
   }
   pbapply::setpb(pb, steps)
