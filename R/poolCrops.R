@@ -2,6 +2,8 @@
 #'
 #' @param animals dataframe of all frames including species classification
 #' @param how method for selecting best prediction, defaults to most frequent
+#' @param count if true, return column with number of MD crops for that animal (does not work for images)
+#' @param shrink if true, return a reduced dataframe with one row per image
 #' @param outfile file path to which the data frame should be saved
 #'
 #' @return dataframe with new prediction in "Species" column
@@ -11,10 +13,11 @@
 #' \dontrun{
 #' mdanimals <- classifyVideo(mdanimals)
 #' }
-poolCrops <- function(animals, how = "count", count = FALSE, shrink = FALSE, outfile = NA) {
+poolCrops <- function(animals, how = "count", count = FALSE, shrink = FALSE, outfile = NULL) {
   if (checkFile(outfile)) { return(loadData(outfile))}
   if (!is(animals, "data.frame")) { stop("'animals' must be DataFrame")}
   
+  animals$count <- 0
   videonames <- unique(animals$NewName)
   
   steps <- length(videonames)
@@ -25,8 +28,8 @@ poolCrops <- function(animals, how = "count", count = FALSE, shrink = FALSE, out
     v <- videonames[i]
     sequence <- animals[animals$NewName == v, ]
     guesses <- sequence %>%
-      dplyr::group_by(sequence$prediction) %>%
-      dplyr::summarise(mean = mean(sequence$confidence), n = dplyr::n())
+      dplyr::group_by(prediction) %>%
+      dplyr::summarise(mean = mean(confidence), n = dplyr::n())
     
     if (how == "conf"){ 
       guess <- guesses[which.max(guesses$mean), ] 
@@ -41,9 +44,7 @@ poolCrops <- function(animals, how = "count", count = FALSE, shrink = FALSE, out
       }
       
     animals[animals$NewName == v, ]$prediction <- guess$prediction
-    if(count){
-      animals[animals$NewName == v, ]$count <- guess$n
-    }} 
+    if(count){animals[animals$NewName == v, ]$count <- guess$n}
     pbapply::setpb(pb, i)
   }
   pbapply::setpb(pb, steps)
@@ -55,6 +56,6 @@ poolCrops <- function(animals, how = "count", count = FALSE, shrink = FALSE, out
   }
   
   # save data
-  if(!is.na(outfile)){ saveData(animals, outfile)}
+  if(!is.null(outfile)){saveData(animals, outfile)}
   animals
 }
