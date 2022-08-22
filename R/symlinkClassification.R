@@ -49,6 +49,7 @@ symlinkClasses <- function(alldata, linkdir, outfile = resultsfile, copy = FALSE
 #' @export
 #'
 #' @examples
+#' \dontrun{}
 symlinkMD <- function(alldata, linkdir, outfile = resultsfile, copy=FALSE){
   if (checkFile(outfile)) { return(loadData(outfile))}
   
