@@ -40,6 +40,7 @@ from panoptes_client import SubjectSet, Subject, Project, Panoptes
 import os
 import time
 import sys
+import pandas as pd
 from datetime import datetime
 from PIL import Image
 from PIL import ImageFile
@@ -81,10 +82,10 @@ def upload_to_Zooniverse_Simple(project_name, subject_set_name, images, outdir, 
     project = Project.find(project_name)
     print("Connected to ", project)
     subject_set = SubjectSet.find(int(subject_set_name))
-
     print(subject_set)
+    print("Images to upload: ", images)
     print("Uploading images...")
-    print(images)
+    
     for _, infile in images.iterrows():
         if not os.path.exists(infile.FileName):
             print(infile.FileName)
@@ -96,7 +97,7 @@ def upload_to_Zooniverse_Simple(project_name, subject_set_name, images, outdir, 
         subject.add_location(outfile)
         subject.metadata['OrigName'] = infile.FileName
         subject.metadata['!OrigFolder'] = infile.FilePath
-        subject.metadata['DateTime'] = str(infile.DateTime)
+        subject.metadata['DateTime'] = str(infile.FileModifyDate)
         subject.metadata['#machine_prediction'] = infile.ZooniverseCode  # map to zooniverse name
         subject.metadata['#machine_confidence'] = infile.confidence
         subject.save()

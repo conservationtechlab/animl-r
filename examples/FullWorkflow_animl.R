@@ -14,12 +14,17 @@ library(animl)
 library(magrittr)
 
 
-imagedir <- "/home/kyra/animl/examples/test_data/Southwest/"
+imagedir <- "/mnt/projects/Stacy-Dawes_Kenya/Images for ML_Oct_20/Loisaba_Round12_April-May 2019/L12/100EK113"
 
 #create global variable file and directory names
 setupDirectory(imagedir)
 
+
+#load data if needed
+#mdres <- loadData(mdresults)
 #alldata <- loadData(predresults)
+#alldata <- loadData(classifiedimages)
+
 #===============================================================================
 # Extract EXIF data
 #===============================================================================
@@ -27,7 +32,7 @@ setupDirectory(imagedir)
 # Read exif data for all images within base directory
 files <- buildFileManifest(imagedir)
 
-
+#build new name
 basedepth=length(strsplit(basedir,split="/")[[1]])-1
 
 
@@ -37,8 +42,8 @@ files$Camera<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+2
 
 
 #files must have a new name for symlink
-files$NewName=paste(files$Region,files$Site,format(files$DateTime,format="%Y%m%d_%H%M%S"),files$FileName,sep="_")
-files$NewName=files$FileName
+files$UniqueName=paste(files$Region,files$Site,format(files$DateTime,format="%Y%m%d_%H%M%S"),files$FileName,sep="_")
+files$UniqueName=files$FileName
 
 # Process videos, extract frames for ID
 allframes<-imagesFromVideos(files,outfile=imageframes,frames=5,parallel=T,nproc=12)
@@ -79,30 +84,29 @@ modelfile <- "/mnt/machinelearning/Models/Kenya/2022/EfficientNetB5_456_Unfrozen
 
 pred <- classifySpecies(animals,modelfile,resize=456,standardize=FALSE,batch_size = 64,workers=8)
 
-alldata <- applyPredictions(animals,empty,"/mnt/machinelearning/Models/Kenya/2022/classes.txt",pred,
+alldata <- applyPredictions(animals,empty,"/mnt/machinelearning/Models/Southwest/classes.txt",pred,
                             outfile = predresults, counts = TRUE)
 
 
 # Classify sequences / select best prediction
 #mdanimals <- classifySequence(mdanimals,pred,classes,18,maxdiff=60)
-alldata <- poolCrops(alldata, outfile = predresults)
+alldata <- poolCrops(alldata, outfile = classifiedimages)
 
-#view results
-table(alldata$prediction)
 
-saveData(alldata,resultsfile)
 #===============================================================================
 # Symlinks
 #===============================================================================
 
-symlinkClasses(alldata, linkdir, outfile=resultsfile, copy=FALSE)
+#symlink species predictions
+alldata <- symlinkClasses(alldata, "/mnt/projects/Goldberg_Carnivore/Link")
 
-#symlink MD detections only, copy = TRUE copies the file, copy = FALSE creates a link
-#symlinkMD(alldata,linkdir, copy=TRUE)
+mapply(file.link, alldata$FilePath, alldata$Link)
+
+#symlink MD detections only
+symlinkMD(alldata,linkdir)
 
 #delete simlinks
-#sapply(alldata$Link,file.remove)
-
+sapply(alldata$Link,file.remove)
 
 #===============================================================================
 # Export to Camera Base
