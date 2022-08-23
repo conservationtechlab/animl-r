@@ -19,6 +19,7 @@ buildFileManifest <- function(imagedir, outfile = NULL) {
   files <- tryCatch(
     {
       exifr::read_exif(imagedir, tags = c("filename", "directory", "FileModifyDate"), recursive = TRUE)
+      
     },
     error = function(cond) {
       return(NULL)
@@ -31,7 +32,7 @@ buildFileManifest <- function(imagedir, outfile = NULL) {
 
   colnames(files)[1] <- "FilePath"
   files <- as.data.frame(files)
-  
+  files$DateTime <- sapply(files$FileModifyDate, function(x)toString(strptime(x, format="%Y:%m:%d %H:%M:%S")[1]))
   # Save file manifest
   if (!is.null(outfile)) { saveData(files, outfile)}
 

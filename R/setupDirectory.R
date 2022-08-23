@@ -11,9 +11,9 @@
 #' }
 setupDirectory <- function(imagedir) {
   if (!dir.exists(imagedir)) { stop("Output directory invalid.\n")}
-
+  if (!endsWith(imagedir, "/")){imagedir <- paste0(imagedir,"/")}
   # Assign's specific directory paths
-  basedir <<- paste0(imagedir, "/Animl-Directory/")
+  basedir <<- paste0(imagedir, "Animl-Directory/")
   datadir <<- paste0(basedir, "Data/")
   cropdir <<- paste0(basedir, "Crops/")
   vidfdir <<- paste0(basedir, "Frames/")
