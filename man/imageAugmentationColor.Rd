@@ -18,5 +18,5 @@ An image and label tensor.
 Performs image augmentation on a image/label pair for training. Uses random brightness,contrast,saturation, and hue.
 }
 \examples{
-
+\dontrun{}
 }

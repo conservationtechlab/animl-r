@@ -15,6 +15,8 @@ cropImageTrainGenerator(
   augmentation_color = FALSE,
   augmentation_geometry = FALSE,
   shuffle = FALSE,
+  cache = FALSE,
+  cache_dir = NULL,
   return_iterator = FALSE,
   batch_size = 32
 )
