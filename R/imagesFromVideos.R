@@ -61,6 +61,7 @@ imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format 
       files[, c("FilePath", "Frame")]
     }
   }
+  opb <- pbapply::pboptions(char = "=")
   if (parallel) {
     type <- "PSOCK"
 

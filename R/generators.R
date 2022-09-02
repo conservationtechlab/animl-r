@@ -175,10 +175,11 @@ ImageGeneratorSize <- function(files, resize_height = NULL, resize_width = NULL,
   if (is.null(resize_height) || is.null(resize_width)) {
     message("No values were provided for resize, returning full-size images.")
     dataset <- tfdatasets::dataset_map(dataset, function(x) loadImage(x, standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
+    dataset<-dataset$apply(tf$data$experimental$ignore_errors())
     dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
-    # dataset<-dataset$apply(tf$data$experimental$ignore_errors())
   } else {
     dataset <- tfdatasets::dataset_map(dataset, function(x) loadImage_Resize_Size(x, height=resize_height, width=resize_width, pad=pad,standardize=standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
+    dataset<-dataset$apply(tf$data$experimental$ignore_errors())
     dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
   }
   dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
@@ -201,12 +202,12 @@ ImageGeneratorSize <- function(files, resize_height = NULL, resize_width = NULL,
 #'
 loadImage <- function(file, standardize = FALSE) {
   # catch error caused by missing files and zero-length files
-  if (!is.null(tryCatch(image <- tf$io$read_file(file), error = function(e) NULL))) {
-    image <- tf$image$decode_jpeg(image, channels = 3, try_recover_truncated = T)
-    if (standardize) image <- tf$image$convert_image_dtype(image, dtype = tf$float32)
-  } else {
-    image <- tf$zeros(as.integer(c(299, 299, 3)), dtype = tf$float32)
+  if (is.null(tryCatch({image <- tf$io$read_file(file);
+      image <- tf$image$decode_jpeg(image, channels = 3, try_recover_truncated = T)},silent=T, error = function(e) NULL))) {
+      image <- tf$zeros(as.integer(c(299, 299, 3)), dtype = tf$uint8)
   }
+  if (!standardize) image <- tf$image$convert_image_dtype(image, dtype = tf$uint8)
+  if (standardize) image <- tf$image$convert_image_dtype(image, dtype = tf$float32)
   image
 }
 
@@ -228,20 +229,14 @@ loadImage_Resize <- function(file, height = 299, width = 299, pad=FALSE,standard
   size <- as.integer(c(height, width))
   
   # catch error caused by missing files and zero-length files
-  if (!is.null(tryCatch(image <- tf$io$read_file(file), error = function(e) NULL))) {
-    image <- tf$cond(
-      tf$equal(tf$strings$length(image), as.integer(0)), function() tf$zeros(as.integer(c(height, width, 3)), dtype = tf$float32),
-      function() {
-        image<-tf$image$decode_jpeg(image, channels = 3, try_recover_truncated = T)
-        image <- tf$image$convert_image_dtype(image, dtype = tf$float32)
-        if(pad==TRUE){
-          image<-tf$image$resize_with_pad(image, as.integer(height), as.integer(width), method = "bilinear")
-        }else{
-          image<-tf$image$resize(image,size = size)
-        }
-        image
-      }
-    )
+  if (!is.null(tryCatch({image <- tf$io$read_file(file);
+                        image <- tf$image$decode_jpeg(image, channels = 3, try_recover_truncated = T)},silent=T, error = function(e) NULL))) {
+    image <- tf$image$convert_image_dtype(image, dtype = tf$float32)
+    if(pad==TRUE){
+      image<-tf$image$resize_with_pad(image, as.integer(height), as.integer(width), method = "bilinear")
+    }else{
+      image<-tf$image$resize(image,size = size)
+    }
   } else {
     image <- tf$zeros(as.integer(c(height, width, 3)), dtype = tf$float32)
   }
@@ -267,31 +262,27 @@ loadImage_Resize <- function(file, height = 299, width = 299, pad=FALSE,standard
 #'
 loadImage_Resize_Size <- function(file, height = 299, width = 299, pad=FALSE,standardize = FALSE) {
   # catch error caused by missing files and zero-length files
-  if (!is.null(tryCatch(image <- tf$io$read_file(file), error = function(e) NULL))) {
+  if (!is.null(tryCatch({image <- tf$io$read_file(file);
+                        image <- tf$image$decode_jpeg(image, channels = 3, try_recover_truncated = T)},silent=T, error = function(e) NULL))) {
     size <- as.integer(c(height, width))
-    image <- tf$cond(
-      tf$equal(tf$strings$length(image), as.integer(0)), function() list(image = tf$zeros(as.integer(c(height, width, 3)), dtype = tf$float32),width=as.integer(width),height=as.integer(height)),
-      function() {
-        image<-tf$image$decode_jpeg(image, channels = 3, try_recover_truncated = T)
-        imgdim <- tf$cast(tf$unstack(tf$shape(image)), tf$float32)
-        img_height<- tf$cast(imgdim[[0]], tf$int32)
-        img_width <- tf$cast(imgdim[[1]], tf$int32)
-        image <- tf$image$convert_image_dtype(image, dtype = tf$float32)
-        if(pad==TRUE){
-          image<-tf$image$resize_with_pad(image, as.integer(height), as.integer(width), method = "bilinear")
-        }else{
-          image2<-tf$image$resize(image,size = size)
-        }
-        if (!standardize) image <- tf$image$convert_image_dtype(image, dtype = tf$uint8)
-        list(image=image,width=img_width,height=img_height)
-        #image
-      }
-    )
+    imgdim <- tf$cast(tf$unstack(tf$shape(image)), tf$float32)
+    img_height<- tf$cast(imgdim[[0]], tf$int32)
+    img_width <- tf$cast(imgdim[[1]], tf$int32)
+    image <- tf$image$convert_image_dtype(image, dtype = tf$float32)
+    if(pad==TRUE){
+      image<-tf$image$resize_with_pad(image, as.integer(height), as.integer(width), method = "bilinear")
+    }else{
+      image2<-tf$image$resize(image,size = size)
+    }
+    if (!standardize) image <- tf$image$convert_image_dtype(image, dtype = tf$uint8)
+    image<-list(image=image,width=img_width,height=img_height,file=file)
   } else {
-    image<-list(image = tf$zeros(as.integer(c(height, width, 3)), dtype = tf$float32),width=width,height=height)
+    image<-list(image = tf$zeros(as.integer(c(height, width, 3)), dtype = tf$float32),width=tf$cast(width, tf$int32),height=tf$cast(height, tf$int32),file=file)
   }
   image
 }
+
+
 
 
 #' @title Load, resize and crop an image and return an image tensor.
@@ -310,27 +301,22 @@ loadImage_Resize_Size <- function(file, height = 299, width = 299, pad=FALSE,sta
 #'
 loadImage_Resize_Crop <- function(data, height = 299, width = 299, standardize = FALSE) {
   # catch error caused by missing files and zero-length files
-  if (!is.null(tryCatch(image <- tf$io$read_file(data[[1]]), error = function(e) NULL))) {
-    image <- tf$cond(
-      tf$equal(tf$strings$length(image), as.integer(0)), function() tf$zeros(as.integer(c(height, width, 3)), dtype = tf$float32),
-      function() {
-        image <- tf$image$decode_jpeg(image, channels = 3, try_recover_truncated = T)
-        imgdim <- tf$cast(tf$unstack(tf$shape(image)), tf$float32)
-        img_height<- tf$cast(imgdim[[1]], tf$int32)
-        img_width <- tf$cast(imgdim[[0]], tf$int32)
-        crop_top <- tf$cast(imgdim[[1]] * data[[2]], tf$int32)
-        crop_left <- tf$cast(imgdim[[0]] * data[[3]], tf$int32)
-        crop_height <- tf$cast(imgdim[[1]] * data[[4]], tf$int32)
-        crop_width <- tf$cast(imgdim[[0]] * data[[5]], tf$int32)
-        crop_height <- tf$cond(tf$greater((crop_top+crop_height),img_height),function()tf$cast(img_height-crop_top, tf$int32),function()crop_height)
-        crop_width  <- tf$cond(tf$greater((crop_left+crop_width),img_width),function()crop_height<-tf$cast(img_width-crop_left, tf$int32),function()crop_width)
-        crop_height <- tf$cond(tf$equal(crop_height,as.integer(0)),function()tf$cast(1, tf$int32),function()crop_height)
-        crop_width  <- tf$cond(tf$equal(crop_width,as.integer(0)),function()crop_height<-tf$cast(1, tf$int32),function()crop_width)
-        image <- tf$image$convert_image_dtype(image, dtype = tf$float32)
-        image <- tf$image$crop_to_bounding_box(image, crop_left, crop_top, crop_width, crop_height)
-        image <- tf$image$resize_with_pad(image, as.integer(height), as.integer(width), method = "bilinear")
-      }
-    )
+  if (!is.null(tryCatch({image <- tf$io$read_file(data[[1]]);
+  image <- tf$image$decode_jpeg(image, channels = 3, try_recover_truncated = T)},silent=T, error = function(e) NULL))) {
+    imgdim <- tf$cast(tf$unstack(tf$shape(image)), tf$float32)
+    img_height<- tf$cast(imgdim[[1]], tf$int32)
+    img_width <- tf$cast(imgdim[[0]], tf$int32)
+    crop_top <- tf$cast(imgdim[[1]] * data[[2]], tf$int32)
+    crop_left <- tf$cast(imgdim[[0]] * data[[3]], tf$int32)
+    crop_height <- tf$cast(imgdim[[1]] * data[[4]], tf$int32)
+    crop_width <- tf$cast(imgdim[[0]] * data[[5]], tf$int32)
+    crop_height <- tf$cond(tf$greater((crop_top+crop_height),img_height),function()tf$cast(img_height-crop_top, tf$int32),function()crop_height)
+    crop_width  <- tf$cond(tf$greater((crop_left+crop_width),img_width),function()crop_height<-tf$cast(img_width-crop_left, tf$int32),function()crop_width)
+    crop_height <- tf$cond(tf$equal(crop_height,as.integer(0)),function()tf$cast(1, tf$int32),function()crop_height)
+    crop_width  <- tf$cond(tf$equal(crop_width,as.integer(0)),function()crop_height<-tf$cast(1, tf$int32),function()crop_width)
+    image <- tf$image$convert_image_dtype(image, dtype = tf$float32)
+    image <- tf$image$crop_to_bounding_box(image, crop_left, crop_top, crop_width, crop_height)
+    image <- tf$image$resize_with_pad(image, as.integer(height), as.integer(width), method = "bilinear")
   } else {
     image <- tf$zeros(as.integer(c(height, width, 3)), dtype = tf$float32)
   }
