@@ -28,6 +28,7 @@ detectObject <- function(mdsession, imagefile,mdversion=5 , min_conf = 0.1) {
   }else{
     type<-"mdmodel"
   }
+  if(!file.exists(imagefile))stop("Image files does not exist.")
   if(mdversion<=4){
     img <- loadImage(imagefile, FALSE)
     # get tensors
@@ -35,7 +36,9 @@ detectObject <- function(mdsession, imagefile,mdversion=5 , min_conf = 0.1) {
     box_tensor <- mdsession$graph$get_tensor_by_name("detection_boxes:0")
     score_tensor <- mdsession$graph$get_tensor_by_name("detection_scores:0")
     class_tensor <- mdsession$graph$get_tensor_by_name("detection_classes:0")
-  
+    
+    np <- reticulate::import("numpy")
+    
     res <- mdsession$run(list(box_tensor, score_tensor, class_tensor), feed_dict = list("image_tensor:0" = np$expand_dims(img, axis = F)))
     resfilter <- which(res[[2]] >= min_conf)
     list(
