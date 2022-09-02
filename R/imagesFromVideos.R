@@ -18,7 +18,7 @@
 #' \dontrun{
 #' frames <- imagesFromVideos(videos, outdir = "C:\\Users\\usr\\Videos\\", frames = 5)
 #' }
-imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format = "jpg", fps = NULL, frames = NULL, parallel = FALSE, nproc = 1) {
+imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format = "jpg", fps = NULL, frames = NULL, parallel = FALSE, nproc = 1, checkpoint = 2500) {
   if (checkFile(outfile)) { return(loadData(outfile))}
   if (!is(files, "data.frame")) { stop("Error: 'mdresults' must be Data Frame.")}
   if (outdir != "" & !dir.exists(outdir)) {
@@ -75,13 +75,25 @@ imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format 
       try(run.parallel(x))
     }, cl = cl)
     parallel::stopCluster(cl)
-  } else {
-    results <- pbapply::pblapply(videos$FilePath, function(x) {
-      try(run.parallel(x))
-    })
+    results <- do.call(rbind, results)
+  } 
+  else {
+    pb <- pbapply::startpb(1, nrow(videos))
+    results <- data.frame(FilePath = character(),Frame= character())
+    for(i in 1:nrow(videos)){
+      result <- run.parallel(videos[i,]$FilePath)
+      
+      results <- rbind(results,result)
+     
+      if (!is.null(outfile) & (i %% checkpoint) == 0) {
+        save(results, file = resultsfile)
+      }
+      pbapply::setpb(pb, i) 
+    }
+    pbapply::setpb(pb, nrow(videos))
+    pbapply::closepb(pb)
   }
 
-  results <- do.call(rbind, results)
   videoframes <- merge(videos, results)
   allframes <- rbind(images, videoframes)
 

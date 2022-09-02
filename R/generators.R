@@ -336,7 +336,7 @@ loadImage_Resize_Crop <- function(data, height = 299, width = 299, standardize =
 #'
 #' @return An image and label tensor.
 #' @examples
-#'
+#' \dontrun{}
 imageLabel <- function(data,classes, height = 299, width = 299, standardize = FALSE) {
   image <- loadImage_Resize(data[[1]], height, width, standardize)
   list(image, tf$cast(classes==data[[6]],tf$int16))
@@ -355,7 +355,7 @@ imageLabel <- function(data,classes, height = 299, width = 299, standardize = FA
 #'
 #' @return An image and label tensor.
 #' @examples
-#'
+#' \dontrun{}
 imageLabelCrop <- function(data,classes, height = 299, width = 299, standardize = FALSE) {
   image <- loadImage_Resize_Crop(list(data[[1]],data[[2]],data[[3]],data[[4]], data[[5]]), height, width, standardize)
   list(image, tf$cast(classes==data[[6]],tf$int16))
@@ -371,7 +371,7 @@ imageLabelCrop <- function(data,classes, height = 299, width = 299, standardize 
 #'
 #' @return An image and label tensor.
 #' @examples
-#'
+#' \dontrun{}
 imageAugmentationColor<-function(image,label,rng){
   seed=rng$make_seeds(as.integer(2))
   seed=seed[1,]
@@ -389,7 +389,7 @@ imageAugmentationColor<-function(image,label,rng){
 #'
 #' @return A keras model.
 #' @examples
-#'
+#' \dontrun{}
 imageAugmentationGeometry<-function(){
   model<-keras_model_sequential()
   model<-layer_random_flip(model,mode="horizontal")

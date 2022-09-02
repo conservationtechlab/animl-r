@@ -30,7 +30,7 @@ ImageGeneratorSize(
 A Tensorflow image data generator.
 }
 \description{
-Creates an image data generator that resizes images if requested and also returns the origianl images size needed for MegaDetector.
+Creates an image data generator that resizes images if requested and also returns the original images size needed for MegaDetector.
 }
 \examples{
 \dontrun{

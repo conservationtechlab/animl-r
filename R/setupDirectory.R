@@ -10,10 +10,11 @@
 #' setupDirectory(/home/kyra/animl/examples)
 #' }
 setupDirectory <- function(imagedir) {
-  if (!dir.exists(imagedir)) { stop("Output directory invalid.\n")}
+  if(!dir.exists(imagedir)) { stop("Output directory invalid.\n")}
+  if(!endswith(imagedir,"/")){paste0(imagdir,"/")}
 
   # Assign's specific directory paths
-  basedir <<- paste0(imagedir, "/Animl-Directory/")
+  basedir <<- paste0(imagedir, "Animl-Directory/")
   datadir <<- paste0(basedir, "Data/")
   cropdir <<- paste0(basedir, "Crops/")
   vidfdir <<- paste0(basedir, "Frames/")

@@ -22,5 +22,5 @@ An image and label tensor.
 Load image, crop and return a tensor with an image and a corresponding label. Internal function to be called by image generator function.
 }
 \examples{
-
+\dontrun{}
 }
