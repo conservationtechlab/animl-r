@@ -7,6 +7,7 @@
 detectObjectBatch(
   mdsession,
   images,
+  mdversion = 5,
   min_conf = 0.1,
   batch_size = 1,
   resultsfile = NULL,
