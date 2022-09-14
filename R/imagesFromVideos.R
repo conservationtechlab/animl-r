@@ -34,7 +34,7 @@ imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format 
   run.parallel <- function(x, cond = "problem") {
     result <- tryCatch(
       {
-        av::av_media_info(x)
+        print(av::av_media_info(x))
       },
       error = function(e) {
         message(cond)
