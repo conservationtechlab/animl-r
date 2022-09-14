@@ -4,12 +4,22 @@
 \alias{poolCrops}
 \title{Select Best Classification From Multiple Frames}
 \usage{
-poolCrops(animals, how = "count", shrink = FALSE, outfile = NA)
+poolCrops(
+  animals,
+  how = "count",
+  count = FALSE,
+  shrink = FALSE,
+  outfile = NULL
+)
 }
 \arguments{
 \item{animals}{dataframe of all frames including species classification}
 
 \item{how}{method for selecting best prediction, defaults to most frequent}
+
+\item{count}{if true, return column with number of MD crops for that animal (does not work for images)}
+
+\item{shrink}{if true, return a reduced dataframe with one row per image}
 
 \item{outfile}{file path to which the data frame should be saved}
 }
