@@ -9,7 +9,7 @@
 #' \dontrun{
 #' setEmpty(imagesall)
 #' }
-setEmpty <- function(allframes) {
+getEmpty <- function(allframes) {
   if (!is(allframes, "data.frame")) {
     stop("'allframes' must be Data Frame")
   }

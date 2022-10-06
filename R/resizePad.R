@@ -1,3 +1,5 @@
+# DEFUNCT? old image generator?
+
 #' Resize an image with padding
 #'
 #' @param img  the image, read by jpeg library

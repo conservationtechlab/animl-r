@@ -259,7 +259,7 @@ extractBoxesFromFlat <- function(image, min_conf = 0, buffer = 0, plot = TRUE, s
 #' @param overwrite Toggle to overwrite output cropped images if they already exis, defaults to TRUE
 #' @param parallel Toggle to enable parallel processing, defaults to FALSE
 #' @param nproc Number of workers if parallel = TRUE, defaults to output of detectCores()
-#'
+#' 
 #' @return A dataframe containing image and crop paths
 #' @export
 #'

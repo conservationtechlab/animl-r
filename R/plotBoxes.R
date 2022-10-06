@@ -1,3 +1,6 @@
+# multi-image option, save option
+# species label, check input merge functions
+
 #' Plot bounding boxes on image from md results
 #'
 #' @param image The mdres for the image

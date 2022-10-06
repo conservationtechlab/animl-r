@@ -1,7 +1,12 @@
+# parallelize
+
+
 #' Select Best Classification From Multiple Frames
 #'
 #' @param animals dataframe of all frames including species classification
 #' @param how method for selecting best prediction, defaults to most frequent
+#' @param count if true, return column with number of MD crops for that animal (does not work for images)
+#' @param shrink if true, return a reduced dataframe with one row per image
 #' @param outfile file path to which the data frame should be saved
 #'
 #' @return dataframe with new prediction in "Species" column
@@ -11,35 +16,38 @@
 #' \dontrun{
 #' mdanimals <- classifyVideo(mdanimals)
 #' }
-poolCrops <- function(animals, how = "count", shrink = FALSE, outfile = NA) {
+poolCrops <- function(animals, how = "count", count = FALSE, shrink = FALSE, outfile = NULL) {
   if (checkFile(outfile)) { return(loadData(outfile))}
   if (!is(animals, "data.frame")) { stop("'animals' must be DataFrame")}
   
-  animals$prediction <- animals$prediction
-  
+  animals$count <- 0
   videonames <- unique(animals$NewName)
   
   steps <- length(videonames)
   pb <- pbapply::startpb(1, steps)
   
+  row <- 1
   for (i in 1:steps) {
     v <- videonames[i]
     sequence <- animals[animals$NewName == v, ]
     guesses <- sequence %>%
-      dplyr::group_by(sequence$prediction) %>%
-      dplyr::summarise(mean = mean(sequence$confidence), n = dplyr::n())
+      dplyr::group_by(prediction) %>%
+      dplyr::summarise(mean = mean(confidence), n = dplyr::n())
     
-    if (how == "conf") {
-      best <- guesses[which.max(guesses$mean), ]
-    } else {
-      best <- which.max(guesses$n)
-      guess <- guesses[best, ]
-      if (guess$prediction == "empty" && nrow(guesses) > 1) {
-        newguesses <- guesses[-best, ]
-        guess <- newguesses[which.max(newguesses$mean), ]
+    if (how == "conf"){ 
+      guess <- guesses[which.max(guesses$mean), ] 
+    }  
+    else {
+        best <- which.max(guesses$n)
+        guess <- guesses[best, ]
+        if (guess$prediction == "empty" && nrow(guesses) > 1) {
+          guesses <- guesses[-best, ]
+          guess <- guesses[which.max(guesses$mean), ]
+        }
       }
-    }
+      
     animals[animals$NewName == v, ]$prediction <- guess$prediction
+    if(count){animals[animals$NewName == v, ]$count <- guess$n}
     pbapply::setpb(pb, i)
   }
   pbapply::setpb(pb, steps)
@@ -51,6 +59,6 @@ poolCrops <- function(animals, how = "count", shrink = FALSE, outfile = NA) {
   }
   
   # save data
-  if(!is.na(outfile)){ saveData(animals, outfile)}
+  if(!is.null(outfile)){saveData(animals, outfile)}
   animals
 }

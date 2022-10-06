@@ -11,10 +11,9 @@
 #' \dontrun{
 #' mdresults <- parseMDsimple(mdres)
 #' }
-parseMD <- function(allframes, mdresults, outfile = NULL) {
+parseMD <- function( mdresults, allframes = NULL, outfile = NULL) {
   if (checkFile(outfile)) { return(loadData(outfile))}
-  if (!is(allframes, "data.frame")) { stop("'images' must be Data Frame.")}
-
+  
   f <- function(data) {
     if (nrow(data$detections) > 0) {
       data.frame(Frame = data$FilePath, max_conf = data$max_detection_conf, max_detection_category = data$max_detection_category, data$detections, stringsAsFactors = F)
@@ -23,12 +22,18 @@ parseMD <- function(allframes, mdresults, outfile = NULL) {
     }
   }
   results <- do.call(rbind.data.frame, sapply(mdresults, f, simplify = F))
-  allframes <- merge(allframes, results)
+  
+  #TODO
+  # if  no og dataframe, skip merge
+  if (!is(allframes, "data.frame")) { stop("'images' must be Data Frame.")}
+  results <- merge(allframes, results)
   
   # Save file
-  if(!is.null(outfile)) { saveData(allframes, outfile)}
-  allframes
+  if(!is.null(outfile)) { saveData(results, outfile)}
+  results
 }
+
+# MAKE SURE COMPATIBLE WITH MDV5
 
 #' parse MD JSON results file
 #'
@@ -81,27 +86,4 @@ parseMDjson <- function(json) {
   }
 }
 
-#' parse MD JSON results file into a simple dataframe
-#'
-#' @param imagesall dataframe containing all frames
-#' @param mdresults raw MegaDetector output
-#'
-#' @return original dataframe including md results
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' mdresults <- parseMDsimple(mdres)
-#' }
-parseMDsimple <- function(imagesall, mdresults) {
-  f <- function(data) {
-    if (nrow(data$detections) > 0) {
-      data.frame(Frame = data$FilePath, max_conf = data$max_detection_conf, max_detection_category = data$max_detection_category, data$detections, stringsAsFactors = F)
-    } else {
-      data.frame(Frame = data$FilePath, max_conf = data$max_detection_conf, max_detection_category = 0, category = 0, conf = NA, bbox1 = NA, bbox2 = NA, bbox3 = NA, bbox4 = NA, stringsAsFactors = F)
-    }
-  }
-  results <- do.call(rbind.data.frame, sapply(mdresults, f, simplify = F))
-  imagesall <- merge(imagesall, results)
-  imagesall
-}
+

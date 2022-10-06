@@ -14,7 +14,7 @@
 symlinkClasses <- function(alldata, linkdir, outfile = resultsfile, copy = FALSE) {
   if (checkFile(outfile)) { return(loadData(outfile))}
   
-  # place low-confidence images into "Unknown" category
+  # place low-confidence images into "Unknown" category (OPTIONAL)
   alldata$prediction[alldata$confidence < 0.5 &
     !(alldata$prediction %in% c("empty", "Empty", "human", "Human", "vehicle", "Vehicle"))] <- "unknown"
 
@@ -23,8 +23,10 @@ symlinkClasses <- function(alldata, linkdir, outfile = resultsfile, copy = FALSE
     if (!dir.exists(paste0(linkdir, s))) dir.create(paste0(linkdir, s), recursive = T)
   }
   
+  # if no new name, generate one randomly 
   # create link
-  alldata$Link <- paste0(linkdir, alldata$prediction, "/", alldata$NewName)
+  # DEPENDS ON NEWNAME AND SHRINK
+  alldata$Link <- paste0(linkdir, alldata$prediction, "/", alldata$UniqueName)
 
   if(copy){
     mapply(file.copy, alldata$FilePath, alldata$Link)
@@ -49,6 +51,7 @@ symlinkClasses <- function(alldata, linkdir, outfile = resultsfile, copy = FALSE
 #' @export
 #'
 #' @examples
+#' \dontrun{}
 symlinkMD <- function(alldata, linkdir, outfile = resultsfile, copy=FALSE){
   if (checkFile(outfile)) { return(loadData(outfile))}
   

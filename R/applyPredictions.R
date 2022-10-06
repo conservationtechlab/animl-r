@@ -26,8 +26,9 @@ applyPredictions <- function(animals, empty, classfile, pred, outfile = NULL, co
   animals$confidence <- apply(pred, 1, max) * animals$conf
 
   if (counts) { table(classes[apply(pred, 1, which.max)])}
-  # merge with empty data
-  alldata <- rbind(animals, empty)
+  
+  # merge with empty data - remove from function
+  #alldata <- rbind(animals, empty)
 
   # save data
   if(!is.null(outfile)) { saveData(alldata, outfile)}

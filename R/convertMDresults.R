@@ -1,4 +1,4 @@
-#' Convert the MD output into a data frame
+#' Convert the MD output into a data frame 
 #'
 #' Each row is a MD bounding box, there can be multiple bounding boxes per image.
 #'

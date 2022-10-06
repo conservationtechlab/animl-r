@@ -18,23 +18,29 @@
 #' \dontrun{
 #' frames <- imagesFromVideos(videos, outdir = "C:\\Users\\usr\\Videos\\", frames = 5)
 #' }
-imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format = "jpg", fps = NULL, frames = NULL, parallel = FALSE, nproc = 1) {
+imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format = "jpg", fps = NULL, frames = NULL, parallel = FALSE, nproc = 1, checkpoint = 2500) {
   if (checkFile(outfile)) { return(loadData(outfile))}
+  
+  #flexible input workflow vs independent
   if (!is(files, "data.frame")) { stop("Error: 'mdresults' must be Data Frame.")}
+  
+  #add file extensions .tolower .jpeg
+  images <- files[tools::file_ext(files$FileName) %in% c("jpg", "JPG", "png", "PNG"), ]
+  images$Frame <- images$FilePath
+  videos <- files[tools::file_ext(files$FileName) %in% c("mp4", "MP4", "avi", "AVI"), ]
+  
+  
   if (outdir != "" & !dir.exists(outdir)) {
     if (!dir.create(outdir, recursive = TRUE)) { stop("Output directory invalid.\n")}
   }
   if (!is.null(fps) & !is.null(frames)) { message("If both fps and frames are defined fps will be used.")}
   if (is.null(fps) & is.null(frames)) { stop("Either fps or frames need to be defined.")}
 
-  images <- files[tools::file_ext(files$FileName) %in% c("jpg", "JPG", "png", "PNG"), ]
-  images$Frame <- images$FilePath
-  videos <- files[tools::file_ext(files$FileName) %in% c("mp4", "MP4", "avi", "AVI"), ]
 
   run.parallel <- function(x, cond = "problem") {
     result <- tryCatch(
       {
-        av::av_media_info(x)
+        print(av::av_media_info(x))
       },
       error = function(e) {
         message(cond)
@@ -61,6 +67,7 @@ imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format 
       files[, c("FilePath", "Frame")]
     }
   }
+  opb <- pbapply::pboptions(char = "=")
   if (parallel) {
     type <- "PSOCK"
 
@@ -74,13 +81,36 @@ imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format 
       try(run.parallel(x))
     }, cl = cl)
     parallel::stopCluster(cl)
-  } else {
+<<<<<<< Updated upstream
+    results <- do.call(rbind, results)
+  } 
+  else {
+    pb <- pbapply::startpb(1, nrow(videos))
+    results <- data.frame(FilePath = character(),Frame= character())
+    for(i in 1:nrow(videos)){
+      result <- run.parallel(videos[i,]$FilePath)
+      
+      results <- rbind(results,result)
+     
+      if (!is.null(outfile) & (i %% checkpoint) == 0) {
+        save(results, file = resultsfile)
+      }
+      pbapply::setpb(pb, i) 
+    }
+    pbapply::setpb(pb, nrow(videos))
+    pbapply::closepb(pb)
+  }
+
+=======
+  } else { # checkpointing 
     results <- pbapply::pblapply(videos$FilePath, function(x) {
       try(run.parallel(x))
     })
   }
 
+  # toggle depend on call origin
   results <- do.call(rbind, results)
+>>>>>>> Stashed changes
   videoframes <- merge(videos, results)
   allframes <- rbind(images, videoframes)
 

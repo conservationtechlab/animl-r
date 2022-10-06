@@ -22,3 +22,4 @@ testMD <- function(imagesall, mdsession, minconf = 0.9, frame = NA) {
   plotBoxes(mdres, minconf = minconf)
 }
 
+# flexible dataframe/path

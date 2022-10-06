@@ -14,10 +14,10 @@ library(animl)
 library(magrittr)
 
 
-imagedir <- "/home/kyra/animl/examples/test_data/Southwest/"
+imagedir <- "P:\\Local_Lion\\Biodiversity_Reserve\\Animl-Directory\\Sorted"
 
 #create global variable file and directory names
-setupDirectory(imagedir)
+setupDirectory(imagedir)  
 
 #alldata <- loadData(predresults)
 #===============================================================================
@@ -25,18 +25,20 @@ setupDirectory(imagedir)
 #===============================================================================
 
 # Read exif data for all images within base directory
-files <- buildFileManifest(imagedir)
+files <- buildFileManifest(imagedir, filemanifest)
 
+# offset as a separate line
 
 basedepth=length(strsplit(basedir,split="/")[[1]])-1
-
 
 files$Region<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth])
 files$Site<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+1])
 files$Camera<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+2])
 
 
-#files must have a new name for symlink
+
+
+# files must have a new name for symlink (get rid of, application specific)
 files$NewName=paste(files$Region,files$Site,format(files$DateTime,format="%Y%m%d_%H%M%S"),files$FileName,sep="_")
 files$NewName=files$FileName
 
@@ -53,7 +55,7 @@ mdsession <- loadMDModel("/mnt/machinelearning/megaDetector/megadetector_v4.1.pb
 
 #+++++++++++++++++++++
 # Classify a single image to make sure everything works before continuing
-testMD(allframes,mdsession)
+testMD(allframes,mdsession) #assumes dataframe
 #+++++++++++++++++++++
 
 mdres <- detectObjectBatch(mdsession,allframes$Frame, resultsfile = mdresults, checkpoint = 2500)
@@ -61,16 +63,14 @@ mdres <- detectObjectBatch(mdsession,allframes$Frame, resultsfile = mdresults, c
 allframes <- parseMD(allframes, mdres)
 
 
-#null out low-confidence crops
-#check the "empty" folder, if you find animals, lower the confidence or do not run
-allframes$max_detection_category[allframes$max_detection_conf<0.1] <- 0
-
 #select animal crops for classification
+
+#make getAnimals()
 animals <- allframes[allframes$max_detection_category==1,]
-empty <- setEmpty(allframes)
+empty <- getEmpty(allframes)
 
 
-#===============================================================================
+#==================================S=============================================
 # Species Classifier
 #===============================================================================
 
@@ -82,10 +82,17 @@ pred <- classifySpecies(animals,modelfile,resize=456,standardize=FALSE,batch_siz
 alldata <- applyPredictions(animals,empty,"/mnt/machinelearning/Models/Kenya/2022/classes.txt",pred,
                             outfile = predresults, counts = TRUE)
 
+#merge animal/empty outside
 
 # Classify sequences / select best prediction
 #mdanimals <- classifySequence(mdanimals,pred,classes,18,maxdiff=60)
 alldata <- poolCrops(alldata, outfile = predresults)
+
+
+
+#separate shrinking function from poolCrops
+topchoice = animals[order(animals[,'FilePath'],-animals[,'confidence']),]
+animals = topchoice[!duplicated(topchoice$NewName),]
 
 #view results
 table(alldata$prediction)
