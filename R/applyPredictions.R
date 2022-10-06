@@ -1,10 +1,8 @@
 #' Apply Classifier Predictions and Merge DataFrames
 #'
-#' @param animals Set of animal crops
-#' @param empty Set of empty, vehicle and human crops
-#' @param classfile .txt file containing common names for species classes
+#' @param detections Dataframe of MD detections
+#' @param class.file .txt file containing common names for species classes
 #' @param pred Classifier predictions for animal crops
-#' @param outfile File to which results are saved
 #' @param counts Returns a table of all predictions, defaults to FALSE
 #'
 #' @return fully merged dataframe with Species predictions
@@ -14,24 +12,22 @@
 #' \dontrun{
 #' alldata <- applyPredictions(animals,empty,classfile,pred,counts = FALSE)
 #' }
-applyPredictions <- function(animals, empty, classfile, pred, outfile = NULL, counts = FALSE) {
-  if (checkFile(outfile)) { return(loadData(outfile))}
-  if (!is(animals, "data.frame")) { stop("'animals' must be DataFrame.")}
-  if (!is(empty, "data.frame")) { stop("'empty' must be DataFrame.")}
-  if (!file.exists(classfile)) { stop("The given class file does not exist.")}
+applyPredictions <- function(detections, pred, class.file, counts = FALSE) {
+  if (!is(detections, "data.frame")) { 
+    stop("Must supply a dataframe.")
+  }
+  if (!file.exists(class.file)) { 
+    stop("The given class file does not exist.")
+  }
+  # read in class list (ASSUMES 'x' VARIABLE FROM TF OUTPUT)
+  classes <- read.table(class.file, strings.as.factors = F)$x
 
-  classes <- read.table(classfile, stringsAsFactors = F)$x
+  detections$prediction <- classes[apply(pred, 1, which.max)]
+  detections$confidence <- apply(pred, 1, max) * detections$conf
 
-  animals$prediction <- classes[apply(pred, 1, which.max)]
-  animals$confidence <- apply(pred, 1, max) * animals$conf
+  if (counts) { 
+    table(classes[apply(pred, 1, which.max)])
+  }
 
-  if (counts) { table(classes[apply(pred, 1, which.max)])}
-  
-  # merge with empty data - remove from function
-  #alldata <- rbind(animals, empty)
-
-  # save data
-  if(!is.null(outfile)) { saveData(alldata, outfile)}
-
-  alldata
+  detections
 }
