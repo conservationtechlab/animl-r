@@ -1,10 +1,11 @@
 #' Classifies Crops Using Specified Models
 #'
-#' @param mdresults flattened mdresults dataframe
+#' @param detections dataframe with md boxes or, if crop=F vector of file paths
 #' @param model models with which to classify species
+#' @param crop toggles the use of cropped images, defaults to TRUE
 #' @param resize resize images before classification, defaults to 299x299px
 #' @param standardize standardize images, defaults to FALSE
-#' @param batch_size number of images processed in each batch (keep small)
+#' @param batch number of images processed in each batch (keep small)
 #' @param workers number of cores
 #'
 #' @return a matrix of likelihoods for each class for each image
@@ -13,31 +14,38 @@
 #' @examples
 #' \dontrun{
 #' pred <- classifySpecies(imagesallanimal, paste0(modelfile, ".h5"),
-#'                       resize = 456, standardize = FALSE, batch_size = 64, workers = 8)
+#'                       resize = 456, standardize = FALSE, batch = 64, workers = 8)
 #' }
-classifySpecies <- function(mdresults, model, resize = 299, crop=TRUE, standardize = TRUE, batch_size = 32, workers = 1) {
+classifySpecies <- function(detections, model, crop = TRUE, resize = 299,
+                            standardize = TRUE, batch = 32, workers = 1) {
   if (!file.exists(model)) {
     stop("The given model file does not exist. Check path.")
   }
 
   model <- keras::load_model_hdf5(model)
-  predict_steps <- ceiling(nrow(mdresults) / batch_size)
+  predict.steps <- ceiling(nrow(detections) / batch)
   
   if(crop){
-    if (!is(mdresults, "data.frame")) {
-      stop("'mdresults' must be DataFrame.")
+    if (!is(detections, "data.frame")) {
+      stop("'detections' must be data frame.")
     }
-    filecol <- which(colnames(mdresults) %in% c("file", "Frame"))[1]
     
-    dataset <- cropImageGenerator(mdresults[, filecol], mdresults[, c("bbox1", "bbox2", "bbox3", "bbox4")],
-                                  resize_height = resize, resize_width = resize,
-                                  standardize = standardize, batch_size = batch_size
-    )
+    dataset <- imageGeneratorCrop(detections[, 'frame'], 
+                                  detections[, c("bbox1", "bbox2", "bbox3", "bbox4")],
+                                  resize.height = resize, resize.width = resize,
+                                  standardize = standardize, batch = batch)
   }
   else{
-    #classifySpeciesFull
+    if (!is(detections, "vector")) {
+      stop("'detections' must be vector of file paths.")
+    }
+    dataset <- imageGenerator(detections, resize.height = resize, 
+                              resize.width = resize, standardize = standardize, 
+                              batch = batch) 
   }
-  predict(model, dataset, step = predict_steps, workers = workers, verbose = 1)
+  
+  #make predictions
+  predict(model, dataset, step = predict.steps, workers = workers, verbose = 1)
 }
 
 
