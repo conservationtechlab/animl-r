@@ -11,7 +11,7 @@ buildFileManifest(imagedir, exif = TRUE, offset = 0, outfile = NULL)
 
 \item{exif}{returns date and time information from exif data, defaults to true}
 
-\item{offset}{add offset to videos}
+\item{offset}{add offset to videos, defaults to 0}
 
 \item{outfile}{file path to which the data frame should be saved}
 }

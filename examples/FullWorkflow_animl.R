@@ -11,19 +11,16 @@
 library(reticulate)
 use_condaenv("mlgpu")
 library(animl)
-library(magrittr)
-
 
 imagedir <- "/home/kyra/animl/examples/test_data"
 
 #create global variable file and directory names
 setupDirectory(imagedir)
 
-
 #load data if needed
 #mdres <- loadData(mdresults)
 #alldata <- loadData(predresults)
-#alldata <- loadData(classifiedimages)
+#alldata <- loadData(classifiedimages) 
 
 #===============================================================================
 # Extract EXIF data

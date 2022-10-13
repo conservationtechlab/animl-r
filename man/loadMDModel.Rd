@@ -2,18 +2,18 @@
 % Please edit documentation in R/loadMDModel.R
 \name{loadMDModel}
 \alias{loadMDModel}
-\title{Title}
+\title{Load MegaDetector model file from directory or file}
 \usage{
 loadMDModel(modelfile)
 }
 \arguments{
-\item{modelfile}{.pb file obtained from megaDetector}
+\item{modelfile}{.pb file or directory obtained from megaDetector}
 }
 \value{
 a tfsession containing the MD model
 }
 \description{
-Title
+Load MegaDetector model file from directory or file
 }
 \examples{
 \dontrun{
