@@ -5,11 +5,12 @@
 #' loaded (see loadMDModel() ) and the file path of the image in question.
 #'
 #'
-#' @param mdsession should be the output from loadMDmodel(model)
-#' @param imagefile The path for the image in question
-#' @param min_conf Confidence threshold for returning bounding boxes, defaults to 0.1
+#' @param mdsession should be the output from loadMDmodel(model).
+#' @param mdversion the version of MegaDetector uses.
+#' @param imagefile The path for the image in question.
+#' @param min_conf Confidence threshold for returning bounding boxes, defaults to 0.1.
 #'
-#' @return a list of MD bounding boxes, classes, and confidence for the image
+#' @return a list of MD bounding boxes, classes, and confidence for the image.
 #' @export
 #'
 #' @examples
@@ -51,7 +52,7 @@ detectObject <- function(mdsession, imagefile,mdversion=5 , min_conf = 0.1) {
       )
     )
   }else{
-    img <- loadImage_Resize_Size(imagefile,height=1280,width=1280,pad=TRUE,standardize=TRUE)
+    img <- loadImageResizeSize(imagefile,height=1280,width=1280,pad=TRUE,standardize=TRUE)
     # get tensors
     if(type=="mdsession"){
       # get tensors
@@ -90,14 +91,15 @@ detectObject <- function(mdsession, imagefile,mdversion=5 , min_conf = 0.1) {
 #' Can resume for a results file and will checkpoint the results after a set
 #' number of images
 #'
-#' @param mdsession should be the output from loadMDmodel(model)
-#' @param images list of image filepaths
-#' @param min_conf Confidence threshold for returning bounding boxes, defaults to 0.1
-#' @param batch_size Process images in batches, defaults to 1
-#' @param resultsfile File containing previously checkpointed results
-#' @param checkpoint Bank results after processing a number of images, defaults to 5000
+#' @param mdsession should be the output from loadMDmodel(model).
+#' @param images list of image filepaths.
+#' @param mdversion the version of MegaDetector uses.
+#' @param min_conf Confidence threshold for returning bounding boxes, defaults to .
+#' @param batch_size Process images in batches, defaults to 1.
+#' @param resultsfile File containing previously checkpointed results.
+#' @param checkpoint Bank results after processing a number of images, defaults to 5000.
 #'
-#' @return a list of lists of bounding boxes for each image
+#' @return a list of lists of bounding boxes for each image.
 #' @export
 #'
 #' @examples

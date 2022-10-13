@@ -15,20 +15,22 @@ detectObjectBatch(
 )
 }
 \arguments{
-\item{mdsession}{should be the output from loadMDmodel(model)}
+\item{mdsession}{should be the output from loadMDmodel(model).}
 
-\item{images}{list of image filepaths}
+\item{images}{list of image filepaths.}
 
-\item{min_conf}{Confidence threshold for returning bounding boxes, defaults to 0.1}
+\item{mdversion}{the version of MegaDetector uses.}
 
-\item{batch_size}{Process images in batches, defaults to 1}
+\item{min_conf}{Confidence threshold for returning bounding boxes, defaults to .}
 
-\item{resultsfile}{File containing previously checkpointed results}
+\item{batch_size}{Process images in batches, defaults to 1.}
 
-\item{checkpoint}{Bank results after processing a number of images, defaults to 5000}
+\item{resultsfile}{File containing previously checkpointed results.}
+
+\item{checkpoint}{Bank results after processing a number of images, defaults to 5000.}
 }
 \value{
-a list of lists of bounding boxes for each image
+a list of lists of bounding boxes for each image.
 }
 \description{
 Runs MD on a list of image filepaths.

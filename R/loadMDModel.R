@@ -14,7 +14,6 @@
 #' mdsession <- loadMDModel(mdmodel)
 #' }
 loadMDModel <- function(modelfile) {
-  require(tensorflow)
   if(dir.exists(modelfile) && file.exists(paste0(modelfile,"/saved_model.pb")))
   {
     model<-tf$keras$models$load_model(modelfile)

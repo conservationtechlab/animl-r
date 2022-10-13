@@ -7,7 +7,7 @@
 imageLabel(data, classes, height = 299, width = 299, standardize = FALSE)
 }
 \arguments{
-\item{data}{a list with the first element being an image file path and the second element a label}
+\item{data}{a list with the first element being an image file path and the second element a label.}
 
 \item{height}{the height the cropped image will be resized to.}
 

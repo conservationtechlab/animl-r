@@ -7,14 +7,16 @@
 detectObject(mdsession, imagefile, mdversion = 5, min_conf = 0.1)
 }
 \arguments{
-\item{mdsession}{should be the output from loadMDmodel(model)}
+\item{mdsession}{should be the output from loadMDmodel(model).}
 
-\item{imagefile}{The path for the image in question}
+\item{imagefile}{The path for the image in question.}
 
-\item{min_conf}{Confidence threshold for returning bounding boxes, defaults to 0.1}
+\item{mdversion}{the version of MegaDetector uses.}
+
+\item{min_conf}{Confidence threshold for returning bounding boxes, defaults to 0.1.}
 }
 \value{
-a list of MD bounding boxes, classes, and confidence for the image
+a list of MD bounding boxes, classes, and confidence for the image.
 }
 \description{
 Returns the MD bounding boxes, classes, confidence above the min_conf

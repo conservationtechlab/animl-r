@@ -7,9 +7,11 @@
 imageAugmentationColor(image, label, rng)
 }
 \arguments{
-\item{image}{an image tensor}
+\item{image}{an image tensor.}
 
-\item{label}{a label tensor}
+\item{label}{a label tensor.}
+
+\item{rng}{a random number generator use to generate a random seed.}
 }
 \value{
 An image and label tensor.
