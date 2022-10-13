@@ -129,7 +129,7 @@ detectObjectBatch <- function(mdsession, images,mdversion=5, min_conf = 0.1, bat
     if (!is.null(resultsfile) & file.exists(resultsfile)) {
       if (tolower(readline(prompt = "Results file exists, would you like to resume? y/n: ")) == "y") {
         load(resultsfile)
-        images <- images[!(images %in% sapply(results, function(x) x$file))]
+        images <- images[!(images %in% sapply(results, function(x) x$FilePath))]
         cat(length(results), "records loaded.\n")
       } else {
         results <- list()

@@ -64,7 +64,7 @@ imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format 
   opb <- pbapply::pboptions(char = "=")
   if (parallel) {
     type <- "PSOCK"
-
+    pbapply::pboptions(use_lb=TRUE)
     cl <- parallel::makeCluster(min(parallel::detectCores(), nproc), type = type)
     parallel::clusterExport(cl, list("outdir", "format", "fps", "frames"), envir = environment())
 
@@ -75,6 +75,7 @@ imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format 
       try(run.parallel(x))
     }, cl = cl)
     parallel::stopCluster(cl)
+    pbapply::pboptions(use_lb=FALSE)
     results <- do.call(rbind, results)
   } 
   else {
