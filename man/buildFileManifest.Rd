@@ -4,15 +4,19 @@
 \alias{buildFileManifest}
 \title{Extract exif data and create dataframe, adjust time if necessary.}
 \usage{
-buildFileManifest(imagedir, outfile = NULL)
+buildFileManifest(imagedir, exif = TRUE, offset = 0, outfile = NULL)
 }
 \arguments{
 \item{imagedir}{file path}
 
+\item{exif}{returns date and time information from exif data, defaults to true}
+
+\item{offset}{add offset to videos}
+
 \item{outfile}{file path to which the data frame should be saved}
 }
 \value{
-files dataframe
+files dataframe \link{FilePath,FileModifyDate}
 }
 \description{
 Extract exif data and create dataframe, adjust time if necessary.
