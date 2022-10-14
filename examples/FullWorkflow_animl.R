@@ -11,26 +11,23 @@
 library(reticulate)
 use_condaenv("mlgpu")
 library(animl)
-library(magrittr)
 
-
-imagedir <- "/mnt/projects/Stacy-Dawes_Kenya/Images for ML_Oct_20/Loisaba_Round12_April-May 2019/L12/100EK113"
+imagedir <- "/home/kyra/animl/examples/test_data"
 
 #create global variable file and directory names
 setupDirectory(imagedir)
 
-
 #load data if needed
 #mdres <- loadData(mdresults)
 #alldata <- loadData(predresults)
-#alldata <- loadData(classifiedimages)
+#alldata <- loadData(classifiedimages) 
 
 #===============================================================================
 # Extract EXIF data
 #===============================================================================
 
 # Read exif data for all images within base directory
-files <- buildFileManifest(imagedir)
+files <- buildFileManifest(imagedir, exif=FALSE)
 
 #build new name
 basedepth=length(strsplit(basedir,split="/")[[1]])-1
@@ -54,7 +51,7 @@ allframes<-imagesFromVideos(files,outfile=imageframes,frames=5,parallel=T,nproc=
 #===============================================================================
 
 # Load the MegaDetector model
-mdsession <- loadMDModel("/mnt/machinelearning/megaDetector/megadetector_v4.1.pb")
+mdsession <- loadMDModel("/mnt/machinelearning/megaDetector/md_v5b.0.0_saved_model")
 
 #+++++++++++++++++++++
 # Classify a single image to make sure everything works before continuing
