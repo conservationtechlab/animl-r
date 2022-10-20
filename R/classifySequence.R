@@ -164,7 +164,7 @@ sequenceClassification<-function(animals,empty=NULL,predictions,classes,emptycla
     for(s in t3){
       sel<-t[s][[1]]
       rowsel[c:(c+length(sel)-1)]<-sel
-      maxconf=which.max(empty$confidence[sel])
+      maxconf=which.max(empty$confidence[sel][empty$confidence[sel]<1])
       conf[c:(c+length(sel)-1)]<-rep(empty$confidence[sel][maxconf],length(sel))
       predict[c:(c+length(sel)-1)]<-rep(empty$prediction[sel][maxconf],length(sel))
       
