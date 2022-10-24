@@ -1,6 +1,6 @@
 #' Classifies Crops Using Specified Models
 #'
-#' @param mdresults flattened mdresults dataframe
+#' @param input either dataframe with MD crops or list of filenames
 #' @param model models with which to classify species
 #' @param resize resize images before classification, defaults to 299x299px
 #' @param standardize standardize images, defaults to FALSE
@@ -15,23 +15,27 @@
 #' pred <- classifySpecies(imagesallanimal, paste0(modelfile, ".h5"),
 #'                       resize = 456, standardize = FALSE, batch_size = 64, workers = 8)
 #' }
-classifySpecies <- function(mdresults, model, resize = 299, standardize = TRUE, batch_size = 32, workers = 1) {
-  if (!is(mdresults, "data.frame")) {
-    stop("'mdresults' must be DataFrame.")
-  }
-  if (!file.exists(model)) {
-    stop("The given model file does not exist.")
-  }
+classifySpecies <- function(input, model, resize = 299, standardize = TRUE, batch = 32, workers = 1) {
+  if (!file.exists(model)) { stop("The given model file does not exist.") }
 
-  filecol <- which(colnames(mdresults) %in% c("file", "Frame"))[1]
   model <- keras::load_model_hdf5(model)
-  predict_steps <- ceiling(nrow(mdresults) / batch_size)
+  steps <- ceiling(nrow(input) / batch)
 
-  dataset <- cropImageGenerator(mdresults[, filecol], mdresults[, c("bbox1", "bbox2", "bbox3", "bbox4")],
-    resize_height = resize, resize_width = resize,
-    standardize = standardize, batch_size = batch_size
-  )
-  predict(model, dataset, step = predict_steps, workers = workers, verbose = 1)
+  #crops
+  if(is(input, "data.frame")){
+    filecol <- which(colnames(input) %in% c("file", "Frame"))[1]
+    dataset <- cropImageGenerator(input[, filecol], input[, c("bbox1", "bbox2", "bbox3", "bbox4")],
+                                  resize_height = resize, resize_width = resize,
+                                  standardize = standardize, batch = batch)
+    
+  }
+  else if (is(input, "list")) {
+    dataset <- ImageGenerator(input, resize_height = resize, resize_width = resize, 
+                              standardize = standardize, batch = 32) 
+  }
+  else { stop("Input must be a data frame of crops or list of file names.") }
+ 
+  predict(model, dataset, step = steps, workers = workers, verbose = 1)
 }
 
 # classifySpeciesOld<-function(mdresults,model,resize=299,standardize=TRUE,batch_size=32,workers=1){

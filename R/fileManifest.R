@@ -1,4 +1,4 @@
-#' Extract exif data and create dataframe, adjust time if necessary.
+#' Extract exif Data and Create File Manifest
 #'
 #' @param imagedir file path
 #' @param exif returns date and time information from exif data, defaults to true
