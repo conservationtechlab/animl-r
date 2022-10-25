@@ -18,11 +18,11 @@ parseMD <- function(mdresults, manifest = NULL, outfile = NULL) {
     
   f <- function(data) {
     if (nrow(data$detections) > 0) {
-      data.frame(Frame = data$FilePath, MaxMDConfidence = data$max_detection_conf, 
+      data.frame(Frame = data$file, MaxMDConfidence = data$max_detection_conf, 
                  MaxCategory = data$max_detection_category, data$detections, stringsAsFactors = F)
     } 
     else {
-      data.frame(Frame = data$FilePath, MaxMDConfidence = data$max_detection_conf, 
+      data.frame(Frame = data$file, MaxMDConfidence = data$max_detection_conf, 
                  MaxCategory = 0, Category = 0, MDConfidence = NA, 
                  bbox1 = NA, bbox2 = NA, bbox3 = NA, bbox4 = NA, stringsAsFactors = F)
     }

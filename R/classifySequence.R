@@ -18,7 +18,7 @@
 #' @param stationcolumn a column in the animals and empty data frame that indicates the camera or camera station
 #' @param sort optional sort order. The default is 'stationcolumn' and DateTime.
 #' @param maxdiff maximum difference between images in seconds to be included in a sequence, defaults to 60
-#' @param 
+#'
 #' @return data frame with predictions and confidence values for animals and empty images
 #' @export
 #'
@@ -29,7 +29,7 @@
 #' empty <- setEmpty(allframes)
 #' animals <- sequenceClassification(animals,empty,predictions,classes,emptyclass = "Empty",stationcolumn="StationID",maxdiff=60)
 #' }
-sequenceClassification<-function(animals,empty=NULL,predictions,classes,emptyclass="",stationcolumn,sort=NULL,maxdiff=60){
+sequenceClassification<-function(animals, empty=NULL, predictions, classes, emptyclass="", stationcolumn, sort=NULL, maxdiff=60){
   if (!is(animals, "data.frame")) {
     stop("'animals' must be Data Frame.")
   }  

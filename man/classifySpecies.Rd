@@ -5,16 +5,16 @@
 \title{Classifies Crops Using Specified Models}
 \usage{
 classifySpecies(
-  mdresults,
+  input,
   model,
   resize = 299,
   standardize = TRUE,
-  batch_size = 32,
+  batch = 32,
   workers = 1
 )
 }
 \arguments{
-\item{mdresults}{flattened mdresults dataframe}
+\item{input}{either dataframe with MD crops or list of filenames}
 
 \item{model}{models with which to classify species}
 
@@ -22,9 +22,9 @@ classifySpecies(
 
 \item{standardize}{standardize images, defaults to FALSE}
 
-\item{batch_size}{number of images processed in each batch (keep small)}
-
 \item{workers}{number of cores}
+
+\item{batch_size}{number of images processed in each batch (keep small)}
 }
 \value{
 a matrix of likelihoods for each class for each image

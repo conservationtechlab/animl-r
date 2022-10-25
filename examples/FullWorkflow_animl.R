@@ -63,13 +63,9 @@ mdres <- detectObjectBatch(mdsession,allframes$Frame, resultsfile = mdresults, c
 allframes <- parseMD(allframes, mdres)
 
 
-#null out low-confidence crops
-#check the "empty" folder, if you find animals, lower the confidence or do not run
-allframes$max_detection_category[allframes$max_detection_conf<0.1] <- 0
-
 #select animal crops for classification
-animals <- allframes[allframes$max_detection_category==1,]
-empty <- setEmpty(allframes)
+animals <- getAnimals(allframes)
+empty <- getEmpty(allframes)
 
 
 #===============================================================================

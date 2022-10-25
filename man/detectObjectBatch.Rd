@@ -8,8 +8,8 @@ detectObjectBatch(
   mdsession,
   images,
   mdversion = 5,
-  min_conf = 0.1,
-  batch_size = 1,
+  min_conf = 0,
+  batch = 1,
   resultsfile = NULL,
   checkpoint = 5000
 )
@@ -23,7 +23,7 @@ detectObjectBatch(
 
 \item{min_conf}{Confidence threshold for returning bounding boxes, defaults to .}
 
-\item{batch_size}{Process images in batches, defaults to 1.}
+\item{batch}{Process images in batches, defaults to 1.}
 
 \item{resultsfile}{File containing previously checkpointed results.}
 

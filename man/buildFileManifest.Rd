@@ -2,7 +2,7 @@
 % Please edit documentation in R/fileManifest.R
 \name{buildFileManifest}
 \alias{buildFileManifest}
-\title{Extract exif data and create dataframe, adjust time if necessary.}
+\title{Extract exif Data and Create File Manifest}
 \usage{
 buildFileManifest(imagedir, exif = TRUE, offset = 0, outfile = NULL)
 }
@@ -19,7 +19,7 @@ buildFileManifest(imagedir, exif = TRUE, offset = 0, outfile = NULL)
 files dataframe \link{FilePath,FileModifyDate}
 }
 \description{
-Extract exif data and create dataframe, adjust time if necessary.
+Extract exif Data and Create File Manifest
 }
 \examples{
 \dontrun{

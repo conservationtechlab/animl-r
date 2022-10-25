@@ -4,7 +4,7 @@
 \alias{detectObject}
 \title{Run MD on a single image}
 \usage{
-detectObject(mdsession, imagefile, mdversion = 5, min_conf = 0.1)
+detectObject(mdsession, imagefile, mdversion = 5, min_conf = 0)
 }
 \arguments{
 \item{mdsession}{should be the output from loadMDmodel(model).}
