@@ -75,7 +75,7 @@ detectObject <- function(mdsession, imagefile, mdversion = 5, min_conf = 0) {
     resfilter <- tensorflow::tf$image$combined_non_max_suppression(tf$reshape(res[,,1:4],
                                                                  as.integer(c(dim(res)[1],dim(res)[2],1,4))),scores,max_output_size_per_class=as.integer(100),
                                                                  max_total_size=as.integer(100),score_threshold=min_conf,clip_boxes=TRUE)
-    #images[(i * batch_size - batch_size)+1]                                                                                                                                
+    #images[(i * batch - batch)+1]                                                                                                                                
     lapply(1:length(resfilter$valid_detections),processYOLO5,resfilter$nmsed_boxes,
            resfilter$nmsed_classes,resfilter$nmsed_scores,resfilter$valid_detections,img)[[1]]
     
@@ -129,7 +129,7 @@ detectObjectBatch <- function(mdsession, images, mdversion = 5, min_conf = 0, ba
     if (!is.null(resultsfile) & file.exists(resultsfile)) {
       if (tolower(readline(prompt = "Results file exists, would you like to resume? y/n: ")) == "y") {
         load(resultsfile)
-        images <- images[!(images %in% sapply(results, function(x) x$FilePath))]
+        images <- images[!(images %in% sapply(results, function(x) x$file))]
         cat(length(results), "records loaded.\n")
       } 
       else { results <- list() }
@@ -148,9 +148,9 @@ detectObjectBatch <- function(mdsession, images, mdversion = 5, min_conf = 0, ba
     score_tensor <- mdsession$graph$get_tensor_by_name("detection_scores:0")
     class_tensor <- mdsession$graph$get_tensor_by_name("detection_classes:0")
     
-    steps <- ceiling(length(images) / batch_size)
+    steps <- ceiling(length(images) / batch)
     opb <- pbapply::pboptions(char = "=")
-    pb <- pbapply::startpb(1, steps) # txtProgressBar(min = 0, max = length(results), style = 3)
+    pb <- pbapply::startpb(1, steps)
     starttime<-Sys.time()
     # process all images
     for (i in 1:steps) {
@@ -160,7 +160,7 @@ detectObjectBatch <- function(mdsession, images, mdversion = 5, min_conf = 0, ba
         for (l in 1:dim(res[[1]])[1]) {
           resfilter <- which(res[[2]] >= min_conf)
           results[[length(results) + 1]] <- list(
-            file = images[(i * batch_size - batch_size) + l], 
+            file = images[(i * batch - batch) + l], 
             max_detection_conf = max(res[[2]][l, ]),
             max_detection_category = res[[3]][which(res[[2]][l, ] == max(res[[2]][l, ]))][1],
             detections = data.frame(
@@ -174,7 +174,7 @@ detectObjectBatch <- function(mdsession, images, mdversion = 5, min_conf = 0, ba
         }
       }
       # save intermediate results at given checkpoint interval
-      if (!is.null(resultsfile) & (i %% checkpoint / batch_size) == 0) {
+      if (!is.null(resultsfile) & (i %% checkpoint / batch) == 0) {
         save(results, file = resultsfile)
       }
       pbapply::setpb(pb, i)
@@ -184,8 +184,6 @@ detectObjectBatch <- function(mdsession, images, mdversion = 5, min_conf = 0, ba
   }
   else { # MDv5
     # create data generator
-    #if(batch_size>1)print("Megadetector based on Yolo5 currently only supports a batch size of 1")
-    #batch_size=1 
     dataset <- ImageGeneratorSize(images,resize_height=1280,resize_width=1280, pad=TRUE, standardize = TRUE, batch = batch)
     
     if (type == "mdsession") {
@@ -195,9 +193,9 @@ detectObjectBatch <- function(mdsession, images, mdversion = 5, min_conf = 0, ba
     }
     else { infer <- mdsession$signatures["serving_default"] }
     
-    steps <- ceiling(length(images) / batch_size)
+    steps <- ceiling(length(images) / batch)
     opb <- pbapply::pboptions(char = "=")
-    pb <- pbapply::startpb(1, steps) # txtProgressBar(min = 0, max = length(results), style = 3)
+    pb <- pbapply::startpb(1, steps) 
     starttime <- Sys.time()
     # process all images
     for (i in 1:steps) {
@@ -215,13 +213,12 @@ detectObjectBatch <- function(mdsession, images, mdversion = 5, min_conf = 0, ba
         scores <- (as.array(resbatch[,,6:8])*as.array(resbatch)[,,c(5,5,5),drop=F])
         resfilter <- tensorflow::tf$image$combined_non_max_suppression(tf$reshape(resbatch[,,1:4],as.integer(c(dim(resbatch)[1],dim(resbatch)[2],1,4))),scores,max_output_size_per_class=as.integer(100),
                                                                      max_total_size=as.integer(100),score_threshold=min_conf,clip_boxes=TRUE)
-        #images[(i * batch_size - batch_size)+1]                                                                                                                                
         results<-c(results,lapply(1:length(resfilter$valid_detections),processYOLO5,resfilter$nmsed_boxes,
                                   resfilter$nmsed_classes,resfilter$nmsed_scores,resfilter$valid_detections,img))
         
       }
       # save intermediate results at given checkpoint interval
-      if (!is.null(resultsfile) & (i %% checkpoint / batch_size) == 0) {
+      if (!is.null(resultsfile) & (i %% checkpoint / batch) == 0) {
         save(results, file = resultsfile)
       }
       pbapply::setpb(pb, i)

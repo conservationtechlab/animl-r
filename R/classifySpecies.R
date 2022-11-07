@@ -19,21 +19,27 @@ classifySpecies <- function(input, model, resize = 299, standardize = TRUE, batc
   if (!file.exists(model)) { stop("The given model file does not exist.") }
 
   model <- keras::load_model_hdf5(model)
-  steps <- ceiling(nrow(input) / batch)
 
   #crops
   if(is(input, "data.frame")){
+    steps <- ceiling(nrow(input) / batch)
     filecol <- which(colnames(input) %in% c("file", "Frame"))[1]
-    dataset <- cropImageGenerator(input[, filecol], input[, c("bbox1", "bbox2", "bbox3", "bbox4")],
-                                  resize_height = resize, resize_width = resize,
-                                  standardize = standardize, batch = batch)
+    if("bbox1" %in% colnames(input)){
+      dataset <- cropImageGenerator(input[, filecol], input[, c("bbox1", "bbox2", "bbox3", "bbox4")],
+                                    resize_height = resize, resize_width = resize,
+                                    standardize = standardize, batch = batch)
+    }else{
+      dataset <- ImageGenerator(input[, filecol], resize_height = resize, resize_width = resize, 
+                                standardize = standardize, batch = batch)       
+    }
     
   }
-  else if (is(input, "list")) {
+  else if (is.vector(input)) {
+    steps <- ceiling(length(input) / batch)
     dataset <- ImageGenerator(input, resize_height = resize, resize_width = resize, 
-                              standardize = standardize, batch = 32) 
+                              standardize = standardize, batch = batch) 
   }
-  else { stop("Input must be a data frame of crops or list of file names.") }
+  else { stop("Input must be a data frame of crops or vector of file names.") }
  
   predict(model, dataset, step = steps, workers = workers, verbose = 1)
 }
