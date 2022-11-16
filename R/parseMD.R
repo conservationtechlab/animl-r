@@ -9,7 +9,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' mdresults <- parseMDsimple(mdres)
+#' mdresults <- parseMD(mdres)
 #' }
 parseMD <- function(mdresults, manifest = NULL, outfile = NULL) {
   if (checkFile(outfile)) { return(loadData(outfile))}
