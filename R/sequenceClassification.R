@@ -59,7 +59,7 @@ sequenceClassification<-function(animals, empty=NULL, predictions, classes, empt
   if(is.null(stationcolumn) | length(stationcolumn)>1){
     stop("please provide a single character values for 'stationcolumn'")
   }
-
+  
   #if column conf does not exist add it as 1s
   if(!("conf" %in% colnames(animals))){
     animals$conf=1
@@ -70,8 +70,8 @@ sequenceClassification<-function(animals, empty=NULL, predictions, classes, empt
     sortcolumns<-c(stationcolumn,"DateTime")
   }
   sort<-do.call(order,animals[,sortcolumns])
-
-
+  
+  
   animals<-animals[sort,]
   predsort<-predictions[sort,]
   
@@ -176,9 +176,7 @@ sequenceClassification<-function(animals, empty=NULL, predictions, classes, empt
         conf[c:(c+length(sel)-1)]<-rep(empty$confidence[sel][maxconf],length(sel))
         predict[c:(c+length(sel)-1)]<-rep(empty$prediction[sel][maxconf],length(sel))
       }
-      if((c %% round(cmax/1000))==0){
-        pbapply::setpb(pb, c)
-      }
+      pbapply::setpb(pb, c)
       c=c+length(sel)
     }
     pbapply::setpb(pb, cmax)
@@ -186,6 +184,12 @@ sequenceClassification<-function(animals, empty=NULL, predictions, classes, empt
     
     empty[rowsel,]$confidence<-conf
     empty[rowsel,]$prediction<-predict
+    
+    t<-unique(animals[,c("FilePath","confidence","prediction")])
+    t2<-match(empty$FilePath,t$FilePath)
+    t3<-!is.na(t2)
+    empty[t3,]$confidence<-t[t2[t3],]$confidence
+    empty[t3,]$prediction<-t[t2[t3],]$prediction
     
     #combine animal and empty images
     alldata<-rbind(empty,animals)
@@ -195,3 +199,4 @@ sequenceClassification<-function(animals, empty=NULL, predictions, classes, empt
   }
   
 }
+
