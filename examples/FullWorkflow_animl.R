@@ -15,58 +15,56 @@ library(animl)
 imagedir <- "/home/kyra/animl/examples/test_data"
 
 #create global variable file and directory names
-setupDirectory(imagedir)
+setupDirectory('/home/kyra/test/')
 
 #load data if needed
 #mdres <- loadData(mdresults)
 #alldata <- loadData(predresults)
 #alldata <- loadData(classifiedimages) 
 
-#===============================================================================
-# Extract EXIF data
-#===============================================================================
+# Build file manifest for all images and videos within base directory
+files <- buildFileManifest(imagedir, exif=TRUE)
 
-# Read exif data for all images within base directory
-files <- buildFileManifest(imagedir, exif=FALSE)
+#===============================================================================
+# Add Project-Specific Info
+#===============================================================================
 
 #build new name
-basedepth=length(strsplit(basedir,split="/")[[1]])-1
-
+basedepth=length(strsplit(imagedir,split="/")[[1]])-1
 
 files$Region<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth])
 files$Site<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+1])
 files$Camera<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+2])
-
 
 #files must have a new name for symlink
 files$UniqueName=paste(files$Region,files$Site,format(files$DateTime,format="%Y%m%d_%H%M%S"),files$FileName,sep="_")
 files$UniqueName=files$FileName
 
 # Process videos, extract frames for ID
-allframes<-imagesFromVideos(files,outfile=imageframes,frames=5,parallel=T,nproc=12)
-
+allframes <- imagesFromVideos(files, outdir = "/home/kyra/test_data/frames/", outfile=NULL, fps = 1, parallel=F, nproc=12)
 
 #===============================================================================
 # MegaDetector
 #===============================================================================
+# Most functions assume MegaDetector version 5. If using an earlier version of 
+# MD, specify with argument 'mdversion'.
+
 
 # Load the MegaDetector model
 mdsession <- loadMDModel("/mnt/machinelearning/megaDetector/md_v5b.0.0_saved_model")
+mdsession <- loadMDModel("/mnt/machinelearning/megaDetector/md_v4.1.pb")
 
 #+++++++++++++++++++++
 # Classify a single image to make sure everything works before continuing
-testMD(allframes,mdsession)
+testMD("/home/kyra/animl/examples/test_data/Peru/S90/SDZG 1/EK000038.JPG", mdsession)
 #+++++++++++++++++++++
+mdres <- detectObjectBatch(mdsession, allframes$Frame, mdversion = 4, resultsfile = mdresults, checkpoint = 5)
 
-mdres <- detectObjectBatch(mdsession,allframes$Frame, resultsfile = mdresults, checkpoint = 2500)
-
-allframes <- parseMD(allframes, mdres)
-
+y <- parseMD(mdres, allframes)
 
 #select animal crops for classification
-animals <- getAnimals(allframes)
-empty <- getEmpty(allframes)
-
+animals <- getAnimals(x)
+empty <- getEmpty(x)
 
 #===============================================================================
 # Species Classifier
@@ -75,23 +73,23 @@ empty <- getEmpty(allframes)
 modelfile <- "/mnt/machinelearning/Models/Southwest/EfficientNetB5_456_Unfrozen_01_0.58_0.82.h5"
 modelfile <- "/mnt/machinelearning/Models/Kenya/2022/EfficientNetB5_456_Unfrozen_04_0.60_0.89.h5"
 
-pred <- classifySpecies(animals,modelfile,resize=456,standardize=FALSE,batch_size = 64,workers=8)
+y <- animals$Frame
 
-alldata <- applyPredictions(animals,empty,"/mnt/machinelearning/Models/Southwest/classes.txt",pred,
-                            outfile = predresults, counts = TRUE)
+pred <- predictSpecies(y[1:1], modelfile)
 
+animals <- applyPredictions(animals, pred, "/mnt/machinelearning/Models/Southwest/classes.txt", 
+                            outfile = NULL, counts = TRUE)
 
 # Classify sequences / select best prediction
 #mdanimals <- classifySequence(mdanimals,pred,classes,18,maxdiff=60)
-alldata <- poolCrops(alldata, outfile = classifiedimages)
-
+best <- bestGuess(animals, parallel = F, nproc = 12)
 
 #===============================================================================
 # Symlinks
 #===============================================================================
 
 #symlink species predictions
-alldata <- symlinkClasses(alldata, "/mnt/projects/Goldberg_Carnivore/Link")
+alldata <- symlinkClasses(alldata, )
 
 mapply(file.link, alldata$FilePath, alldata$Link)
 

@@ -4,12 +4,12 @@
 \alias{testMD}
 \title{Select a Random Image and Run Through MegaDetector}
 \usage{
-testMD(imagesall, mdsession, minconf = 0.9, frame = NA)
+testMD(input, mdsession, mdversion = 5)
 }
 \arguments{
-\item{imagesall}{dataframe of all images}
+\item{mdsession}{MegaDetector mdsession}
 
-\item{mdsession}{MegaDetector tensorflow session}
+\item{imagesall}{dataframe of all images}
 }
 \value{
 Null, plots box on image

@@ -39,7 +39,7 @@ buildFileManifest <- function(imagedir, exif = TRUE, offset=0, outfile = NULL) {
     files <- files %>% dplyr::mutate(DateTime = dplyr::coalesce(DateTimeOriginal, FileModifyDate))
   }
   # return simple file list 
-  else{
+  else {
     files <- list.files(imagedir, full.names = TRUE, recursive = TRUE)
     files <- as.data.frame(files)
     colnames(files)[1] <- "FilePath"

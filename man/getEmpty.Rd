@@ -2,21 +2,21 @@
 % Please edit documentation in R/splitData.R
 \name{getEmpty}
 \alias{getEmpty}
-\title{Title}
+\title{Return MD empty, vehicle and human images in a dataframe}
 \usage{
 getEmpty(manifest)
 }
 \arguments{
-\item{manifest}{all megadetector allframes}
+\item{manifest}{all megadetector frames}
 }
 \value{
 list of empty/human/vehicle allframes with md classification
 }
 \description{
-Title
+Return MD empty, vehicle and human images in a dataframe
 }
 \examples{
 \dontrun{
-setEmpty(imagesall)
+empty <- getEmpty(imagesall)
 }
 }

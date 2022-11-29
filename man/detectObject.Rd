@@ -2,21 +2,21 @@
 % Please edit documentation in R/detectMD.R
 \name{detectObject}
 \alias{detectObject}
-\title{Run MD on a single image}
+\title{Run MD on a Single Image}
 \usage{
 detectObject(mdsession, imagefile, mdversion = 5, min_conf = 0)
 }
 \arguments{
-\item{mdsession}{should be the output from loadMDmodel(model).}
+\item{mdsession}{Should be the output from loadMDmodel(model)}
 
-\item{imagefile}{The path for the image in question.}
+\item{imagefile}{The path for the image in question}
 
-\item{mdversion}{the version of MegaDetector uses.}
+\item{mdversion}{MegaDetector version, defaults to 5}
 
-\item{min_conf}{Confidence threshold for returning bounding boxes, defaults to 0.1.}
+\item{min_conf}{Confidence threshold for returning bounding boxes, defaults to 0}
 }
 \value{
-a list of MD bounding boxes, classes, and confidence for the image.
+a list of MD bounding boxes, classes, and confidence for the image
 }
 \description{
 Returns the MD bounding boxes, classes, confidence above the min_conf
