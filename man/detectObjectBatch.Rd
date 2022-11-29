@@ -8,7 +8,7 @@ detectObjectBatch(
   mdsession,
   images,
   mdversion = 5,
-  min_conf = 0,
+  min_conf = 0.1,
   batch = 1,
   resultsfile = NULL,
   checkpoint = 5000
@@ -19,7 +19,7 @@ detectObjectBatch(
 
 \item{images}{list of image filepaths}
 
-\item{min_conf}{Confidence threshold for returning bounding boxes, defaults to 0}
+\item{min_conf}{Confidence threshold for returning bounding boxes, defaults to 0.1}
 
 \item{batch}{Process images in batches, defaults to 1}
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/splitData.R
 \name{getAnimals}
 \alias{getAnimals}
-\title{Title}
+\title{Return a dataframe of only MD animals}
 \usage{
 getAnimals(manifest)
 }
@@ -13,7 +13,7 @@ getAnimals(manifest)
 animal frames classified by MD
 }
 \description{
-Title
+Return a dataframe of only MD animals
 }
 \examples{
 \dontrun{

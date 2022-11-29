@@ -4,7 +4,7 @@
 \alias{detectObject}
 \title{Run MD on a Single Image}
 \usage{
-detectObject(mdsession, imagefile, mdversion = 5, min_conf = 0)
+detectObject(mdsession, imagefile, mdversion = 5, min_conf = 0.1)
 }
 \arguments{
 \item{mdsession}{Should be the output from loadMDmodel(model)}
@@ -13,7 +13,7 @@ detectObject(mdsession, imagefile, mdversion = 5, min_conf = 0)
 
 \item{mdversion}{MegaDetector version, defaults to 5}
 
-\item{min_conf}{Confidence threshold for returning bounding boxes, defaults to 0}
+\item{min_conf}{Confidence threshold for returning bounding boxes, defaults to 0.1}
 }
 \value{
 a list of MD bounding boxes, classes, and confidence for the image

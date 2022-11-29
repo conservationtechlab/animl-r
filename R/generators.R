@@ -130,21 +130,24 @@ cropImageTrainGenerator <- function(files, boxes, label,classes,resize_height = 
 #' @export
 #' @import tensorflow
 #'
-ImageGenerator <- function(files, resize_height = NULL, resize_width = NULL, standardize = FALSE, batch_size = 32) {
+ImageGenerator <- function(files, resize_height = NULL, resize_width = NULL, standardize = FALSE, batch_size = 1) {
   # create data generator for  training (image/label pair)
   if (!(is.vector(files) && inherits(files,"character"))) {
-    stop("Please provide a vector of file names.\n")
+    stop("files needs to be a vector of file names.\n")
   }
+  
+  data <- data.frame(file=files)
   dataset <- tfdatasets::tensor_slices_dataset(files)
+  
   if (is.null(resize_height) || is.null(resize_width)) {
     message("No values were provided for resize, returning full-size images.")
-    dataset <- tfdatasets::dataset_map(dataset, function(x) loadImage(x, standardize=standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
+    dataset <- tfdatasets::dataset_map(dataset, function(x) loadImage(x, standardize=standardize), num_parallel_calls = tf$data$experimental$AUTOTUNE)
     dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
-    # dataset<-dataset$apply(tf$data$experimental$ignore_errors())
-  } else {
+  } 
+  else {
     dataset <- tfdatasets::dataset_map(dataset, function(x) loadImageResize(x, resize_height, resize_width, standardize=standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
     dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
-      }
+  }
   dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
   dataset <- reticulate::as_iterator(dataset)
   dataset

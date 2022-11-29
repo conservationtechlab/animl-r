@@ -9,7 +9,7 @@ ImageGenerator(
   resize_height = NULL,
   resize_width = NULL,
   standardize = FALSE,
-  batch_size = 32
+  batch_size = 1
 )
 }
 \arguments{

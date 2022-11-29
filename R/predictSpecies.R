@@ -16,7 +16,6 @@
 #'                       resize = 456, standardize = FALSE, batch_size = 64, workers = 8)
 #' }
 predictSpecies <- function(input, model, resize = 456, standardize = FALSE, batch = 1, workers = 1) {
-  
   if (!file.exists(model)) { stop("The given model file does not exist.") }
   
   model <- keras::load_model_hdf5(model)
@@ -29,11 +28,11 @@ predictSpecies <- function(input, model, resize = 456, standardize = FALSE, batc
       dataset <- cropImageGenerator(input[, filecol], input[, c("bbox1", "bbox2", "bbox3", "bbox4")],
                                     resize_height = resize, resize_width = resize,
                                     standardize = standardize, batch = batch)
-    }
-    else{
+    }else{
       dataset <- ImageGenerator(input[, filecol], resize_height = resize, resize_width = resize, 
                                 standardize = standardize, batch = batch)       
     }
+    
   }
   else if (is.vector(input)) {
     steps <- ceiling(length(input) / batch)

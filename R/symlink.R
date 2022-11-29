@@ -1,47 +1,44 @@
 #' Create SymLink Directories and Sort Classified Images
 #'
-#' @param alldata DataFrame of classified images 
+#' @param manifest DataFrame of classified images 
 #' @param linkdir Destination directory for symlinks
+#' @param threshold Confidence threshold for determining uncertain predictions, defaults to 0
 #' @param outfile Results file to save to
 #' @param copy Toggle to determine copy or hard link, defaults to link
 #' 
 #'
-#' @return none
+#' @return manifest with added link columns
 #' @export 
 #'
 #' @examples
-#' \dontrun{}
-symlinkClasses <- function(manifest, linkdir, threshold = 0.5, outfile = NULL, copy = FALSE) {
+#' \dontrun{
+#' manifest <- symlinkSpecies(manifest, linkdir)
+#' }
+symlinkSpecies <- function(manifest, linkdir, threshold = 0, outfile = NULL, copy = FALSE) {
   if (checkFile(outfile)) { return(loadData(outfile))}
-  
-  if (threshold)
+
   # place low-confidence images into "Unknown" category
-  alldata$prediction[alldata$confidence < threshold &
-    !(alldata$prediction %in% c("empty", "Empty", "human", "Human", "vehicle", "Vehicle"))] <- "unknown"
+  manifest$prediction[manifest$confidence < threshold &
+    !(manifest$prediction %in% c("empty", "Empty", "human", "Human", "vehicle", "Vehicle"))] <- "unknown"
 
   # create species directories
-  for (s in unique(alldata$prediction)) {
+  for (s in unique(manifest$prediction)) {
     if (!dir.exists(paste0(linkdir, s))) dir.create(paste0(linkdir, s), recursive = T)
   }
   
-  if ("UniqueName" %in% names(manifest)) {
-    alldata$Link <- paste0(linkdir, alldata$prediction, "/", alldata$UniqueName)
+  if (!("UniqueName" %in% names(manifest))) {
+    manifest$UniqueName<-sapply(manifest$FileName, function(x) paste0(strsplit(x, ".", fixed = T)[[1]][1], "_", 
+                                                                      sprintf("%05d", round(stats::runif(1, 1, 99999), 0)), ".jpg"))
   }
   
-  else { # create a new name
-    name <- strsplit(basename(x), ".", fixed = T)[[1]][1]
-    rnd <- sprintf("%05d", round(stats::runif(1, 1, 99999), 0))
-    output <- file.path(tempdir, paste0(name, "_", rnd, "_%5d", ".jpg"))
-  }
-  # create link
+  manifest$Link <- paste0(linkdir, manifest$prediction, "/", manifest$UniqueName)
+
+  # hard copy or link
+  if (copy) { mapply(file.copy, manifest$FilePath, manifest$Link) }
+  else { mapply(file.link, manifest$FilePath, manifest$Link) }
   
-  if(copy){
-    mapply(file.copy, alldata$FilePath, alldata$Link)
-  }
-  else{
-    mapply(file.link, alldata$FilePath, alldata$Link)
-  }
-  if (!is.null(outfile)) { saveData(alldata, outfile)}  
+  if (!is.null(outfile)) { saveData(manifest, outfile)}
+  manifest
 }
 
 
@@ -49,33 +46,41 @@ symlinkClasses <- function(manifest, linkdir, threshold = 0.5, outfile = NULL, c
 
 #' Create SymLink Directories and Sort Classified Images Based on MD Results
 #'
-#' @param alldata DataFrame of classified images 
+#' @param manifest DataFrame of classified images 
 #' @param linkdir Destination directory for symlinks
 #' @param outfile Results file to save to
 #' @param copy Toggle to determine copy or hard link, defaults to link
 #'
-#' @return none
+#' @return manifest with added link columns
 #' @export
 #'
 #' @examples
-#' \dontrun{}
-symlinkMD <- function(alldata, linkdir, outfile = resultsfile, copy=FALSE){
+#' \dontrun{
+#' symlinkMD(manifest, linkdir)
+#' }
+symlinkMD <- function(manifest, linkdir, outfile = NULL, copy=FALSE){
   if (checkFile(outfile)) { return(loadData(outfile))}
   
   MDclasses <- c("empty","animal","human","vehicle")
   for (s in MDclasses) {
-    if (!dir.exists(paste0(linkdir, s))) dir.create(paste0(linkdir, s), recursive = T)
+    if (!dir.exists(paste0(linkdir, s))) {
+      dir.create(paste0(linkdir, s), recursive = T)
+    }
   }
   
-  alldata$MDprediction <- sapply(alldata$max_detection_category,function(x) MDclasses[x+1])
+  manifest$MDprediction <- sapply(manifest$max_detection_category,function(x) MDclasses[x+1])
   
-  alldata$MDLink <- paste0(linkdir, alldata$MDprediction, "/", alldata$NewName)
+  if (!("UniqueName" %in% names(manifest))) {
+    manifest$UniqueName<-sapply(manifest$FileName, function(x) paste0(strsplit(x, ".", fixed = T)[[1]][1], "_", 
+                                                                sprintf("%05d", round(stats::runif(1, 1, 99999), 0)), ".jpg"))
+  }
+  
+  manifest$MDLink <- paste0(linkdir, manifest$MDprediction, "/", manifest$UniqueName)
 
-  if(copy){
-    mapply(file.copy, alldata$FilePath, alldata$MDLink)
-  }
-  else{
-    mapply(file.link, alldata$FilePath, alldata$MDLink)
-  }
-  if (!is.null(outfile)) { saveData(files, outfile)}
+  # hard copy or link
+  if (copy) { mapply(file.copy, manifest$FilePath, manifest$MDLink) }
+  else { mapply(file.link, manifest$FilePath, manifest$MDLink) }
+  
+  if (!is.null(outfile)) { saveData(manifest, outfile) }
+  manifest
 }

@@ -23,7 +23,7 @@ setupDirectory('/home/kyra/test/')
 #alldata <- loadData(classifiedimages) 
 
 # Build file manifest for all images and videos within base directory
-files <- buildFileManifest(imagedir, exif=TRUE)
+files <- buildFileManifest(imagedir, exif=FALSE)
 
 #===============================================================================
 # Add Project-Specific Info
@@ -49,22 +49,21 @@ allframes <- imagesFromVideos(files, outdir = "/home/kyra/test_data/frames/", ou
 # Most functions assume MegaDetector version 5. If using an earlier version of 
 # MD, specify with argument 'mdversion'.
 
-
 # Load the MegaDetector model
 mdsession <- loadMDModel("/mnt/machinelearning/megaDetector/md_v5b.0.0_saved_model")
 mdsession <- loadMDModel("/mnt/machinelearning/megaDetector/md_v4.1.pb")
 
 #+++++++++++++++++++++
 # Classify a single image to make sure everything works before continuing
-testMD("/home/kyra/animl/examples/test_data/Peru/S90/SDZG 1/EK000038.JPG", mdsession)
+testMD(allframes, mdsession)
 #+++++++++++++++++++++
-mdres <- detectObjectBatch(mdsession, allframes$Frame, mdversion = 4, resultsfile = mdresults, checkpoint = 5)
+mdres <- detectObjectBatch(mdsession, allframes$Frame, resultsfile = mdresults, checkpoint = 5)
 
 y <- parseMD(mdres, allframes)
 
 #select animal crops for classification
-animals <- getAnimals(x)
-empty <- getEmpty(x)
+animals <- getAnimals(y)
+empty <- getEmpty(y)
 
 #===============================================================================
 # Species Classifier
@@ -73,31 +72,34 @@ empty <- getEmpty(x)
 modelfile <- "/mnt/machinelearning/Models/Southwest/EfficientNetB5_456_Unfrozen_01_0.58_0.82.h5"
 modelfile <- "/mnt/machinelearning/Models/Kenya/2022/EfficientNetB5_456_Unfrozen_04_0.60_0.89.h5"
 
-y <- animals$Frame
+pred <- predictSpecies(animals, modelfile)
 
-pred <- predictSpecies(y[1:1], modelfile)
-
-animals <- applyPredictions(animals, pred, "/mnt/machinelearning/Models/Southwest/classes.txt", 
+animals <- applyPredictions(y, pred, "/mnt/machinelearning/Models/Southwest/classes.txt", 
                             outfile = NULL, counts = TRUE)
 
+#rejoin animal and empty data splits
+manifest <- rbind(animals,empty)
+
 # Classify sequences / select best prediction
+best <- bestGuess(manifest, parallel = T, nproc = 12, shrink = TRUE)
+
 #mdanimals <- classifySequence(mdanimals,pred,classes,18,maxdiff=60)
-best <- bestGuess(animals, parallel = F, nproc = 12)
 
 #===============================================================================
 # Symlinks
 #===============================================================================
 
 #symlink species predictions
-alldata <- symlinkClasses(alldata, )
-
-mapply(file.link, alldata$FilePath, alldata$Link)
+alldata <- symlinkSpecies(best, linkdir)
 
 #symlink MD detections only
-symlinkMD(alldata,linkdir)
+symlinkMD(best,linkdir)
 
 #delete simlinks
 sapply(alldata$Link,file.remove)
+
+# update results after human validation
+
 
 #===============================================================================
 # Export to Camera Base

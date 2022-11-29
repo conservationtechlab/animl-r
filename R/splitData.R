@@ -13,7 +13,6 @@ getEmpty <- function(manifest) {
   if (!is(manifest, "data.frame")) { stop("'allframes' must be Data Frame")}
   
   empty <- manifest[manifest$max_detection_category != 1, ]
-  print(empty)
 
   if (nrow(empty) == 0) {
     empty <- data.frame(matrix(ncol = ncol(manifest), nrow = 0))
