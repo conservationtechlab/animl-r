@@ -30,7 +30,7 @@ loadData <- function(file) {
 #'  saveData(files,"path/to/newfile.csv")
 #' }
 saveData <- function(data, outfile, prompt = TRUE) {
-  if (file.exists(outfile) & prompt==TRUE) {
+  if (file.exists(outfile) & prompt == TRUE) {
     if (tolower(readline(prompt = "Output file exists, would you like to overwrite? y/n: ")) == "y") {
       write.csv(data, file = outfile, row.names = F, quote = F)
     }

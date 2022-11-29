@@ -9,6 +9,8 @@ testMD(input, mdsession, mdversion = 5)
 \arguments{
 \item{mdsession}{MegaDetector mdsession}
 
+\item{mdversion}{megadetector version, defaults to 5}
+
 \item{imagesall}{dataframe of all images}
 }
 \value{

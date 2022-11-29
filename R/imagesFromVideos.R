@@ -18,33 +18,24 @@
 #' \dontrun{
 #' frames <- imagesFromVideos(videos, outdir = "C:\\Users\\usr\\Videos\\", frames = 5)
 #' }
-imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format = "jpg", fps = NULL, frames = NULL, parallel = FALSE, nproc = 1, checkpoint = 2500) {
-  if (checkFile(outfile)) { return(loadData(outfile))}
-  if (!is(files, "data.frame")) { stop("Error: 'mdresults' must be Data Frame.")}
-  if (outdir != "" & !dir.exists(outdir)) {
-    if (!dir.create(outdir, recursive = TRUE)) { stop("Output directory invalid.\n")}
-  }
-  if (!is.null(fps) & !is.null(frames)) { message("If both fps and frames are defined fps will be used.")}
-  if (is.null(fps) & is.null(frames)) { stop("Either fps or frames need to be defined.")}
-
-  images <- files[tools::file_ext(files$FileName) %in% c("jpg", "JPG", "png", "PNG"), ]
-  images$Frame <- images$FilePath
-  videos <- files[tools::file_ext(files$FileName) %in% c("mp4", "MP4", "avi", "AVI"), ]
-
+imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format = "jpg", 
+                             fps = NULL, frames = NULL, parallel = FALSE, nproc = 1, checkpoint = 2500) {
+  if (checkFile(outfile)) { return(loadData(outfile)) } 
+  
+  #check if dataframe or vector
   run.parallel <- function(x, cond = "problem") {
     result <- tryCatch(
-      {
-        print(av::av_media_info(x))
-      },
+      { data <- av::av_media_info(x) },
       error = function(e) {
         message(cond)
         message(e)
         return(NA)
       }
     )
-    if (result$video$frames < 5) {
+    if (result$video$frames < 5) { 
       files <- data.frame(FilePath = x, Frame = "File Corrupt")
-    } else {
+    } 
+    else {
       vfilter <- ifelse(length(frames), paste0("fps=", round(1 / (result$duration / frames), 3)), "null")
       vfilter <- ifelse(length(fps), paste0("fps=", fps), vfilter)
       framerate <- result$video$framerate
@@ -61,7 +52,24 @@ imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format 
       files[, c("FilePath", "Frame")]
     }
   }
-  opb <- pbapply::pboptions(char = "=")
+  
+  #check if input is dataframe
+  if (is(files, "data.frame")) { 
+    images <- files[tolower(tools::file_ext(files$FileName)) %in% c("jpg", "png", "jpeg"), ]
+    images$Frame <- images$FilePath
+    videos <- files[tolower(tools::file_ext(files$FileName)) %in% c("mp4", "avi", "mov", "wmv", "mpg", "mpeg", "asf", "m4v"), ]
+    filelist <- videos$FilePath
+  } #otherwise, check if list of videos 
+  else if (is(files, "character") & length(files) > 0) {  filelist <- files }
+  else { stop("Error: Expect 'files' to be Data Frame or vector of filepaths.") }
+  
+  if (outdir != "" & !dir.exists(outdir)) {
+    if (!dir.create(outdir, recursive = TRUE)) { stop("Output directory invalid.\n") }
+  }
+  if (!is.null(fps) & !is.null(frames)) { message("If both fps and frames are defined fps will be used.") }
+  if (is.null(fps) & is.null(frames)) { stop("Either fps or frames need to be defined.") }
+ 
+
   if (parallel) {
     type <- "PSOCK"
     pbapply::pboptions(use_lb=TRUE)
@@ -71,8 +79,8 @@ imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format 
     parallel::clusterSetRNGStream(cl)
 
     parallel::clusterEvalQ(cl, library(av))
-    results <- pbapply::pblapply(videos$FilePath, function(x) {
-      try(run.parallel(x))
+    results <- pbapply::pblapply(filelist, function(x) {
+      try(run.parallel(x)) 
     }, cl = cl)
     parallel::stopCluster(cl)
     pbapply::pboptions(use_lb=FALSE)
@@ -83,7 +91,6 @@ imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format 
     results <- data.frame(FilePath = character(),Frame= character())
     for(i in 1:nrow(videos)){
       result <- run.parallel(videos[i,]$FilePath)
-      
       results <- rbind(results,result)
      
       if (!is.null(outfile) & (i %% checkpoint) == 0) {
@@ -93,13 +100,15 @@ imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format 
     }
     pbapply::setpb(pb, nrow(videos))
     pbapply::closepb(pb)
+  } 
+
+  if (is(files, "data.frame")) { 
+    videoframes <- merge(videos, results) 
+    allframes <- rbind(images, videoframes)
   }
-
-  videoframes <- merge(videos, results)
-  allframes <- rbind(images, videoframes)
-
+  else { allframes <- results }
   # save frames to files
-  if(!is.null(outfile)) { saveData(allframes, outfile)}
+  if(!is.null(outfile)) { saveData(allframes, outfile) }
 
   allframes
 }

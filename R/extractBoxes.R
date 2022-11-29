@@ -243,9 +243,8 @@ extractBoxes <- function(images, min_conf = 0, buffer = 0, save = FALSE, resize 
     run.parallel <- function(i) {
       if (file.exists(images[[i]]$FilePath)) {
         extractBoxesFromMD(images[[i]], min_conf = min_conf, buffer = buffer, resize = resize, save = save, outdir = outdir, quality = quality)
-      } else {
-        NA
-      }
+      } 
+      else { NA }
     }
     opb <- pbapply::pboptions(char = "=")
     if (parallel) {

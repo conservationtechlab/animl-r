@@ -13,6 +13,7 @@ getEmpty <- function(manifest) {
   if (!is(manifest, "data.frame")) { stop("'allframes' must be Data Frame")}
   
   empty <- manifest[manifest$max_detection_category != 1, ]
+  print(empty)
 
   if (nrow(empty) == 0) {
     empty <- data.frame(matrix(ncol = ncol(manifest), nrow = 0))
@@ -25,7 +26,7 @@ getEmpty <- function(manifest) {
   categories <- unique(manifest$max_detection_category)
   if (0 %in% categories) {
     empty[empty$max_detection_category == 0, ]$prediction <- "empty"
-    empty$confidence[empty$max_detection_category == 0] <- 1 - empty$max_conf[empty$max_detection_category == 0]
+    empty$confidence[empty$max_detection_category == 0] <- 1 - empty$max_detection_conf[empty$max_detection_category == 0]
   }
   if (2 %in% categories) {
     empty[empty$max_detection_category == 2, ]$prediction <- "human"

@@ -18,7 +18,7 @@ plotBoxes <- function(image, label = FALSE, minconf = 0) {
   
   # process MD output
   if (is.list(image)) {
-    jpg <- jpeg::readJPEG(image$FilePath)
+    jpg <- jpeg::readJPEG(image$file)
     plot(grDevices::as.raster(jpg)) ## where is this from??
     jpgy <- dim(jpg)[1]
     jpgx <- dim(jpg)[2]

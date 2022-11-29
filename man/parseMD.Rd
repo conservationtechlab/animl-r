@@ -21,6 +21,6 @@ parse MD JSON results file into a simple dataframe
 }
 \examples{
 \dontrun{
-mdresults <- parseMDsimple(mdres)
+mdresults <- parseMD(mdres)
 }
 }

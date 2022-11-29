@@ -2,6 +2,7 @@
 #'
 #' @param imagesall dataframe of all images
 #' @param mdsession MegaDetector mdsession
+#' @param mdversion megadetector version, defaults to 5
 #'
 #' @return Null, plots box on image
 #' @export
@@ -22,6 +23,5 @@ testMD <- function(input, mdsession, mdversion = 5) {
   plot(as.raster(jpg))
   mdres <- detectObject(mdsession, path, mdversion)
   plotBoxes(mdres)
-
 }
 
