@@ -12,7 +12,8 @@ imagesFromVideos(
   fps = NULL,
   frames = NULL,
   parallel = FALSE,
-  nproc = 1
+  nproc = 1,
+  checkpoint = 2500
 )
 }
 \arguments{

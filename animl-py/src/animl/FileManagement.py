@@ -4,6 +4,7 @@ import glob
 import cv2
 import random
 from PIL import Image
+import numpy as np
 from datetime import datetime
 import multiprocessing as mp
 
@@ -48,15 +49,17 @@ def parseMD(results):
 
 def parseCM(animaldf, otherdf, predictions, classes):
     # Format Classification results
-    predictionsDataframe = pd.DataFrame(predictions)
-    maxDataframe = predictionsDataframe.idxmax(axis=1).to_frame(name='class')
-    maxDataframe.insert(0, 'file', animaldf.iloc[:, 0].to_numpy())
-    maxDataframe = maxDataframe.append(otherdf, ignore_index=True)
-
-    # Read Classification Txt file
     table = pd.read_table(classes, sep=" ", index_col=0)
-    for i in range(0, len(maxDataframe.index)):
-        maxDataframe.at[i, 'class'] = table['x'].values[int(maxDataframe.at[i, 'class'])]
+    
+    animaldf['class'] = [table['x'].values[int(np.argmax(x))] for x in predictions]
+    
+    if(otherdf != None):
+      maxDataframe = animaldf.append(otherdf, ignore_index=True)
+
+    else:
+      maxDataframe = animaldf
+    # Read Classification Txt file
+
     return maxDataframe
 
 
@@ -66,17 +69,12 @@ def filterImages(dataframe):
     otherdf = dataframe[dataframe['category'].astype(int) != 1]
     animaldf = animaldf.reset_index(drop=True)
     otherdf = otherdf.reset_index(drop=True)
-    otherdf = otherdf[['file', 'category']]
     otherdf = otherdf.rename(columns={'category': 'class'})
     # Numbers the class of the non-animals correctly
     if not otherdf.empty:
-        for idx in range(len(otherdf.index)):
-            category = otherdf.at[idx, 'class']
-            if category == 2:
-                otherdf.at[idx, 'class'] = 12
-            else:
-                otherdf.at[idx, 'class'] = 8
-
+        otherdf = otherdf.replace('2',"human")
+        otherdf = otherdf.replace('3',"vehicle")
+        otherdf = otherdf.replace('0',"empty")
     return animaldf, otherdf
 
 

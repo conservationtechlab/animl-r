@@ -17,7 +17,7 @@
 #'
 cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width = 456, standardize = FALSE, batch_size = 32) {
   # create data generator for  training (image/label pair)
-  if (!(is.vector(files) && class(files) == "character")) {
+  if (!(is.vector(files) && inherits(files,"character"))) {
     stop("files needs to be a vector of file names.\n")
   }
   if (ncol(boxes) != 4) {
@@ -32,7 +32,7 @@ cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width =
 
   data <- data.frame(file = files, boxes)
   dataset <- tfdatasets::tensor_slices_dataset(data)
-  dataset <- tfdatasets::dataset_map(dataset, function(x) loadImage_Resize_Crop(x, resize_height, resize_width, standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
+  dataset <- tfdatasets::dataset_map(dataset, function(x) loadImageResizeCrop(x, resize_height, resize_width, standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
   dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
   dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
   # dataset<-dataset$apply(tf$data$experimental$ignore_errors())
@@ -51,8 +51,12 @@ cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width =
 #' @param resize_height the height the cropped image will be resized to.
 #' @param resize_width the width the cropped image will be resized to.
 #' @param standardize standardize the image to the range 0 to 1, TRUE or FALSE.
-#' @param augmentation use data augmentation, TRUE or FALSE.
+#' @param augmentation_color use data augmentation to change the color, TRUE or FALSE.
+#' @param augmentation_geometry use data augmentation to change the geometry of the images, TRUE or FALSE.
 #' @param shuffle return data pairas in random order, TRUE or FALSE.
+#' @param cache use caching to reduce reading from disk, TRUE or FALSE.
+#' @param cache_dir directory used for caching, if none provided chaching will be done in memory.
+#' @param return_iterator Should an iterator be returned? If RALSE a tfdataset will be returned.
 #' @param batch_size the batch size for the image generator.
 #'
 #' @return A Tensorflow image data generator.
@@ -63,7 +67,7 @@ cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width =
 #'
 cropImageTrainGenerator <- function(files, boxes, label,classes,resize_height = 456, resize_width = 456, standardize = FALSE, augmentation_color=FALSE,augmentation_geometry=FALSE,shuffle=FALSE,cache=FALSE,cache_dir=NULL,return_iterator=FALSE,batch_size = 32) {
   # create data generator for  training (image/label pair)
-  if (!(is.vector(files) && class(files) == "character")) {
+  if (!(is.vector(files) && inherits(files,"character"))) {
     stop("files needs to be a vector of file names.\n")
   }
   if (ncol(boxes) != 4) {
@@ -126,21 +130,24 @@ cropImageTrainGenerator <- function(files, boxes, label,classes,resize_height = 
 #' @export
 #' @import tensorflow
 #'
-ImageGenerator <- function(files, resize_height = NULL, resize_width = NULL, standardize = FALSE, batch_size = 32) {
+ImageGenerator <- function(files, resize_height = NULL, resize_width = NULL, standardize = FALSE, batch_size = 1) {
   # create data generator for  training (image/label pair)
-  if (!(is.vector(files) && class(files) == "character")) {
-    stop("Please provide a vector of file names.\n")
+  if (!(is.vector(files) && inherits(files,"character"))) {
+    stop("files needs to be a vector of file names.\n")
   }
+  
+  data <- data.frame(file=files)
   dataset <- tfdatasets::tensor_slices_dataset(files)
+  
   if (is.null(resize_height) || is.null(resize_width)) {
     message("No values were provided for resize, returning full-size images.")
-    dataset <- tfdatasets::dataset_map(dataset, function(x) loadImage(x, standardize=standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
+    dataset <- tfdatasets::dataset_map(dataset, function(x) loadImage(x, standardize=standardize), num_parallel_calls = tf$data$experimental$AUTOTUNE)
     dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
-    # dataset<-dataset$apply(tf$data$experimental$ignore_errors())
-  } else {
-    dataset <- tfdatasets::dataset_map(dataset, function(x) loadImage_Resize(x, resize_height, resize_width, standardize=standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
+  } 
+  else {
+    dataset <- tfdatasets::dataset_map(dataset, function(x) loadImageResize(x, resize_height, resize_width, standardize=standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
     dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
-      }
+  }
   dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
   dataset <- reticulate::as_iterator(dataset)
   dataset
@@ -168,7 +175,7 @@ ImageGenerator <- function(files, resize_height = NULL, resize_width = NULL, sta
 #'
 ImageGeneratorSize <- function(files, resize_height = NULL, resize_width = NULL, pad=FALSE, standardize = FALSE, batch_size = 1) {
   # create data generator for  training (image/label pair)
-  if (!(is.vector(files) && class(files) == "character")) {
+  if (!(is.vector(files) && inherits(files,"character"))) {
     stop("Please provide a vector of file names.\n")
   }
   dataset <- tfdatasets::tensor_slices_dataset(files)
@@ -178,7 +185,7 @@ ImageGeneratorSize <- function(files, resize_height = NULL, resize_width = NULL,
     dataset<-dataset$apply(tf$data$experimental$ignore_errors())
     dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
   } else {
-    dataset <- tfdatasets::dataset_map(dataset, function(x) loadImage_Resize_Size(x, height=resize_height, width=resize_width, pad=pad,standardize=standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
+    dataset <- tfdatasets::dataset_map(dataset, function(x) loadImageResizeSize(x, height=resize_height, width=resize_width, pad=pad,standardize=standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
     dataset<-dataset$apply(tf$data$experimental$ignore_errors())
     dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
   }
@@ -218,6 +225,7 @@ loadImage <- function(file, standardize = FALSE) {
 #' @param file path to a JPEG file
 #' @param height the height the cropped image will be resized to.
 #' @param width the width the cropped image will be resized to.
+#' @param pad logical indicating whether the images should be padded or streched.
 #' @param standardize standardize the image, TRUE or FALSE.
 #'
 #' @return An image tensor.
@@ -225,7 +233,7 @@ loadImage <- function(file, standardize = FALSE) {
 #' \dontrun{}
 #' @import tensorflow
 #'
-loadImage_Resize <- function(file, height = 299, width = 299, pad=FALSE,standardize = FALSE) {
+loadImageResize <- function(file, height = 299, width = 299, pad=FALSE,standardize = FALSE) {
   size <- as.integer(c(height, width))
   
   # catch error caused by missing files and zero-length files
@@ -260,7 +268,7 @@ loadImage_Resize <- function(file, height = 299, width = 299, pad=FALSE,standard
 #' \dontrun{}
 #' @import tensorflow
 #'
-loadImage_Resize_Size <- function(file, height = 299, width = 299, pad=FALSE,standardize = FALSE) {
+loadImageResizeSize <- function(file, height = 299, width = 299, pad=FALSE,standardize = FALSE) {
   # catch error caused by missing files and zero-length files
   if (!is.null(tryCatch({image <- tf$io$read_file(file);
                         image <- tf$image$decode_jpeg(image, channels = 3, try_recover_truncated = T)},silent=T, error = function(e) NULL))) {
@@ -299,7 +307,7 @@ loadImage_Resize_Size <- function(file, height = 299, width = 299, pad=FALSE,sta
 #' \dontrun{}
 #' @import tensorflow
 #'
-loadImage_Resize_Crop <- function(data, height = 299, width = 299, standardize = FALSE) {
+loadImageResizeCrop <- function(data, height = 299, width = 299, standardize = FALSE) {
   # catch error caused by missing files and zero-length files
   if (!is.null(tryCatch({image <- tf$io$read_file(data[[1]]);
   image <- tf$image$decode_jpeg(image, channels = 3, try_recover_truncated = T)},silent=T, error = function(e) NULL))) {
@@ -329,7 +337,7 @@ loadImage_Resize_Crop <- function(data, height = 299, width = 299, standardize =
 #'
 #' @description Load image and return a tensor with an image and a corresponding label. Internal function to be called by image generator function.
 #'
-#' @param data a list with the first element being an image file path and the second element a label
+#' @param data a list with the first element being an image file path and the second element a label.
 #' @param height the height the cropped image will be resized to.
 #' @param width the width the cropped image will be resized to.
 #' @param standardize standardize the image, TRUE or FALSE.
@@ -338,7 +346,7 @@ loadImage_Resize_Crop <- function(data, height = 299, width = 299, standardize =
 #' @examples
 #' \dontrun{}
 imageLabel <- function(data,classes, height = 299, width = 299, standardize = FALSE) {
-  image <- loadImage_Resize(data[[1]], height, width, standardize)
+  image <- loadImageResize(data[[1]], height, width, standardize)
   list(image, tf$cast(classes==data[[6]],tf$int16))
 }
 
@@ -357,7 +365,7 @@ imageLabel <- function(data,classes, height = 299, width = 299, standardize = FA
 #' @examples
 #' \dontrun{}
 imageLabelCrop <- function(data,classes, height = 299, width = 299, standardize = FALSE) {
-  image <- loadImage_Resize_Crop(list(data[[1]],data[[2]],data[[3]],data[[4]], data[[5]]), height, width, standardize)
+  image <- loadImageResizeCrop(list(data[[1]],data[[2]],data[[3]],data[[4]], data[[5]]), height, width, standardize)
   list(image, tf$cast(classes==data[[6]],tf$int16))
 }
 
@@ -366,8 +374,9 @@ imageLabelCrop <- function(data,classes, height = 299, width = 299, standardize 
 #'
 #' @description Performs image augmentation on a image/label pair for training. Uses random brightness,contrast,saturation, and hue.
 #'
-#' @param image an image tensor
-#' @param label a label tensor
+#' @param image an image tensor.
+#' @param label a label tensor.
+#' @param rng a random number generator use to generate a random seed.
 #'
 #' @return An image and label tensor.
 #' @examples

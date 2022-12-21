@@ -4,30 +4,21 @@
 \alias{applyPredictions}
 \title{Apply Classifier Predictions and Merge DataFrames}
 \usage{
-applyPredictions(
-  animals,
-  empty,
-  classfile,
-  pred,
-  outfile = NULL,
-  counts = FALSE
-)
+applyPredictions(animals, pred, classfile, outfile = NULL, counts = FALSE)
 }
 \arguments{
-\item{animals}{Set of animal crops}
+\item{animals}{Set of animal crops/images}
 
-\item{empty}{Set of empty, vehicle and human crops}
+\item{pred}{Classifier predictions for animal crops/images}
 
 \item{classfile}{.txt file containing common names for species classes}
-
-\item{pred}{Classifier predictions for animal crops}
 
 \item{outfile}{File to which results are saved}
 
 \item{counts}{Returns a table of all predictions, defaults to FALSE}
 }
 \value{
-fully merged dataframe with Species predictions
+fully merged dataframe with Species predictions and confidence weighted by MD conf
 }
 \description{
 Apply Classifier Predictions and Merge DataFrames

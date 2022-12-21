@@ -1,12 +1,13 @@
-#' Run MD on a single image
+#' Run MD on a Single Image
 #'
 #' Returns the MD bounding boxes, classes, confidence above the min_conf
 #' threshold for a single image. #' Requires a an mdsession is already
 #' loaded (see loadMDModel() ) and the file path of the image in question.
 #'
 #'
-#' @param mdsession should be the output from loadMDmodel(model)
+#' @param mdsession Should be the output from loadMDmodel(model)
 #' @param imagefile The path for the image in question
+#' @param mdversion MegaDetector version, defaults to 5
 #' @param min_conf Confidence threshold for returning bounding boxes, defaults to 0.1
 #'
 #' @return a list of MD bounding boxes, classes, and confidence for the image
@@ -21,15 +22,16 @@
 #'  mdsession <- loadMDModel(mdmodel)
 #'  mdres <- classifyImageMD(mdsession, images$FilePath[1])
 #' }
-detectObject <- function(mdsession, imagefile,mdversion=5 , min_conf = 0.1) {
-  if (!("mdsession" %in% class(mdsession)) && !("mdmodel" %in% class(mdsession))) stop("Expecting a mdsession or mdmodel object.")
-  if(("mdsession" %in% class(mdsession))){
-    type<-"mdsession"
-  }else{
-    type<-"mdmodel"
-  }
-  if(!file.exists(imagefile))stop("Image files does not exist.")
-  if(mdversion<=4){
+detectObject <- function(mdsession, imagefile, mdversion=5 , min_conf = 0.1) {
+  if ("mdsession" %in% class(mdsession)) { type <- "mdsession" }
+  else if ("mdmodel" %in% class(mdsession)) { type <- "mdmodel" }
+  else { stop("Expecting a mdsession or mdmodel object.") }
+  
+  if (!file.exists(imagefile)) {stop("Image files does not exist.")}
+  
+  np <- reticulate::import("numpy")
+  
+  if (mdversion<=4) {
     img <- loadImage(imagefile, FALSE)
     # get tensors
     image_tensor <- mdsession$graph$get_tensor_by_name("image_tensor:0")
@@ -37,12 +39,13 @@ detectObject <- function(mdsession, imagefile,mdversion=5 , min_conf = 0.1) {
     score_tensor <- mdsession$graph$get_tensor_by_name("detection_scores:0")
     class_tensor <- mdsession$graph$get_tensor_by_name("detection_classes:0")
     
-    np <- reticulate::import("numpy")
-    
-    res <- mdsession$run(list(box_tensor, score_tensor, class_tensor), feed_dict = list("image_tensor:0" = np$expand_dims(img, axis = F)))
+    res <- mdsession$run(list(box_tensor, score_tensor, class_tensor), 
+                         feed_dict = list("image_tensor:0" = np$expand_dims(img, axis = F)))
     resfilter <- which(res[[2]] >= min_conf)
+    
     list(
-      FilePath = imagefile, max_detection_conf = max(res[[2]]), max_detection_category = res[[3]][which(res[[2]] == max(res[[2]]))][1],
+      file = imagefile, max_detection_conf = max(res[[2]]), 
+      max_detection_category = res[[3]][which(res[[2]] == max(res[[2]]))][1],
       detections = data.frame(
         category = res[[3]][resfilter], conf = res[[2]][resfilter],
         bbox1 = res[[1]][1, resfilter, 2], bbox2 = res[[1]][1, resfilter, 1],
@@ -50,23 +53,21 @@ detectObject <- function(mdsession, imagefile,mdversion=5 , min_conf = 0.1) {
         bbox4 = res[[1]][1, resfilter, 3] - res[[1]][1, resfilter, 1]
       )
     )
-  }else{
-    img <- loadImage_Resize_Size(imagefile,height=1280,width=1280,pad=TRUE,standardize=TRUE)
+  }
+  else{ #MDv5
+    img <- loadImageResizeSize(imagefile,height=1280,width=1280,pad=TRUE,standardize=TRUE)
     # get tensors
     if(type=="mdsession"){
-      # get tensors
       image_tensor=mdsession$graph$get_tensor_by_name('x:0')
       output_tensor = mdsession$graph$get_tensor_by_name('Identity:0')
-    }else{
-      infer<-mdsession$signatures["serving_default"]
     }
-    
-    np <- reticulate::import("numpy")
+    else{ infer <- mdsession$signatures["serving_default"] }
     
     if(type=="mdsession"){
       res<-mdsession$run(list(output_tensor),feed_dict=list("x:0"=tf$reshape(img[[1]],as.integer(c(1,1280,1280,3)))$numpy()))
       res<-tf$cast(res[[1]],tf$float32)
-    }else{
+    }
+    else{
       res<-infer(tf$reshape(img[[1]],as.integer(c(1,1280,1280,3))))
       res<-res[[1]]
     }
@@ -75,13 +76,13 @@ detectObject <- function(mdsession, imagefile,mdversion=5 , min_conf = 0.1) {
     scores<-(as.array(res[,,6:8])*as.array(res)[,,c(5,5,5),drop=F])
     resfilter<-tensorflow::tf$image$combined_non_max_suppression(tf$reshape(res[,,1:4],as.integer(c(dim(res)[1],dim(res)[2],1,4))),scores,max_output_size_per_class=as.integer(100),
                                                                  max_total_size=as.integer(100),score_threshold=min_conf,clip_boxes=TRUE)
-    #images[(i * batch_size - batch_size)+1]                                                                                                                                
+    #images[(i * batch - batch)+1]                                                                                                                                
     lapply(1:length(resfilter$valid_detections),processYOLO5,resfilter$nmsed_boxes,
            resfilter$nmsed_classes,resfilter$nmsed_scores,resfilter$valid_detections,img)[[1]]
     
   }
 }
-  
+
 
 
 #' Run MegaDetector on a batch of images
@@ -93,8 +94,8 @@ detectObject <- function(mdsession, imagefile,mdversion=5 , min_conf = 0.1) {
 #' @param mdsession should be the output from loadMDmodel(model)
 #' @param images list of image filepaths
 #' @param min_conf Confidence threshold for returning bounding boxes, defaults to 0.1
-#' @param batch_size Process images in batches, defaults to 1
-#' @param resultsfile File containing previously checkpointed results
+#' @param batch Process images in batches, defaults to 1
+#' @param outfile File containing previously checkpointed results
 #' @param checkpoint Bank results after processing a number of images, defaults to 5000
 #'
 #' @return a list of lists of bounding boxes for each image
@@ -112,15 +113,14 @@ detectObject <- function(mdsession, imagefile,mdversion=5 , min_conf = 0.1) {
 #'   resultsfile = mdresultsfile, checkpoint = 2500
 #' )
 #' }
-detectObjectBatch <- function(mdsession, images,mdversion=5, min_conf = 0.1, batch_size = 1, resultsfile = NULL, checkpoint = 5000) {
-  if (!("mdsession" %in% class(mdsession)) && !("mdmodel" %in% class(mdsession))) stop("Expecting a mdsession or mdmodel object.")
-  if(("mdsession" %in% class(mdsession))){
-    type<-"mdsession"
-  }else{
-    type<-"mdmodel"
-  }
+detectObjectBatch <- function(mdsession, images, mdversion = 5, min_conf = 0.1, batch = 1, outfile = NULL, checkpoint = 5000) {
+  if ("mdsession" %in% class(mdsession)) { type <- "mdsession" }
+  else if ("mdmodel" %in% class(mdsession)) { type <- "mdmodel" }
+  else { stop("Expecting a mdsession or mdmodel object.") }
+  
+  
   if (!is.null(resultsfile)) {
-    if (!dir.exists(dirname(resultsfile))) stop("Results file directory does not exist.\n")
+    if (!dir.exists(dirname(resultsfile))) { stop("Results file directory does not exist.\n") }
     if (tolower(substr(resultsfile, nchar(resultsfile) - 5, nchar(resultsfile))) != ".rdata") {
       resultsfile <- paste0(resultsfile, ".RData")
     }
@@ -131,19 +131,16 @@ detectObjectBatch <- function(mdsession, images,mdversion=5, min_conf = 0.1, bat
         load(resultsfile)
         images <- images[!(images %in% sapply(results, function(x) x$file))]
         cat(length(results), "records loaded.\n")
-      } else {
-        results <- list()
-      }
-    } else {
-      results <- list()
-    }
-  } else {
-    results <- list()
-  }
+      } 
+      else { results <- list() }
+    } 
+    else { results <- list() }
+  } 
+  else { results <- list() }
   
   if(mdversion<=4){
     # create data generator
-    dataset <- ImageGenerator(images, standardize = FALSE, batch_size = batch_size)
+    dataset <- ImageGenerator(images, standardize = FALSE, batch = batch)
     
     # get tensors
     image_tensor <- mdsession$graph$get_tensor_by_name("image_tensor:0")
@@ -151,9 +148,9 @@ detectObjectBatch <- function(mdsession, images,mdversion=5, min_conf = 0.1, bat
     score_tensor <- mdsession$graph$get_tensor_by_name("detection_scores:0")
     class_tensor <- mdsession$graph$get_tensor_by_name("detection_classes:0")
     
-    steps <- ceiling(length(images) / batch_size)
+    steps <- ceiling(length(images) / batch)
     opb <- pbapply::pboptions(char = "=")
-    pb <- pbapply::startpb(1, steps) # txtProgressBar(min = 0, max = length(results), style = 3)
+    pb <- pbapply::startpb(1, steps) 
     starttime<-Sys.time()
     # process all images
     for (i in 1:steps) {
@@ -163,7 +160,7 @@ detectObjectBatch <- function(mdsession, images,mdversion=5, min_conf = 0.1, bat
         for (l in 1:dim(res[[1]])[1]) {
           resfilter <- which(res[[2]] >= min_conf)
           results[[length(results) + 1]] <- list(
-            FilePath = images[(i * batch_size - batch_size) + l], max_detection_conf = max(res[[2]][l, ]),
+            file = images[(i * batch - batch) + l], max_detection_conf = max(res[[2]][l, ]),
             max_detection_category = res[[3]][which(res[[2]][l, ] == max(res[[2]][l, ]))][1],
             detections = data.frame(
               category = res[[3]][l, resfilter], conf = res[[2]][l, resfilter],
@@ -176,30 +173,30 @@ detectObjectBatch <- function(mdsession, images,mdversion=5, min_conf = 0.1, bat
         }
       }
       # save intermediate results at given checkpoint interval
-      if (!is.null(resultsfile) & (i %% checkpoint / batch_size) == 0) {
+      if (!is.null(resultsfile) & (i %% checkpoint / batch) == 0) {
         save(results, file = resultsfile)
       }
       pbapply::setpb(pb, i)
     }
     pbapply::setpb(pb, steps)
     pbapply::closepb(pb)
-  }else{
-    # create data generator
-    #if(batch_size>1)print("Megadetector based on Yolo5 currently only supports a batch size of 1")
-    #batch_size=1 
-    dataset <- ImageGeneratorSize(images,resize_height=1280,resize_width=1280, pad=TRUE, standardize = TRUE, batch_size = batch_size)
+  }
+  else { #MDv5
+    dataset <- ImageGeneratorSize(images, resize_height=1280, resize_width=1280, 
+                                  pad = TRUE, standardize = TRUE, batch = batch)
     
-    if(type=="mdsession"){
+    if (type=="mdsession") {
       # get tensors
-      image_tensor=mdsession$graph$get_tensor_by_name('x:0')
+      image_tensor = mdsession$graph$get_tensor_by_name('x:0')
       output_tensor = mdsession$graph$get_tensor_by_name('Identity:0')
-    }else{
-      infer<-mdsession$signatures["serving_default"]
+    }
+    else{ 
+      infer<-mdsession$signatures["serving_default"] 
     }
     
-    steps <- ceiling(length(images) / batch_size)
+    steps <- ceiling(length(images) / batch)
     opb <- pbapply::pboptions(char = "=")
-    pb <- pbapply::startpb(1, steps) # txtProgressBar(min = 0, max = length(results), style = 3)
+    pb <- pbapply::startpb(1, steps) 
     starttime<-Sys.time()
     # process all images
     for (i in 1:steps) {
@@ -208,21 +205,23 @@ detectObjectBatch <- function(mdsession, images,mdversion=5, min_conf = 0.1, bat
         if(type=="mdsession"){
           resbatch<-mdsession$run(list(output_tensor),feed_dict=list("x:0"=img[[1]]$numpy()))
           resbatch<-tf$cast(resbatch[[1]],tf$float32)
-        }else{
+        }
+        else{
           resbatch<-infer(img[[1]])
           resbatch<-resbatch[[1]]
         }
         
         scores<-(as.array(resbatch[,,6:8])*as.array(resbatch)[,,c(5,5,5),drop=F])
-        resfilter<-tensorflow::tf$image$combined_non_max_suppression(tf$reshape(resbatch[,,1:4],as.integer(c(dim(resbatch)[1],dim(resbatch)[2],1,4))),scores,max_output_size_per_class=as.integer(100),
+        resfilter<-tensorflow::tf$image$combined_non_max_suppression(tf$reshape(resbatch[,,1:4],as.integer(c(dim(resbatch)[1],dim(resbatch)[2],1,4))),
+                                                                     scores,max_output_size_per_class=as.integer(100),
                                                                      max_total_size=as.integer(100),score_threshold=min_conf,clip_boxes=TRUE)
-        #images[(i * batch_size - batch_size)+1]                                                                                                                                
+        #images[(i * batch - batch)+1]                                                                                                                                
         results<-c(results,lapply(1:length(resfilter$valid_detections),processYOLO5,resfilter$nmsed_boxes,
                                   resfilter$nmsed_classes,resfilter$nmsed_scores,resfilter$valid_detections,img))
         
       }
       # save intermediate results at given checkpoint interval
-      if (!is.null(resultsfile) & (i %% checkpoint / batch_size) == 0) {
+      if (!is.null(resultsfile) & (i %% checkpoint / batch) == 0) {
         save(results, file = resultsfile)
       }
       pbapply::setpb(pb, i)
@@ -230,8 +229,8 @@ detectObjectBatch <- function(mdsession, images,mdversion=5, min_conf = 0.1, bat
     pbapply::setpb(pb, steps)
     pbapply::closepb(pb)
   }
-  if(!is.null(resultsfile)){
-    save(results, file = resultsfile)}
+  if (!is.null(resultsfile)) { save(results, file = resultsfile) }
+  
   cat(paste(length(images),"images processed.",round(length(images)/(as.numeric(Sys.time())-as.numeric(starttime)),1),"images/s\n"))
   results
 }
@@ -251,7 +250,7 @@ detectObjectBatch <- function(mdsession, images,mdversion=5, min_conf = 0.1, bat
 #' @return a list of MD bounding boxes, classes, and confidence for the image
 #' @export
 #'
-processYOLO5<-function(n,boxes,classes,scores,selection,batch){
+processYOLO5 <- function(n, boxes, classes, scores, selection, batch){
   boxes<-as.array(boxes)
   classes<-as.array(classes)
   scores<-as.array(scores)
@@ -262,11 +261,11 @@ processYOLO5<-function(n,boxes,classes,scores,selection,batch){
   a1<-as.vector((img_height-img_width)/img_height)
   a2<-as.vector((img_width-img_height)/img_width)
   
-  if(as.vector(selection)[n]>0){
+  if (as.vector(selection)[n]>0) {
     filter<-c(1:(as.vector(selection)[n]))
     
-    if(img_width>img_height){
-      list(FilePath =as.character(batch[[4]][n]), max_detection_conf = max(scores[n,filter],0),
+    if (img_width>img_height) {
+      list(file = as.character(batch[[4]][n]), max_detection_conf = max(scores[n,filter],0),
            max_detection_category = classes[n,1]+1,
            detections = data.frame(
              category = classes[n,filter]+1, conf = scores[n,filter],
@@ -276,8 +275,9 @@ processYOLO5<-function(n,boxes,classes,scores,selection,batch){
              bbox4 = pmin(pmax(boxes[n,filter,4]/(1-a2),0.01),1)
            )
       )
-    }else{
-      list(FilePath = as.character(batch[[4]][n]), max_detection_conf = max(scores[n,filter],0),
+    }
+    else{
+      list(file = as.character(batch[[4]][n]), max_detection_conf = max(scores[n,filter],0),
            max_detection_category = classes[n,1]+1,
            detections = data.frame(
              category = classes[n,filter]+1, conf = scores[n,filter],
@@ -288,8 +288,9 @@ processYOLO5<-function(n,boxes,classes,scores,selection,batch){
            )
       )
     }
-  }else{
-    list(FilePath = as.character(batch[[4]][n]), max_detection_conf = max(scores[n,],0),
+  }
+  else{
+    list(file = as.character(batch[[4]][n]), max_detection_conf = max(scores[n,],0),
          max_detection_category = 0,
          detections = data.frame(
            category = integer(), conf = numeric(),

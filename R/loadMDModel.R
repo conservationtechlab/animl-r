@@ -1,8 +1,7 @@
 #############################################
-#load MegaDetector tensorflow model from .pb file
-#' Title
+#' Load MegaDetector model file from directory or file
 #'
-#' @param modelfile .pb file obtained from megaDetector
+#' @param modelfile .pb file or directory obtained from megaDetector
 #'
 #' @return a tfsession containing the MD model
 #' @export
@@ -14,13 +13,12 @@
 #' mdsession <- loadMDModel(mdmodel)
 #' }
 loadMDModel <- function(modelfile) {
-  require(tensorflow)
-  if(dir.exists(modelfile) && file.exists(paste0(modelfile,"/saved_model.pb")))
-  {
-    model<-tf$keras$models$load_model(modelfile)
+  if (dir.exists(modelfile) && file.exists(paste0(modelfile, "/saved_model.pb"))) {
+    model <- tf$keras$models$load_model(modelfile)
     class(model) <- append(class(model), "mdmodel")
     model
-  }else{
+  }
+  else {
     if (!file.exists(modelfile)) {
       stop("The given MD model does not exist. Check path.")
     }

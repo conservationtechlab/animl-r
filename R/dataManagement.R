@@ -12,18 +12,15 @@
 
 loadData <- function(file) {
   ext <- strsplit(basename(file), split="\\.")[[1]][-1]
-  if(ext == "csv"){
-    return(read.csv(file))
-  }
-  if(ext == "RData"){
-    load(file)
-  }
+  if (ext == "csv") { return(read.csv(file)) }
+  else{ stop("Error. Expecting a .csv file.") }
 }
 
 #' Save Data to Given File
 #'
 #' @param data the dataframe to be saved
 #' @param outfile the full path of the saved file
+#' @param prompt if true, prompts the user to confirm overwrite
 #'
 #' @return none
 #' @export
@@ -32,14 +29,13 @@ loadData <- function(file) {
 #' \dontrun{
 #'  saveData(files,"path/to/newfile.csv")
 #' }
-saveData <- function(data, outfile) {
-  if (file.exists(outfile)) {
+saveData <- function(data, outfile, prompt = TRUE) {
+  if (file.exists(outfile) & prompt == TRUE) {
     if (tolower(readline(prompt = "Output file exists, would you like to overwrite? y/n: ")) == "y") {
       write.csv(data, file = outfile, row.names = F, quote = F)
     }
-  } else {
-    write.csv(data, file = outfile, row.names = F, quote = F)
-  }
+  } 
+  else { write.csv(data, file = outfile, row.names = F, quote = F) }
 }
 
 

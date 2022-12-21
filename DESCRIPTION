@@ -12,6 +12,7 @@ RoxygenNote: 7.2.1
 Imports:
     methods,
     pbapply,
+    dplyr,
     jpeg,
     keras,
     reticulate,
