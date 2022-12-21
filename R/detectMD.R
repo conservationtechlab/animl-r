@@ -61,7 +61,7 @@ detectObject <- function(mdsession, imagefile, mdversion=5 , min_conf = 0.1) {
       image_tensor=mdsession$graph$get_tensor_by_name('x:0')
       output_tensor = mdsession$graph$get_tensor_by_name('Identity:0')
     }
-    else{ infer<-mdsession$signatures["serving_default"] }
+    else{ infer <- mdsession$signatures["serving_default"] }
     
     if(type=="mdsession"){
       res<-mdsession$run(list(output_tensor),feed_dict=list("x:0"=tf$reshape(img[[1]],as.integer(c(1,1280,1280,3)))$numpy()))
@@ -95,7 +95,7 @@ detectObject <- function(mdsession, imagefile, mdversion=5 , min_conf = 0.1) {
 #' @param images list of image filepaths
 #' @param min_conf Confidence threshold for returning bounding boxes, defaults to 0.1
 #' @param batch Process images in batches, defaults to 1
-#' @param resultsfile File containing previously checkpointed results
+#' @param outfile File containing previously checkpointed results
 #' @param checkpoint Bank results after processing a number of images, defaults to 5000
 #'
 #' @return a list of lists of bounding boxes for each image
@@ -113,7 +113,7 @@ detectObject <- function(mdsession, imagefile, mdversion=5 , min_conf = 0.1) {
 #'   resultsfile = mdresultsfile, checkpoint = 2500
 #' )
 #' }
-detectObjectBatch <- function(mdsession, images, mdversion = 5, min_conf = 0.1, batch = 1, resultsfile = NULL, checkpoint = 5000) {
+detectObjectBatch <- function(mdsession, images, mdversion = 5, min_conf = 0.1, batch = 1, outfile = NULL, checkpoint = 5000) {
   if ("mdsession" %in% class(mdsession)) { type <- "mdsession" }
   else if ("mdmodel" %in% class(mdsession)) { type <- "mdmodel" }
   else { stop("Expecting a mdsession or mdmodel object.") }

@@ -15,10 +15,10 @@ setupDirectory <- function(workingdir) {
   
   # Assign specific directory paths
   basedir <<- paste0(workingdir, "Animl-Directory/")
-  datadir <<- paste0(workingdir, "Data/")
-  cropdir <<- paste0(workingdir, "Crops/")
-  vidfdir <<- paste0(workingdir, "Frames/")
-  linkdir <<- paste0(workingdir, "Sorted/")
+  datadir <<- paste0(basedir, "Data/")
+  cropdir <<- paste0(basedir, "Crops/")
+  vidfdir <<- paste0(basedir, "Frames/")
+  linkdir <<- paste0(basedir, "Sorted/")
   
   # Create directories if they do not already exist
   if (!dir.exists(datadir)) { dir.create(datadir, recursive = T) }
