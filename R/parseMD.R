@@ -31,6 +31,11 @@ parseMD <- function(mdresults, manifest = NULL, outfile = NULL) {
     
     results <- do.call(rbind.data.frame, sapply(mdresults, f, simplify = F))
     
+    results$bbox1[results$bbox1 == 1] <- 0.98
+    results$bbox2[results$bbox2 == 1] <- 0.98
+    results$bbox3[results$bbox3 == 1] <- 0.98
+    results$bbox4[results$bbox4 == 1] <- 0.98
+    
     # merge to dataframe if given
     if (!is.null(manifest)) { results <- merge(manifest, results, by.x="Frame",by.y="file") } 
     
