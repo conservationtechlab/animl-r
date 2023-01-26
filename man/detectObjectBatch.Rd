@@ -10,7 +10,7 @@ detectObjectBatch(
   mdversion = 5,
   min_conf = 0.1,
   batch = 1,
-  resultsfile = NULL,
+  outfile = NULL,
   checkpoint = 5000
 )
 }
@@ -23,7 +23,7 @@ detectObjectBatch(
 
 \item{batch}{Process images in batches, defaults to 1}
 
-\item{resultsfile}{File containing previously checkpointed results}
+\item{outfile}{File containing previously checkpointed results}
 
 \item{checkpoint}{Bank results after processing a number of images, defaults to 5000}
 }

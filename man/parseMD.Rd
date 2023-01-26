@@ -2,7 +2,7 @@
 % Please edit documentation in R/parseMD.R
 \name{parseMD}
 \alias{parseMD}
-\title{parse MD JSON results file into a simple dataframe}
+\title{parse MD results into a simple dataframe}
 \usage{
 parseMD(mdresults, manifest = NULL, outfile = NULL)
 }
@@ -17,7 +17,7 @@ parseMD(mdresults, manifest = NULL, outfile = NULL)
 original dataframe including md results
 }
 \description{
-parse MD JSON results file into a simple dataframe
+parse MD results into a simple dataframe
 }
 \examples{
 \dontrun{
