@@ -10,8 +10,9 @@ bestGuess(
   count = FALSE,
   shrink = FALSE,
   outfile = NULL,
+  prompt = TRUE,
   parallel = FALSE,
-  nproc = 1
+  workers = 1
 )
 }
 \arguments{
@@ -24,6 +25,12 @@ bestGuess(
 \item{shrink}{if true, return a reduced dataframe with one row per image}
 
 \item{outfile}{file path to which the data frame should be saved}
+
+\item{prompt}{if true, prompts the user to confirm overwrite}
+
+\item{parallel}{Toggle for parallel processing, defaults to FALSE}
+
+\item{workers}{number of processors to use if parallel, defaults to 1}
 }
 \value{
 dataframe with new prediction in "Species" column

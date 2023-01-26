@@ -5,6 +5,9 @@
 #' @param count if true, return column with number of MD crops for that animal (does not work for images)
 #' @param shrink if true, return a reduced dataframe with one row per image
 #' @param outfile file path to which the data frame should be saved
+#' @param prompt if true, prompts the user to confirm overwrite
+#' @param parallel Toggle for parallel processing, defaults to FALSE
+#' @param workers number of processors to use if parallel, defaults to 1
 #'
 #' @return dataframe with new prediction in "Species" column
 #' @import dplyr
@@ -14,29 +17,36 @@
 #' \dontrun{
 #' mdmanifest <- bestGuess(manifest, sort = "conf")
 #' }
-bestGuess <- function(manifest, sort = "count", count = FALSE, shrink = FALSE, outfile = NULL, parallel = FALSE, nproc = 1) {
-  if (checkFile(outfile)) { return(loadData(outfile))}
+bestGuess <- function(manifest, sort = "count", count = FALSE, shrink = FALSE, 
+                      outfile = NULL, prompt = TRUE, parallel = FALSE, workers = 1) {
+  if (checkFile(outfile, prompt)) { return(loadData(outfile))}
   if (!is(manifest, "data.frame")) { stop("'manifest' must be DataFrame")}
   
   videonames <- unique(manifest$FilePath)
   steps <- length(videonames)
- 
+  
   run.parallel <- function(i){
-    #library(dplyr)
+    # library(dplyr)
     sequence <- manifest[manifest$FilePath == videonames[i], ]
     guesses <- sequence %>%
       dplyr::group_by(prediction) %>%
       dplyr::summarise(confidence = max(confidence), n = dplyr::n())
     
     #most confident
-    if (sort == "conf") { guess <- guesses[which.max(guesses$confidence), ] }  
+    if (sort == "conf") { 
+      guess  <- guesses[which.max(guesses$confidence), ] 
+      if (guess$prediction == "empty" && nrow(guesses) > 1) {
+        guesses <- guesses[guesses$prediction != "empty", ]
+        guess <- guesses[which.max(guesses$confidence), ]
+      }
+    }  
     #most frequent unless empty
     else if (sort == "count") {
       guesses <- guesses[order(guesses$confidence, decreasing=TRUE),]
       best <- which.max(guesses$n)
       guess <- guesses[best, ]
       if (guess$prediction == "empty" && nrow(guesses) > 1) {
-        guesses <- guesses[-best, ]
+        gguesses <- guesses[guesses$prediction != "empty", ]
         guess <- guesses[which.max(guesses$n), ]
       }
     }
@@ -48,12 +58,12 @@ bestGuess <- function(manifest, sort = "count", count = FALSE, shrink = FALSE, o
     # one entry per image/video
     if(shrink){ sequence = sequence[!duplicated(sequence$FilePath),] }
     
-  sequence
+    sequence
   }
   
   
   if (parallel) {
-    cl <- parallel::makeCluster(min(parallel::detectCores(), nproc), type = "PSOCK")
+    cl <- parallel::makeCluster(min(parallel::detectCores(), workers), type = "PSOCK")
     parallel::clusterExport(cl, list("sort", "count"), envir = environment())
     parallel::clusterSetRNGStream(cl)
     
@@ -66,7 +76,7 @@ bestGuess <- function(manifest, sort = "count", count = FALSE, shrink = FALSE, o
   
   results <- do.call(rbind, results)
   
-  if(!is.null(outfile)){saveData(results, outfile)}
+  if(!is.null(outfile)){saveData(results, outfile, prompt)}
   
   results
 }
