@@ -51,7 +51,7 @@ imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format 
       output <- file.path(tempdir, paste0(name, "_", rnd, "_%5d", ".jpg"))
       av::av_encode_video(input = x, output = output, framerate = framerate, vfilter = vfilter, verbose = F)
       files <- data.frame(FilePath = x, tmpframe = list.files(tempdir, pattern = paste0(name, "_", rnd, "_\\d{5}", ".jpg"), full.names = TRUE), stringsAsFactors = F)
-      files <- rbind(first,files)
+     # files <- rbind(first,files)
       
       files$Frame <- paste0(outdir, basename(files$tmpframe))
       file.copy(files$tmpframe, files$Frame)
