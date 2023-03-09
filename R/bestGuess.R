@@ -19,14 +19,14 @@
 #' }
 bestGuess <- function(manifest, sort = "count", count = FALSE, shrink = FALSE, 
                       outfile = NULL, prompt = TRUE, parallel = FALSE, workers = 1) {
-  if (checkFile(outfile, prompt)) { return(loadData(outfile))}
+  if (checkFile(outfile)) { return(loadData(outfile))}
   if (!is(manifest, "data.frame")) { stop("'manifest' must be DataFrame")}
   
   videonames <- unique(manifest$FilePath)
   steps <- length(videonames)
   
   run.parallel <- function(i){
-    # library(dplyr)
+     library(dplyr)
     sequence <- manifest[manifest$FilePath == videonames[i], ]
     guesses <- sequence %>%
       dplyr::group_by(prediction) %>%

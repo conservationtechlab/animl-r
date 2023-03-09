@@ -78,9 +78,27 @@ symlinkMD <- function(manifest, linkdir, outfile = NULL, copy=FALSE){
   manifest$MDLink <- paste0(linkdir, manifest$MDprediction, "/", manifest$UniqueName)
 
   # hard copy or link
-  if (copy) { mapply(file.copy, manifest$FilePath, manifest$MDLink) }
+  if (copy) { 
+    pb.mapply(x = manifest$FilePath, file.copy, MoreArgs = c(manifest$MDLink)) }
   else { mapply(file.link, manifest$FilePath, manifest$MDLink) }
   
   if (!is.null(outfile)) { saveData(manifest, outfile) }
   manifest
+}
+
+
+#' Title
+#'
+#' @return
+#' @export
+#'
+#' @examples
+unlink <- function(manifest){
+  if ("MDLink" %in% names(manifest)){
+    pbapply(manifest$MDLink, file.delete)
+  }
+  if ("Link" %in% names(manifest)){
+    pbapply(manifest$Link, file.delete)
+  }
+  
 }
