@@ -12,19 +12,20 @@ library(reticulate)
 use_condaenv("mlgpu")
 library(animl)
 
-imagedir <- "/home/kyra/animl/examples/test_data"
+imagedir <- "/mnt/projects/Local_Lion/Biodiversity_Reserve"
 
 #create global variable file and directory names
-setupDirectory('/home/kyra/test/')
+setupDirectory("/mnt/projects/Local_Lion/")
 
 #load data if needed
-#mdres <- loadData(mdresults)
-#alldata <- loadData(predresults)
-#alldata <- loadData(classifiedimages) 
+mdres <- loadData(predresults)
+alldata <- loadData(resultsfile)
+files <- loadData(imageframes) 
 
 # Build file manifest for all images and videos within base directory
-files <- buildFileManifest(imagedir, exif=FALSE)
+files <- buildFileManifest(imagedir, exif=TRUE)
 
+saveData(files,filemanifest)
 #===============================================================================
 # Add Project-Specific Info
 #===============================================================================
@@ -32,16 +33,31 @@ files <- buildFileManifest(imagedir, exif=FALSE)
 #build new name
 basedepth=length(strsplit(imagedir,split="/")[[1]])-1
 
-files$Region<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth])
-files$Site<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+1])
-files$Camera<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+2])
+files$Region<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+1])
+files$Site<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+2])
+files$Camera<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+3])
 
 #files must have a new name for symlink
-files$UniqueName=paste(files$Region,files$Site,format(files$DateTime,format="%Y%m%d_%H%M%S"),files$FileName,sep="_")
+
+
+files[tolower(tools::file_ext(files$FileName)) %in% c("jpg", "png", "jpeg"), ]
+
+
+files$UniqueName=paste(files$Site,files$Camera,format(files$DateTime,format="%Y-%m-%d_%H%M"),files$UniqueID,sep="_")
+files$UniqueName = paste0(files$UniqueName, ".", tolower(tools::file_ext(files$FileName)))
+
+files$UniqueID = round(runif(nrow(files), 1, 99999),0)
+files$UniqueName=paste(files$Region,files$Site,files$Camera,  files$FileName,  sep="_")
+
+
 files$UniqueName=files$FileName
 
+allframes <- rbind(allframes,allframes5)
+saveData(allframes,imageframes)
+allframes <- loadData(imageframes)
+
 # Process videos, extract frames for ID
-allframes <- imagesFromVideos(files, outdir = "/home/kyra/test_data/frames/", outfile=NULL, fps = 1, parallel=F, nproc=12)
+allframes <- imagesFromVideos(files, outdir = vidfdir, outfile=NULL, frames=5, parallel=T, workers=parallel::detectCores())
 
 #===============================================================================
 # MegaDetector
@@ -55,33 +71,38 @@ mdsession <- loadMDModel("/mnt/machinelearning/megaDetector/md_v4.1.pb")
 
 #+++++++++++++++++++++
 # Classify a single image to make sure everything works before continuing
-testMD(allframes, mdsession)
+testMD(allframes[16,]$Frame, mdsession, mdversion = 5, minconf = 0.7)
 #+++++++++++++++++++++
-mdres <- detectObjectBatch(mdsession, allframes$Frame, resultsfile = mdresults, checkpoint = 5)
+mdres <- detectObjectBatch(mdsession, mdversion = 4, allframes$Frame, outfile = NULL, checkpoint = 2500)
+mdres <- detectObjectBatch(mdsession, allframes$Frame, outfile = NULL, checkpoint = 2500)
 
-y <- parseMD(mdres, allframes)
+y <- parseMD(mdres, manifest = allframes)
+z <- y[(y$conf > 0.5 | is.na(y$conf)),]
 
 #select animal crops for classification
-animals <- getAnimals(y)
-empty <- getEmpty(y)
+
+animals <- getAnimals(z)
+empty <- getEmpty(z)
 
 #===============================================================================
 # Species Classifier
 #===============================================================================
 
-modelfile <- "/mnt/machinelearning/Models/Southwest/EfficientNetB5_456_Unfrozen_01_0.58_0.82.h5"
+modelfile <- "/mnt/machinelearning/Models/Southwest/2022/EfficientNetB5_456_Unfrozen_05_0.26_0.92.h5"
 modelfile <- "/mnt/machinelearning/Models/Kenya/2022/EfficientNetB5_456_Unfrozen_04_0.60_0.89.h5"
+modelfile <- "/mnt/machinelearning/Models/Southwest/Extended/EfficientNetB5_456_Unfrozen_10_0.30_0.94_final.h5"
 
-pred <- predictSpecies(animals, modelfile)
 
-animals <- applyPredictions(y, pred, "/mnt/machinelearning/Models/Southwest/classes.txt", 
-                            outfile = NULL, counts = TRUE)
+pred <- predictSpecies(animals, modelfile, batch = 64, workers = 8)
+
+animals <- applyPredictions(animals, pred, "/mnt/machinelearning/Models/Southwest/2022/classes.txt", 
+                            outfile = predresults, counts = TRUE)
 
 #rejoin animal and empty data splits
 manifest <- rbind(animals,empty)
 
 # Classify sequences / select best prediction
-best <- bestGuess(manifest, parallel = T, nproc = 12, shrink = TRUE)
+best <- bestGuess(manifest, sort = "conf", parallel = T, workers = 12, shrink = TRUE)
 
 #mdanimals <- classifySequence(mdanimals,pred,classes,18,maxdiff=60)
 
@@ -90,7 +111,7 @@ best <- bestGuess(manifest, parallel = T, nproc = 12, shrink = TRUE)
 #===============================================================================
 
 #symlink species predictions
-alldata <- symlinkSpecies(best, linkdir)
+alldata <- symlinkSpecies(best, linkdir, outfile = resultsfile)
 
 #symlink MD detections only
 symlinkMD(best,linkdir)
@@ -100,6 +121,8 @@ sapply(alldata$Link,file.remove)
 
 # update results after human validation
 
+locations <- read.csv("/mnt/projects/Stacy-Dawes_Kenya/WWK Upload 1.12.23/Camera Location Lat_Longs.csv")
+merge(manifest,locations, by = c("Region","Site","Camera"))
 
 #===============================================================================
 # Export to Camera Base

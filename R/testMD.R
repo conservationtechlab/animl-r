@@ -11,7 +11,7 @@
 #' \dontrun{
 #' testMD(imagesall, mdsession)
 #' }
-testMD <- function(input, mdsession, mdversion = 5) {
+testMD <- function(input, mdsession, mdversion = 5, minconf = 0) {
   if (is(input, "data.frame")) { 
     sample <- dplyr::slice_sample(input, n = 1) 
     path <- sample$Frame
@@ -22,6 +22,6 @@ testMD <- function(input, mdsession, mdversion = 5) {
   jpg <- jpeg::readJPEG(path)
   plot(as.raster(jpg))
   mdres <- detectObject(mdsession, path, mdversion)
-  plotBoxes(mdres)
+  plotBoxes(mdres, minconf = minconf)
 }
 
