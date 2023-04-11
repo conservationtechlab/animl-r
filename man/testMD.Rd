@@ -4,7 +4,7 @@
 \alias{testMD}
 \title{Select a Random Image and Run Through MegaDetector}
 \usage{
-testMD(input, mdsession, mdversion = 5)
+testMD(input, mdsession, mdversion = 5, minconf = 0)
 }
 \arguments{
 \item{mdsession}{MegaDetector mdsession}

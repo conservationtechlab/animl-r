@@ -1,6 +1,6 @@
 Package: animl
 Title: A Collection of ML Tools for Conservation Research
-Version: 1.0.0
+Version: 1.1.0
 Authors@R: 
     c(person(given="Kyra", family="Swanson",email="tswanson@sdzwa.org", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-1496-3217")),person(given="Mathias",family="Tobler",role = "aut"))
