@@ -4,7 +4,7 @@
 #' @param model models with which to classify species
 #' @param resize resize images before classification, defaults to 299x299px
 #' @param standardize standardize images, defaults to FALSE
-#' @param batch_size number of images processed in each batch (keep small)
+#' @param batch number of images processed in each batch (keep small)
 #' @param workers number of cores
 #'
 #' @return a matrix of likelihoods for each class for each image

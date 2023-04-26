@@ -22,7 +22,7 @@ Each row is a MD bounding box, there can be multiple bounding boxes per image.
  colnames(images)[1]<-"FilePath"
  mdsession<-loadMDModel(mdmodel)
  mdres<-classifyImagesBatchMD(mdsession,images$FilePath,
-                              resultsfile=mdresultsfile,checkpoint = 2500)
- mdresflat<-convertMDresults(mdres)
+                              resultsfile=resultsfile,checkpoint = 2500)
+ mdresflat<-convertresults(mdres)
 }
 }

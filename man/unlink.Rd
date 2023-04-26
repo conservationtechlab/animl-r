@@ -2,13 +2,21 @@
 % Please edit documentation in R/symlink.R
 \name{unlink}
 \alias{unlink}
-\title{Title}
+\title{Remove Symlinks}
 \usage{
 unlink(manifest)
 }
+\arguments{
+\item{manifest}{DataFrame of classified images}
+}
 \value{
-
+manifest without link column
 }
 \description{
-Title
+Remove Symlinks
+}
+\examples{
+\dontrun{
+symlinkMD(manifest, linkdir)
+}
 }

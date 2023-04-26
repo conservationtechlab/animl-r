@@ -26,7 +26,6 @@ bestGuess <- function(manifest, sort = "count", count = FALSE, shrink = FALSE,
   steps <- length(videonames)
   
   run.parallel <- function(i){
-     library(dplyr)
     sequence <- manifest[manifest$FilePath == videonames[i], ]
     guesses <- sequence %>%
       dplyr::group_by(prediction) %>%

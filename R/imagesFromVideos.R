@@ -19,7 +19,7 @@
 #' frames <- imagesFromVideos(videos, outdir = "C:\\Users\\usr\\Videos\\", frames = 5)
 #' }
 imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format = "jpg", 
-                             fps = NULL, frames = NULL, parallel = FALSE, workers = 1, checkpoint = 2500) {
+                             fps = NULL, frames = NULL, parallel = FALSE, workers = 1) {
   if (checkFile(outfile)) { return(loadData(outfile)) } 
   
   #check if dataframe or vector

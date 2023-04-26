@@ -18,7 +18,7 @@ cropImageTrainGenerator(
   cache = FALSE,
   cache_dir = NULL,
   return_iterator = FALSE,
-  batch_size = 32
+  batch = 32
 )
 }
 \arguments{
@@ -46,7 +46,7 @@ cropImageTrainGenerator(
 
 \item{return_iterator}{Should an iterator be returned? If RALSE a tfdataset will be returned.}
 
-\item{batch_size}{the batch size for the image generator.}
+\item{batch}{the batch size for the image generator.}
 }
 \value{
 A Tensorflow image data generator.

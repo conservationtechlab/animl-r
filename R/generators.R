@@ -7,7 +7,7 @@
 #' @param resize_height the height the cropped image will be resized to.
 #' @param resize_width the width the cropped image will be resized to.
 #' @param standardize standardize the image to the range 0 to 1, TRUE or FALSE.
-#' @param batch_size the batch size for the image generator.
+#' @param batch the batch size for the image generator.
 #'
 #' @return A Tensorflow image data generator.
 #' @examples
@@ -15,7 +15,7 @@
 #' @export
 #' @import tensorflow
 #'
-cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width = 456, standardize = FALSE, batch_size = 32) {
+cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width = 456, standardize = FALSE, batch = 32) {
   # create data generator for  training (image/label pair)
   if (!(is.vector(files) && inherits(files,"character"))) {
     stop("files needs to be a vector of file names.\n")
@@ -33,7 +33,7 @@ cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width =
   data <- data.frame(file = files, boxes)
   dataset <- tfdatasets::tensor_slices_dataset(data)
   dataset <- tfdatasets::dataset_map(dataset, function(x) loadImageResizeCrop(x, resize_height, resize_width, standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
-  dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
+  dataset <- tfdatasets::dataset_batch(dataset, batch, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
   dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
   # dataset<-dataset$apply(tf$data$experimental$ignore_errors())
   dataset <- reticulate::as_iterator(dataset)
@@ -57,7 +57,7 @@ cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width =
 #' @param cache use caching to reduce reading from disk, TRUE or FALSE.
 #' @param cache_dir directory used for caching, if none provided chaching will be done in memory.
 #' @param return_iterator Should an iterator be returned? If RALSE a tfdataset will be returned.
-#' @param batch_size the batch size for the image generator.
+#' @param batch the batch size for the image generator.
 #'
 #' @return A Tensorflow image data generator.
 #' @examples
@@ -65,7 +65,7 @@ cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width =
 #' @export
 #' @import tensorflow
 #'
-cropImageTrainGenerator <- function(files, boxes, label,classes,resize_height = 456, resize_width = 456, standardize = FALSE, augmentation_color=FALSE,augmentation_geometry=FALSE,shuffle=FALSE,cache=FALSE,cache_dir=NULL,return_iterator=FALSE,batch_size = 32) {
+cropImageTrainGenerator <- function(files, boxes, label,classes,resize_height = 456, resize_width = 456, standardize = FALSE, augmentation_color=FALSE,augmentation_geometry=FALSE,shuffle=FALSE,cache=FALSE,cache_dir=NULL,return_iterator=FALSE,batch = 32) {
   # create data generator for  training (image/label pair)
   if (!(is.vector(files) && inherits(files,"character"))) {
     stop("files needs to be a vector of file names.\n")
@@ -101,7 +101,7 @@ cropImageTrainGenerator <- function(files, boxes, label,classes,resize_height = 
     dataset <- tfdatasets::dataset_map(dataset,function(x,y)list(auggeo(x,training=TRUE),y),num_parallel_calls = tf$data$experimental$AUTOTUNE)
   if(augmentation_color) 
     dataset <- tfdatasets::dataset_map(dataset,function(x,y)imageAugmentationColor(x,y,rng),num_parallel_calls = tf$data$experimental$AUTOTUNE)
-  dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
+  dataset <- tfdatasets::dataset_batch(dataset, batch, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
   # dataset<-dataset$apply(tf$data$experimental$ignore_errors())
   dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
   if(return_iterator)
@@ -120,20 +120,20 @@ cropImageTrainGenerator <- function(files, boxes, label,classes,resize_height = 
 #' @param resize_height the height the cropped image will be resized to. If NULL returns original size images.
 #' @param resize_width the width the cropped image will be resized to. If NULL returns original size images..
 #' @param standardize standardize the image to the range 0 to 1, TRUE or FALSE.
-#' @param batch_size the batch size for the image generator.
+#' @param batch the batch size for the image generator.
 #'
 #' @return A Tensorflow image data generator.
 #' @examples
 #' \dontrun{
-#' dataset <- ImageGenerator(images, standardize = FALSE, batch_size = batch_size)
+#' dataset <- ImageGenerator(images, standardize = FALSE, batch = batch)
 #' }
 #' @export
 #' @import tensorflow
 #'
-ImageGenerator <- function(files, resize_height = NULL, resize_width = NULL, standardize = FALSE, batch_size = 1) {
+ImageGenerator <- function(files, resize_height = NULL, resize_width = NULL, standardize = FALSE, batch = 1) {
   # create data generator for  training (image/label pair)
   if (!(is.vector(files) && inherits(files,"character"))) {
-    stop("files needs to be a vector of file names.\n")
+    #' \dontrun{}   stop("files needs to be a vector of file names.\n")
   }
   
   data <- data.frame(file=files)
@@ -142,11 +142,11 @@ ImageGenerator <- function(files, resize_height = NULL, resize_width = NULL, sta
   if (is.null(resize_height) || is.null(resize_width)) {
     message("No values were provided for resize, returning full-size images.")
     dataset <- tfdatasets::dataset_map(dataset, function(x) loadImage(x, standardize=standardize), num_parallel_calls = tf$data$experimental$AUTOTUNE)
-    dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
+    dataset <- tfdatasets::dataset_batch(dataset, batch, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
   } 
   else {
     dataset <- tfdatasets::dataset_map(dataset, function(x) loadImageResize(x, resize_height, resize_width, standardize=standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
-    dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
+    dataset <- tfdatasets::dataset_batch(dataset, batch, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
   }
   dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
   dataset <- reticulate::as_iterator(dataset)
@@ -163,17 +163,17 @@ ImageGenerator <- function(files, resize_height = NULL, resize_width = NULL, sta
 #' @param resize_width the width the cropped image will be resized to. If NULL returns original size images..
 #' @param pad pad the image instead of stretching it, TRUE or FALSE.
 #' @param standardize standardize the image to the range 0 to 1, TRUE or FALSE.
-#' @param batch_size the batch size for the image generator.
+#' @param batch the batch size for the image generator.
 #'
 #' @return A Tensorflow image data generator.
 #' @examples
 #' \dontrun{
-#' dataset <- ImageGenerator(images, standardize = FALSE, batch_size = batch_size)
+#' dataset <- ImageGenerator(images, standardize = FALSE, batch = batch)
 #' }
 #' @export
 #' @import tensorflow
 #'
-ImageGeneratorSize <- function(files, resize_height = NULL, resize_width = NULL, pad=FALSE, standardize = FALSE, batch_size = 1) {
+ImageGeneratorSize <- function(files, resize_height = NULL, resize_width = NULL, pad=FALSE, standardize = FALSE, batch = 1) {
   # create data generator for  training (image/label pair)
   if (!(is.vector(files) && inherits(files,"character"))) {
     stop("Please provide a vector of file names.\n")
@@ -183,11 +183,11 @@ ImageGeneratorSize <- function(files, resize_height = NULL, resize_width = NULL,
     message("No values were provided for resize, returning full-size images.")
     dataset <- tfdatasets::dataset_map(dataset, function(x) loadImage(x, standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
     dataset<-dataset$apply(tf$data$experimental$ignore_errors())
-    dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
+    dataset <- tfdatasets::dataset_batch(dataset, batch, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
   } else {
     dataset <- tfdatasets::dataset_map(dataset, function(x) loadImageResizeSize(x, height=resize_height, width=resize_width, pad=pad,standardize=standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
     dataset<-dataset$apply(tf$data$experimental$ignore_errors())
-    dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
+    dataset <- tfdatasets::dataset_batch(dataset, batch, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
   }
   dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
   dataset <- reticulate::as_iterator(dataset)

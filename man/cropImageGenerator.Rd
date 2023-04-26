@@ -10,7 +10,7 @@ cropImageGenerator(
   resize_height = 456,
   resize_width = 456,
   standardize = FALSE,
-  batch_size = 32
+  batch = 32
 )
 }
 \arguments{
@@ -24,7 +24,7 @@ cropImageGenerator(
 
 \item{standardize}{standardize the image to the range 0 to 1, TRUE or FALSE.}
 
-\item{batch_size}{the batch size for the image generator.}
+\item{batch}{the batch size for the image generator.}
 }
 \value{
 A Tensorflow image data generator.
