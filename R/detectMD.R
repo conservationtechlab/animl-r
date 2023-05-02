@@ -93,6 +93,7 @@ detectObject <- function(mdsession, imagefile, mdversion=5 , min_conf = 0.1) {
 #'
 #' @param mdsession should be the output from loadMDmodel(model)
 #' @param images list of image filepaths
+#' @param mdversion select MegaDetector version, defaults to 5
 #' @param min_conf Confidence threshold for returning bounding boxes, defaults to 0.1
 #' @param batch Process images in batches, defaults to 1
 #' @param outfile File containing previously checkpointed results

@@ -1,15 +1,16 @@
 #' Select a Random Image and Run Through MegaDetector
 #'
-#' @param imagesall dataframe of all images
+#' @param input dataframe of all images
 #' @param mdsession MegaDetector mdsession
 #' @param mdversion megadetector version, defaults to 5
+#' @param minconf minimum confidence with which to draw boxes, defaults to 0
 #'
 #' @return Null, plots box on image
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' testMD(imagesall, mdsession)
+#' testMD(input, mdsession)
 #' }
 testMD <- function(input, mdsession, mdversion = 5, minconf = 0) {
   if (is(input, "data.frame")) { 
@@ -20,7 +21,7 @@ testMD <- function(input, mdsession, mdversion = 5, minconf = 0) {
   else { stop("Must input a dataframe or image path") }
   
   jpg <- jpeg::readJPEG(path)
-  plot(as.raster(jpg))
+  plot(grDevices::as.raster(jpg))
   mdres <- detectObject(mdsession, path, mdversion)
   plotBoxes(mdres, minconf = minconf)
 }

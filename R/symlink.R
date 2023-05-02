@@ -77,7 +77,7 @@ symlinkMD <- function(manifest, linkdir, outfile = NULL, copy=FALSE){
 
   # hard copy or link
   if (copy) { 
-    pb.mapply(x = manifest$FilePath, file.copy, MoreArgs = c(manifest$MDLink)) }
+    pbapply::pb.mapply(x = manifest$FilePath, file.copy, MoreArgs = c(manifest$MDLink)) }
   else { mapply(file.link, manifest$FilePath, manifest$MDLink) }
   
   if (!is.null(outfile)) { saveData(manifest, outfile) }

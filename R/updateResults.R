@@ -11,7 +11,7 @@
 updateResults <- function(resultsfile, linkdir){
   if(!dir.exists(linkdir)) {stop("The given directory does not exist.")}
   
-  FilePath <- list.files(linkdir,recursive = TRUE, include.dirs = TRUE)
+  FilePath <- list.files(linkdir, recursive = TRUE, include.dirs = TRUE)
   files <- data.frame(FilePath)
   
   files$UniqueName <- sapply(files$FilePath,function(x)strsplit(x,"/")[[1]][2])
@@ -19,9 +19,9 @@ updateResults <- function(resultsfile, linkdir){
   
   dplyr::rename(files, )
   
-  results <- read.csv(resultsfile)
+  results <- utils::read.csv(resultsfile)
   if("Species" %in% names(results)){results = results[,!(names(results) %in% c("Species"))]}
   
-  corrected <- merge(results,files,by.x="UniqueName")
+  corrected <- merge(results, files, by.x="UniqueName")
   return(corrected)
 }

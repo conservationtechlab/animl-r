@@ -95,7 +95,7 @@ imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format 
   } 
   else {
     pb <- pbapply::startpb(1, nrow(videos))
-    results <- data.frame(FilePath = character(),Frame= character())
+    results <- data.frame(FilePath = character(), Frame = character())
     for(i in 1:nrow(videos)){
       result <- run.parallel(videos[i,]$FilePath)
       results <- rbind(results,result)

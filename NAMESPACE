@@ -2,7 +2,6 @@
 
 export(ImageGenerator)
 export(ImageGeneratorSize)
-export(animlPipeline)
 export(applyPredictions)
 export(bestGuess)
 export(buildFileManifest)
@@ -33,3 +32,4 @@ export(symlinkSpecies)
 export(testMD)
 export(unlink)
 export(updateResults)
+

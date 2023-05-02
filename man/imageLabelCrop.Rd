@@ -9,6 +9,8 @@ imageLabelCrop(data, classes, height = 299, width = 299, standardize = FALSE)
 \arguments{
 \item{data}{a list with the first element being an image file path, the next four elements being the bounding box coordinates and the last element a label}
 
+\item{classes}{list of classes}
+
 \item{height}{the height the cropped image will be resized to.}
 
 \item{width}{the width the cropped image will be resized to.}

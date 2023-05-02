@@ -48,6 +48,7 @@ cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width =
 #' @param files a vector of file names
 #' @param boxes a data frame or matrix of bounding box coordinates in the format left, top, width, height.
 #' @param label a vector of labels
+#' @param classes a vector of all classes for the active model
 #' @param resize_height the height the cropped image will be resized to.
 #' @param resize_width the width the cropped image will be resized to.
 #' @param standardize standardize the image to the range 0 to 1, TRUE or FALSE.
@@ -65,7 +66,11 @@ cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width =
 #' @export
 #' @import tensorflow
 #'
-cropImageTrainGenerator <- function(files, boxes, label,classes,resize_height = 456, resize_width = 456, standardize = FALSE, augmentation_color=FALSE,augmentation_geometry=FALSE,shuffle=FALSE,cache=FALSE,cache_dir=NULL,return_iterator=FALSE,batch = 32) {
+cropImageTrainGenerator <- function(files, boxes, label, classes,
+                                    resize_height = 456, resize_width = 456, 
+                                    standardize = FALSE, augmentation_color=FALSE,
+                                    augmentation_geometry=FALSE, shuffle=FALSE,
+                                    cache=FALSE, cache_dir=NULL, return_iterator=FALSE, batch = 32) {
   # create data generator for  training (image/label pair)
   if (!(is.vector(files) && inherits(files,"character"))) {
     stop("files needs to be a vector of file names.\n")
@@ -338,6 +343,7 @@ loadImageResizeCrop <- function(data, height = 299, width = 299, standardize = F
 #' @description Load image and return a tensor with an image and a corresponding label. Internal function to be called by image generator function.
 #'
 #' @param data a list with the first element being an image file path and the second element a label.
+#' @param classes list of classes 
 #' @param height the height the cropped image will be resized to.
 #' @param width the width the cropped image will be resized to.
 #' @param standardize standardize the image, TRUE or FALSE.
@@ -345,7 +351,7 @@ loadImageResizeCrop <- function(data, height = 299, width = 299, standardize = F
 #' @return An image and label tensor.
 #' @examples
 #' \dontrun{}
-imageLabel <- function(data,classes, height = 299, width = 299, standardize = FALSE) {
+imageLabel <- function(data, classes, height = 299, width = 299, standardize = FALSE) {
   image <- loadImageResize(data[[1]], height, width, standardize)
   list(image, tf$cast(classes==data[[6]],tf$int16))
 }
@@ -357,6 +363,7 @@ imageLabel <- function(data,classes, height = 299, width = 299, standardize = FA
 #' @description Load image, crop and return a tensor with an image and a corresponding label. Internal function to be called by image generator function.
 #'
 #' @param data a list with the first element being an image file path, the next four elements being the bounding box coordinates and the last element a label
+#' @param classes list of classes 
 #' @param height the height the cropped image will be resized to.
 #' @param width the width the cropped image will be resized to.
 #' @param standardize standardize the image, TRUE or FALSE.
@@ -364,7 +371,7 @@ imageLabel <- function(data,classes, height = 299, width = 299, standardize = FA
 #' @return An image and label tensor.
 #' @examples
 #' \dontrun{}
-imageLabelCrop <- function(data,classes, height = 299, width = 299, standardize = FALSE) {
+imageLabelCrop <- function(data, classes, height = 299, width = 299, standardize = FALSE) {
   image <- loadImageResizeCrop(list(data[[1]],data[[2]],data[[3]],data[[4]], data[[5]]), height, width, standardize)
   list(image, tf$cast(classes==data[[6]],tf$int16))
 }

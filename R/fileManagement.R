@@ -5,7 +5,7 @@
 #' @param offset add offset to videos, defaults to 0
 #' @param outfile file path to which the data frame should be saved
 #'
-#' @return files dataframe [FilePath,FileModifyDate]
+#' @return files dataframe with or without file modify dates
 #' @export
 #' @import dplyr
 #'

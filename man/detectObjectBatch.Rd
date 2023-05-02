@@ -19,6 +19,8 @@ detectObjectBatch(
 
 \item{images}{list of image filepaths}
 
+\item{mdversion}{select MegaDetector version, defaults to 5}
+
 \item{min_conf}{Confidence threshold for returning bounding boxes, defaults to 0.1}
 
 \item{batch}{Process images in batches, defaults to 1}

@@ -16,7 +16,7 @@ buildFileManifest(imagedir, exif = TRUE, offset = 0, outfile = NULL)
 \item{outfile}{file path to which the data frame should be saved}
 }
 \value{
-files dataframe \link{FilePath,FileModifyDate}
+files dataframe with or without file modify dates
 }
 \description{
 Extract exif Data and Create File Manifest

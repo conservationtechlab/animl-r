@@ -28,6 +28,8 @@ cropImageTrainGenerator(
 
 \item{label}{a vector of labels}
 
+\item{classes}{a vector of all classes for the active model}
+
 \item{resize_height}{the height the cropped image will be resized to.}
 
 \item{resize_width}{the width the cropped image will be resized to.}

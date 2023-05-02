@@ -41,5 +41,5 @@ predictSpecies <- function(input, model, resize = 456, standardize = FALSE, batc
   }
   else { stop("Input must be a data frame of crops or vector of file names.") }
   
-  predict(model, dataset, step = steps, workers = workers, verbose = 1)
+  stats::predict(model, dataset, step = steps, workers = workers, verbose = 1)
 }
