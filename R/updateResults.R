@@ -7,7 +7,9 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{}
+#' \dontrun{
+#' results <- updateResults(resultsfile, linkdir)
+#' }
 updateResults <- function(resultsfile, linkdir){
   if(!dir.exists(linkdir)) {stop("The given directory does not exist.")}
   

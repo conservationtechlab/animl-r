@@ -12,6 +12,3 @@ A keras model.
 \description{
 Returns a keras model that performs random geometric transformations on an image.
 }
-\examples{
-\dontrun{}
-}

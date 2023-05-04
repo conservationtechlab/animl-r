@@ -11,6 +11,7 @@
 #' @param min_conf Confidence threshold for returning bounding boxes, defaults to 0.1
 #'
 #' @return a list of MD bounding boxes, classes, and confidence for the image
+#' @import tensorflow
 #' @export
 #'
 #' @examples
@@ -100,19 +101,19 @@ detectObject <- function(mdsession, imagefile, mdversion=5 , min_conf = 0.1) {
 #' @param checkpoint Bank results after processing a number of images, defaults to 5000
 #'
 #' @return a list of lists of bounding boxes for each image
+#' @import tensorflow
+#' @importFrom methods is
 #' @export
 #'
 #' @examples
 #' \dontrun{
 #' images <- read_exif(imagedir,
 #'   tags = c("filename", "directory", "DateTimeOriginal", "FileModifyDate"),
-#'   recursive = TRUE
-#' )
+#'   recursive = TRUE)
 #' colnames(images)[1] <- "FilePath"
 #' mdsession <- loadMDModel(mdmodel)
 #' mdres <- classifyImagesBatchMD(mdsession, images$FilePath,
-#'   resultsfile = mdresultsfile, checkpoint = 2500
-#' )
+#'   resultsfile = mdresultsfile, checkpoint = 2500)
 #' }
 detectObjectBatch <- function(mdsession, images, mdversion = 5, min_conf = 0.1, batch = 1, outfile = NULL, checkpoint = 5000) {
   if ("mdsession" %in% class(mdsession)) { type <- "mdsession" }
@@ -139,7 +140,7 @@ detectObjectBatch <- function(mdsession, images, mdversion = 5, min_conf = 0.1, 
   } 
   else { results <- list() }
   
-  if(mdversion<=4){
+  if(mdversion <= 4){
     # create data generator
     dataset <- ImageGenerator(images, standardize = FALSE, batch = batch)
     

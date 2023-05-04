@@ -10,6 +10,7 @@
 #' @param frames number of frames to sample
 #' @param parallel Toggle for parallel processing, defaults to FALSE
 #' @param workers number of processors to use if parallel, defaults to 1
+#' @param checkpoint if not parallel, checkpoint ever n files, defaults to 1000
 #'
 #' @return dataframe of still frames for each video
 #' @export
@@ -19,7 +20,8 @@
 #' frames <- imagesFromVideos(videos, outdir = "C:\\Users\\usr\\Videos\\", frames = 5)
 #' }
 imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format = "jpg", 
-                             fps = NULL, frames = NULL, parallel = FALSE, workers = 1) {
+                             fps = NULL, frames = NULL, parallel = FALSE, workers = 1,
+                             checkpoint = 1000) {
   if (checkFile(outfile)) { return(loadData(outfile)) } 
   
   #check if dataframe or vector
@@ -101,7 +103,7 @@ imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format 
       results <- rbind(results,result)
      
       if (!is.null(outfile) & (i %% checkpoint) == 0) {
-        save(results, file = resultsfile)
+        save(results, file = outfile)
       }
       pbapply::setpb(pb, i) 
     }

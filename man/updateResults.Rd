@@ -18,5 +18,7 @@ dataframe with new "Species" column that contains the verifed species
 Title
 }
 \examples{
-\dontrun{}
+\dontrun{
+results <- updateResults(resultsfile, linkdir)
+}
 }

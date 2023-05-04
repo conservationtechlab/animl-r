@@ -57,5 +57,6 @@ A Tensorflow image data generator.
 Creates an image data generator that crops images based on bounding box coordinates and returnes an image/label pair.
 }
 \examples{
-\dontrun{}
+\dontrun{
+dataset <- cropImageTrainGenerator(images, standardize = FALSE, batch = batch)}
 }

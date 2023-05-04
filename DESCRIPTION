@@ -21,11 +21,9 @@ Imports:
     parallel,
     exifr,
     av,
-    data.table,
     magrittr,
     stats,
     imager,
-    listarrays
 Suggests: 
     knitr,
     rmarkdown

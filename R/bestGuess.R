@@ -11,6 +11,8 @@
 #'
 #' @return dataframe with new prediction in "Species" column
 #' @import dplyr
+#' @importFrom methods is
+#' @importFrom magrittr %>%
 #' @export
 #'
 #' @examples
@@ -28,8 +30,8 @@ bestGuess <- function(manifest, sort = "count", count = FALSE, shrink = FALSE,
   run.parallel <- function(i){
     sequence <- manifest[manifest$FilePath == videonames[i], ]
     guesses <- sequence %>%
-      dplyr::group_by(prediction) %>%
-      dplyr::summarise(confidence = max(confidence), n = dplyr::n())
+      dplyr::group_by('prediction') %>%
+      dplyr::summarise(confidence = max('confidence'), n = dplyr::n())
     
     #most confident
     if (sort == "conf") { 
@@ -59,7 +61,6 @@ bestGuess <- function(manifest, sort = "count", count = FALSE, shrink = FALSE,
     
     sequence
   }
-  
   
   if (parallel) {
     cl <- parallel::makeCluster(min(parallel::detectCores(), workers), type = "PSOCK")

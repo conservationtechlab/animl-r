@@ -47,6 +47,7 @@ saveData <- function(data, outfile, prompt = TRUE) {
 #'
 #' @return a boolean indicating wether a file was found 
 #'             and the user wants to load or not
+#' @importFrom methods is
 #' @export
 #'
 #' @examples

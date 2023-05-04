@@ -7,6 +7,7 @@
 #' @param counts Returns a table of all predictions, defaults to FALSE
 #'
 #' @return fully merged dataframe with Species predictions and confidence weighted by MD conf
+#' @importFrom methods is
 #' @export
 #'
 #' @examples
