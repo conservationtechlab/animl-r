@@ -12,7 +12,6 @@
 #' @return dataframe with new prediction in "Species" column
 #' @import dplyr
 #' @importFrom methods is
-#' @importFrom magrittr %>%
 #' @export
 #'
 #' @examples
@@ -21,17 +20,17 @@
 #' }
 bestGuess <- function(manifest, sort = "count", count = FALSE, shrink = FALSE, 
                       outfile = NULL, prompt = TRUE, parallel = FALSE, workers = 1) {
+  
   if (checkFile(outfile)) { return(loadData(outfile))}
   if (!is(manifest, "data.frame")) { stop("'manifest' must be DataFrame")}
   
   videonames <- unique(manifest$FilePath)
   steps <- length(videonames)
-  
+
   run.parallel <- function(i){
     sequence <- manifest[manifest$FilePath == videonames[i], ]
-    guesses <- sequence %>%
-      dplyr::group_by('prediction') %>%
-      dplyr::summarise(confidence = max('confidence'), n = dplyr::n())
+    
+    guesses <- sequence %>% dplyr::group_by(prediction) %>% dplyr::summarise(confidence = max(confidence), n = dplyr::n())
     
     #most confident
     if (sort == "conf") { 
@@ -47,11 +46,12 @@ bestGuess <- function(manifest, sort = "count", count = FALSE, shrink = FALSE,
       best <- which.max(guesses$n)
       guess <- guesses[best, ]
       if (guess$prediction == "empty" && nrow(guesses) > 1) {
-        gguesses <- guesses[guesses$prediction != "empty", ]
+        guesses <- guesses[guesses$prediction != "empty", ]
         guess <- guesses[which.max(guesses$n), ]
       }
     }
     else { stop("Must select guess by 'conf' (confidence) or by 'count' (frequency)") }
+    #print(guess)
     sequence$prediction <- guess$prediction
     sequence$confidence <- guess$confidence
     
@@ -64,7 +64,7 @@ bestGuess <- function(manifest, sort = "count", count = FALSE, shrink = FALSE,
   
   if (parallel) {
     cl <- parallel::makeCluster(min(parallel::detectCores(), workers), type = "PSOCK")
-    parallel::clusterExport(cl, list("sort", "count"), envir = environment())
+    parallel::clusterExport(cl, list("sort", "count", '%>%'), envir = environment())
     parallel::clusterSetRNGStream(cl)
     
     results <- pbapply::pblapply(1:steps, function(x) { run.parallel(x) }, cl = cl)
@@ -81,3 +81,4 @@ bestGuess <- function(manifest, sort = "count", count = FALSE, shrink = FALSE,
   results
 }
 
+utils::globalVariables(c("prediction", "confidence"))

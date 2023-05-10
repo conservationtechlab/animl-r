@@ -45,6 +45,6 @@ images <- read_exif(imagedir,
 colnames(images)[1] <- "FilePath"
 mdsession <- loadMDModel(mdmodel)
 mdres <- classifyImagesBatchMD(mdsession, images$FilePath,
-  resultsfile = mdresultsfile, checkpoint = 2500)
+  outfile = mdoutfile, checkpoint = 2500)
 }
 }

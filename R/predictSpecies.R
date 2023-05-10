@@ -15,7 +15,9 @@
 #' pred <- classifySpecies(imagesallanimal, paste0(modelfile, ".h5"),
 #'                       resize = 456, standardize = FALSE, batch_size = 64, workers = 8)
 #' }
-predictSpecies <- function(input, model, resize = 456, standardize = FALSE, batch = 1, workers = 1) {
+predictSpecies <- function(input, model, resize = 456, standardize = FALSE, 
+                           batch = 1, workers = 1) {
+  
   if (!file.exists(model)) { stop("The given model file does not exist.") }
   
   model <- keras::load_model_hdf5(model)

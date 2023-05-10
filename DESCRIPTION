@@ -24,10 +24,6 @@ Imports:
     magrittr,
     stats,
     imager,
-Suggests: 
-    knitr,
-    rmarkdown
 Depends: 
     R (>= 4.0.0),
     tensorflow (>= 2.5.0)
-VignetteBuilder: knitr

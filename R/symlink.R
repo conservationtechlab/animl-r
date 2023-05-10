@@ -95,7 +95,7 @@ symlinkMD <- function(manifest, linkdir, outfile = NULL, copy=FALSE){
 #' \dontrun{
 #' symlinkMD(manifest, linkdir)
 #' }
-unlink <- function(manifest){
+symUnlink <- function(manifest){
   if ("MDLink" %in% names(manifest)){
     pbapply::pbapply(manifest$MDLink, file.remove)
     manifest <- manifest[, !names(manifest) %in% c("MDLink")]
