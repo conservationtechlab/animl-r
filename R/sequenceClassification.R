@@ -15,7 +15,7 @@
 #' @param predictions data frame of prediction probabilities from the classifySpecies function
 #' @param classes a vector or species corresponding to the columns of 'predictions'
 #' @param emptyclass a string indicating the class that should be considered 'Empty'
-#' @param stationcolumnumn a column in the animals and empty data frame that indicates the camera or camera station
+#' @param stationcolumn a column in the animals and empty data frame that indicates the camera or camera station
 #' @param sortcolumns optional sort order. The default is 'stationcolumnumn' and DateTime.
 #' @param maxdiff maximum difference between images in seconds to be included in a sequence, defaults to 60
 #'
@@ -27,9 +27,12 @@
 #' predictions <-classifyCropsSpecies(images,modelfile,resize=456)
 #' animals <- allframes[allframes$max_detection_category==1,]
 #' empty <- setEmpty(allframes)
-#' animals <- sequenceClassification(animals,empty,predictions,classes,emptyclass = "Empty",stationcolumnumn="StationID",maxdiff=60)
+#' animals <- sequenceClassification(animals, empty, predictions, classes,
+#'                                   emptyclass = "Empty",
+#'                                   stationcolumnumn="StationID", maxdiff=60)
 #' }
-sequenceClassification<-function(animals, empty=NULL, predictions, classes, emptyclass="", stationcolumn, sortcolumns=NULL, maxdiff=60){
+sequenceClassification<-function(animals, empty=NULL, predictions, classes, 
+                                 emptyclass="", stationcolumn, sortcolumns=NULL, maxdiff=60){
   if (!is(animals, "data.frame")) {
     stop("'animals' must be a Data Frame.")
   }  

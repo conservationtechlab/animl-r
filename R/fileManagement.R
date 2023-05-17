@@ -5,9 +5,9 @@
 #' @param offset add offset to videos, defaults to 0
 #' @param outfile file path to which the data frame should be saved
 #'
-#' @return files dataframe [FilePath,FileModifyDate]
+#' @return files dataframe with or without file modify dates
 #' @export
-#' @import dplyr
+#' @importFrom magrittr %>%
 #'
 #' @examples
 #' \dontrun{
@@ -36,7 +36,7 @@ buildFileManifest <- function(imagedir, exif = TRUE, offset=0, outfile = NULL) {
     files$FileModifyDate <- as.POSIXct(files$FileModifyDate, format="%Y:%m:%d %H:%M:%S")
     files$DateTimeAdjusted <- as.POSIXct(files$FileModifyDate, format="%Y:%m:%d %H:%M:%S") + (offset*3600)
     
-    files <- files %>% dplyr::mutate(DateTime = dplyr::coalesce(DateTimeOriginal, FileModifyDate))
+    files <- files %>% dplyr::mutate("DateTime" = dplyr::coalesce("DateTimeOriginal", "FileModifyDate"))
   }
   # return simple file list 
   else {

@@ -11,6 +11,7 @@
 #' @param min_conf Confidence threshold for returning bounding boxes, defaults to 0.1
 #'
 #' @return a list of MD bounding boxes, classes, and confidence for the image
+#' @import tensorflow
 #' @export
 #'
 #' @examples
@@ -93,25 +94,26 @@ detectObject <- function(mdsession, imagefile, mdversion=5 , min_conf = 0.1) {
 #'
 #' @param mdsession should be the output from loadMDmodel(model)
 #' @param images list of image filepaths
+#' @param mdversion select MegaDetector version, defaults to 5
 #' @param min_conf Confidence threshold for returning bounding boxes, defaults to 0.1
 #' @param batch Process images in batches, defaults to 1
 #' @param outfile File containing previously checkpointed results
 #' @param checkpoint Bank results after processing a number of images, defaults to 5000
 #'
 #' @return a list of lists of bounding boxes for each image
+#' @import tensorflow
+#' @importFrom methods is
 #' @export
 #'
 #' @examples
 #' \dontrun{
 #' images <- read_exif(imagedir,
 #'   tags = c("filename", "directory", "DateTimeOriginal", "FileModifyDate"),
-#'   recursive = TRUE
-#' )
+#'   recursive = TRUE)
 #' colnames(images)[1] <- "FilePath"
 #' mdsession <- loadMDModel(mdmodel)
 #' mdres <- classifyImagesBatchMD(mdsession, images$FilePath,
-#'   resultsfile = mdresultsfile, checkpoint = 2500
-#' )
+#'   outfile = mdoutfile, checkpoint = 2500)
 #' }
 detectObjectBatch <- function(mdsession, images, mdversion = 5, min_conf = 0.1, batch = 1, outfile = NULL, checkpoint = 5000) {
   if ("mdsession" %in% class(mdsession)) { type <- "mdsession" }
@@ -119,18 +121,19 @@ detectObjectBatch <- function(mdsession, images, mdversion = 5, min_conf = 0.1, 
   else { stop("Expecting a mdsession or mdmodel object.") }
   
   
-  if (!is.null(resultsfile)) {
-    if (!dir.exists(dirname(resultsfile))) { stop("Results file directory does not exist.\n") }
-    if (tolower(substr(resultsfile, nchar(resultsfile) - 5, nchar(resultsfile))) != ".rdata") {
-      resultsfile <- paste0(resultsfile, ".RData")
+  if (!is.null(outfile)) {
+    if (!dir.exists(dirname(outfile))) { stop("Results file directory does not exist.\n") }
+    if (tolower(substr(outfile, nchar(outfile) - 5, nchar(outfile))) != ".rdata") {
+      outfile <- paste0(outfile, ".RData")
     }
     
     # if results file exists prompt user to load it and resume
-    if (!is.null(resultsfile) & file.exists(resultsfile)) {
+    if (!is.null(outfile) & file.exists(outfile)) {
       if (tolower(readline(prompt = "Results file exists, would you like to resume? y/n: ")) == "y") {
-        load(resultsfile)
-        images <- images[!(images %in% sapply(results, function(x) x$file))]
+        load(outfile)
         cat(length(results), "records loaded.\n")
+        if (length(results) == length(images)){ return(results) }
+        images <- images[!(images %in% sapply(results, function(x) x$file))]
       } 
       else { results <- list() }
     } 
@@ -138,7 +141,7 @@ detectObjectBatch <- function(mdsession, images, mdversion = 5, min_conf = 0.1, 
   } 
   else { results <- list() }
   
-  if(mdversion<=4){
+  if(mdversion <= 4){
     # create data generator
     dataset <- ImageGenerator(images, standardize = FALSE, batch = batch)
     
@@ -173,8 +176,8 @@ detectObjectBatch <- function(mdsession, images, mdversion = 5, min_conf = 0.1, 
         }
       }
       # save intermediate results at given checkpoint interval
-      if (!is.null(resultsfile) & (i %% checkpoint / batch) == 0) {
-        save(results, file = resultsfile)
+      if (!is.null(outfile) & (i %% checkpoint / batch) == 0) {
+        save(results, file = outfile)
       }
       pbapply::setpb(pb, i)
     }
@@ -221,15 +224,15 @@ detectObjectBatch <- function(mdsession, images, mdversion = 5, min_conf = 0.1, 
         
       }
       # save intermediate results at given checkpoint interval
-      if (!is.null(resultsfile) & (i %% checkpoint / batch) == 0) {
-        save(results, file = resultsfile)
+      if (!is.null(outfile) & (i %% checkpoint / batch) == 0) {
+        save(results, file = outfile)
       }
       pbapply::setpb(pb, i)
     }
     pbapply::setpb(pb, steps)
     pbapply::closepb(pb)
   }
-  if (!is.null(resultsfile)) { save(results, file = resultsfile) }
+  if (!is.null(outfile)) { save(results, file = outfile) }
   
   cat(paste(length(images),"images processed.",round(length(images)/(as.numeric(Sys.time())-as.numeric(starttime)),1),"images/s\n"))
   results

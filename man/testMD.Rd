@@ -7,11 +7,13 @@
 testMD(input, mdsession, mdversion = 5, minconf = 0)
 }
 \arguments{
+\item{input}{dataframe of all images}
+
 \item{mdsession}{MegaDetector mdsession}
 
 \item{mdversion}{megadetector version, defaults to 5}
 
-\item{imagesall}{dataframe of all images}
+\item{minconf}{minimum confidence with which to draw boxes, defaults to 0}
 }
 \value{
 Null, plots box on image
@@ -21,6 +23,6 @@ Select a Random Image and Run Through MegaDetector
 }
 \examples{
 \dontrun{
-testMD(imagesall, mdsession)
+testMD(input, mdsession)
 }
 }

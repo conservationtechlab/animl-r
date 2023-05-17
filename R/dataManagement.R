@@ -12,7 +12,7 @@
 
 loadData <- function(file) {
   ext <- strsplit(basename(file), split="\\.")[[1]][-1]
-  if (ext == "csv") { return(read.csv(file)) }
+  if (ext == "csv") { return(utils::read.csv(file)) }
   else{ stop("Error. Expecting a .csv file.") }
 }
 
@@ -32,10 +32,10 @@ loadData <- function(file) {
 saveData <- function(data, outfile, prompt = TRUE) {
   if (file.exists(outfile) & prompt == TRUE) {
     if (tolower(readline(prompt = "Output file exists, would you like to overwrite? y/n: ")) == "y") {
-      write.csv(data, file = outfile, row.names = F, quote = F)
+      utils::write.csv(data, file = outfile, row.names = F, quote = F)
     }
   } 
-  else { write.csv(data, file = outfile, row.names = F, quote = F) }
+  else { utils::write.csv(data, file = outfile, row.names = F, quote = F) }
 }
 
 
@@ -47,6 +47,7 @@ saveData <- function(data, outfile, prompt = TRUE) {
 #'
 #' @return a boolean indicating wether a file was found 
 #'             and the user wants to load or not
+#' @importFrom methods is
 #' @export
 #'
 #' @examples

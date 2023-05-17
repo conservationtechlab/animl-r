@@ -26,11 +26,11 @@ sequenceClassification(
 
 \item{emptyclass}{a string indicating the class that should be considered 'Empty'}
 
+\item{stationcolumn}{a column in the animals and empty data frame that indicates the camera or camera station}
+
 \item{sortcolumns}{optional sort order. The default is 'stationcolumnumn' and DateTime.}
 
 \item{maxdiff}{maximum difference between images in seconds to be included in a sequence, defaults to 60}
-
-\item{stationcolumnumn}{a column in the animals and empty data frame that indicates the camera or camera station}
 }
 \value{
 data frame with predictions and confidence values for animals and empty images
@@ -52,6 +52,8 @@ Classification confidence is weighted by MD confidence.
 predictions <-classifyCropsSpecies(images,modelfile,resize=456)
 animals <- allframes[allframes$max_detection_category==1,]
 empty <- setEmpty(allframes)
-animals <- sequenceClassification(animals,empty,predictions,classes,emptyclass = "Empty",stationcolumnumn="StationID",maxdiff=60)
+animals <- sequenceClassification(animals, empty, predictions, classes,
+                                  emptyclass = "Empty",
+                                  stationcolumnumn="StationID", maxdiff=60)
 }
 }

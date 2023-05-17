@@ -14,8 +14,8 @@
 #'  colnames(images)[1]<-"FilePath"
 #'  mdsession<-loadMDModel(mdmodel)
 #'  mdres<-classifyImagesBatchMD(mdsession,images$FilePath,
-#'                               resultsfile=mdresultsfile,checkpoint = 2500)
-#'  mdresflat<-convertMDresults(mdres)
+#'                               resultsfile=resultsfile,checkpoint = 2500)
+#'  mdresflat<-convertresults(mdres)
 #' }
 convertCoordinates <- function(results){
   
@@ -25,27 +25,31 @@ convertCoordinates <- function(results){
                           xmin=numeric(),xmax=numeric(),ymin=numeric(),ymax=numeric())
 
   
-  for (i in 1:length(mdresults)) {
+  for (i in 1:length(results)) {
     #load image
-    jpg<-jpeg::readJPEG(mdresults[[i]]$file)
+    jpg<-jpeg::readJPEG(results[[i]]$file)
     jpgy<-dim(jpg)[1]
     jpgx<-dim(jpg)[2]
 
-    xmin<-max(0,round(s[j,]$bbox1*jpgx,0))
-    xmax<-min(jpgx,round((s[j,]$bbox1+s[j,]$bbox3)*jpgx,0))
-    ymin<-max(0,round(s[j,]$bbox2,0))
-    ymax<-min(jpgy,round((s[j,]$bbox2+s[j,]$bbox4),0))
+    xmin<-max(0, round(results[[i]]$bbox1 * jpgx, 0))
+    xmax<-min(jpgx,round((results[[i]]$bbox1 + results[[i]]$bbox3)*jpgx, 0))
+    ymin<-max(0, round(results[[i]]$bbox2, 0))
+    ymax<-min(jpgy, round((results[[i]]$bbox2 + results[[i]]$bbox4), 0))
 
-    xminb<-max(0,round(s[j,]$bbox1*jpgx,0))
-    xmaxb<-min(jpgx,round((s[j,]$bbox1+s[j,]$bbox3)*jpgx,0))
-    yminb<-max(0,round(s[j,]$bbox2*jpgy,0))
-    ymaxb<-min(jpgy,round((s[j,]$bbox2+s[j,]$bbox4)*jpgy,0))
-    if(length(dim(jpg))==2)dim(jpg)<-c(dim(jpg)[1],dim(jpg)[2],1)
+    xminb<-max(0, round(results[[i]]$bbox1*jpgx, 0))
+    xmaxb<-min(jpgx, round((results[[i]]$bbox1+results[[i]]$bbox3)*jpgx, 0))
+    yminb<-max(0, round(results[[i]]$bbox2*jpgy, 0))
+    ymaxb<-min(jpgy, round((results[[i]]$bbox2+results[[i]]$bbox4)*jpgy, 0))
+    
+    if (length(dim(jpg)) == 2) dim(jpg) <- c(dim(jpg)[1], dim(jpg)[2],1)
 
-    line<-data.frame(image_path=mdresults[[i]]$file,md_class=s[j,]$category,md_confidence=s[j,]$conf,
-                     pixelx=jpgx,pixely=jpgy,
-                     x1=s[j,]$bbox1,x2=s[j,]$bbox2,y1=s[j,]$bbox3,y2=s[j,]$bbox4,
-                     xmin=xmin,xmax=xmax,ymin=ymin,ymax=ymax)
+    line <- data.frame(image_path = results[[i]]$file, 
+                       md_class = results[[i]]$category,
+                       md_confidence = results[[i]]$conf,
+                       pixelx = jpgx, pixely = jpgy,
+                       x1 = results[[i]]$bbox1, x2 = results[[i]]$bbox2,
+                       y1 = results[[i]]$bbox3, y2 = results[[i]]$bbox4,
+                       xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax)
     images<-rbind(images,line)
   }
   images

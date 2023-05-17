@@ -42,8 +42,6 @@ symlinkSpecies <- function(manifest, linkdir, threshold = 0, outfile = NULL, cop
 }
 
 
-
-
 #' Create SymLink Directories and Sort Classified Images Based on MD Results
 #'
 #' @param manifest DataFrame of classified images 
@@ -79,7 +77,7 @@ symlinkMD <- function(manifest, linkdir, outfile = NULL, copy=FALSE){
 
   # hard copy or link
   if (copy) { 
-    pb.mapply(x = manifest$FilePath, file.copy, MoreArgs = c(manifest$MDLink)) }
+    pbapply::pb.mapply(x = manifest$FilePath, file.copy, MoreArgs = c(manifest$MDLink)) }
   else { mapply(file.link, manifest$FilePath, manifest$MDLink) }
   
   if (!is.null(outfile)) { saveData(manifest, outfile) }
@@ -87,18 +85,24 @@ symlinkMD <- function(manifest, linkdir, outfile = NULL, copy=FALSE){
 }
 
 
-#' Title
+#' Remove Symlinks
 #'
-#' @return
+#' @param manifest DataFrame of classified images 
+#' @return manifest without link column
 #' @export
 #'
 #' @examples
-unlink <- function(manifest){
+#' \dontrun{
+#' symlinkMD(manifest, linkdir)
+#' }
+symUnlink <- function(manifest){
   if ("MDLink" %in% names(manifest)){
-    pbapply(manifest$MDLink, file.delete)
+    pbapply::pbapply(manifest$MDLink, file.remove)
+    manifest <- manifest[, !names(manifest) %in% c("MDLink")]
   }
   if ("Link" %in% names(manifest)){
-    pbapply(manifest$Link, file.delete)
+    pbapply::pbapply(manifest$Link, file.remove)
+    manifest <- manifest[, !names(manifest) %in% c("Link")]
   }
-  
+  manifest
 }

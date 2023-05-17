@@ -21,6 +21,3 @@ A Tensorflow image data generator.
 \description{
 Load a JPEG image and crop it to a bounding box. Internal function to be called by image generator function.
 }
-\examples{
-\dontrun{}
-}

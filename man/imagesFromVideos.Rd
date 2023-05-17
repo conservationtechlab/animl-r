@@ -13,7 +13,7 @@ imagesFromVideos(
   frames = NULL,
   parallel = FALSE,
   workers = 1,
-  checkpoint = 2500
+  checkpoint = 1000
 )
 }
 \arguments{
@@ -32,6 +32,8 @@ imagesFromVideos(
 \item{parallel}{Toggle for parallel processing, defaults to FALSE}
 
 \item{workers}{number of processors to use if parallel, defaults to 1}
+
+\item{checkpoint}{if not parallel, checkpoint ever n files, defaults to 1000}
 }
 \value{
 dataframe of still frames for each video

@@ -15,59 +15,52 @@ library(animl)
 imagedir <- "examples/test_data/Southwest"
 
 #create global variable file and directory names
-setupDirectory(imagedir)
+setupDirectory(imagedir,globalenv())
 
 # Build file manifest for all images and videos within base directory
 files <- buildFileManifest(imagedir, outfile = filemanifest, exif = TRUE)
+
 #===============================================================================
 # Add Project-Specific Info
 #===============================================================================
 
 #build new name
-basedepth=length(strsplit(imagedir,split="/")[[1]])-1
+basedepth=length(strsplit(imagedir,split="/")[[1]])
 
-files$Region<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+1])
-files$Site<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+2])
-files$Camera<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+3])
+files$Region<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth])
+files$Site<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+1])
+files$Camera<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+2])
 
 #files must have a new name for symlink
 files$UniqueID = round(runif(nrow(files), 1, 99999),0)
 files$UniqueName = paste(files$Site,files$Camera,format(files$DateTime,format="%Y-%m-%d_%H%M"),files$UniqueID,sep="_")
 files$UniqueName = paste0(files$UniqueName, ".", tolower(tools::file_ext(files$FileName)))
 
-
-files$UniqueName=paste(files$Region, files$Site, files$Camera, files$FileName, sep="_")
-
+#files$UniqueName=paste(files$Region, files$Site, files$Camera, files$FileName, sep="_")
 #files$UniqueName=files$FileName
 
-
 # Process videos, extract frames for ID
-allframes <- imagesFromVideos(files, outdir = vidfdir, outfile=NULL, frames=5, parallel=T, workers=parallel::detectCores())
+allframes <- imagesFromVideos(files, outdir = vidfdir, outfile=imageframes, 
+                              frames=5, parallel=T, workers=parallel::detectCores())
 
 #===============================================================================
 # MegaDetector
 #===============================================================================
 # Most functions assume MegaDetector version 5. If using an earlier version of 
-# MD, specify with argument 'mdversion'.
+# MD, specify detectObjectBatch with argument 'mdversion'.
 
 # Load the MegaDetector model
-mdsession <- loadMDModel("//10.24.17.53/machinelearning/megaDetector/md_v5b.0.0_saved_model")
-mdsession <- loadMDModel("/mnt/machinelearning/megaDetector/md_v4.1.pb")
+mdsession <- loadMDModel("/mnt/machinelearning/megaDetector/md_v5b.0.0_saved_model")
 
-#+++++++++++++++++++++
-# Classify a single image to make sure everything works before continuing
-testMD(allframes[16,]$Frame, mdsession, mdversion = 5, minconf = 0.7)
-#+++++++++++++++++++++
-mdres <- detectObjectBatch(mdsession, mdversion = 4, allframes$Frame, outfile = NULL, checkpoint = 2500)
-mdres <- detectObjectBatch(mdsession, allframes$Frame, outfile = NULL, checkpoint = 2500)
+mdres <- detectObjectBatch(mdsession, allframes$Frame, outfile = mdresults, checkpoint = 2500)
 
-y <- parseMD(mdres, manifest = allframes)
-z <- y[(y$conf > 0.5 | is.na(y$conf)),]
+detections <- parseMD(mdres, manifest = allframes)
+#z <- detections[(detections$conf > 0.5 | is.na(detections$conf)),]
 
 #select animal crops for classification
+animals <- getAnimals(detections)
+empty <- getEmpty(detections)
 
-animals <- getAnimals(z)
-empty <- getEmpty(z)
 
 #===============================================================================
 # Species Classifier
@@ -75,10 +68,8 @@ empty <- getEmpty(z)
 
 modelfile <- "/mnt/machinelearning/Models/Southwest/2022/EfficientNetB5_456_Unfrozen_05_0.26_0.92.h5"
 modelfile <- "/mnt/machinelearning/Models/Kenya/2022/EfficientNetB5_456_Unfrozen_04_0.60_0.89.h5"
-modelfile <- "/mnt/machinelearning/Models/Southwest/Extended/EfficientNetB5_456_Unfrozen_10_0.30_0.94_final.h5"
 
-
-pred <- predictSpecies(animals, modelfile, batch = 64, workers = 8)
+pred <- predictSpecies(animals, modelfile, batch = 64, workers = parallel::detectCores())
 
 animals <- applyPredictions(animals, pred, "/mnt/machinelearning/Models/Southwest/2022/classes.txt", 
                             outfile = predresults, counts = TRUE)
@@ -87,7 +78,8 @@ animals <- applyPredictions(animals, pred, "/mnt/machinelearning/Models/Southwes
 manifest <- rbind(animals,empty)
 
 # Classify sequences / select best prediction
-best <- bestGuess(manifest, sort = "conf", parallel = T, workers = 12, shrink = TRUE)
+best <- bestGuess(manifest, sort = "conf", parallel = T, 
+                  workers = parallel::detectCores(), shrink = TRUE)
 
 #mdanimals <- classifySequence(mdanimals,pred,classes,18,maxdiff=60)
 
@@ -100,6 +92,7 @@ alldata <- symlinkSpecies(best, linkdir, outfile = resultsfile)
 
 #symlink MD detections only
 symlinkMD(best,linkdir)
+
 
 #===============================================================================
 # Export to Camera Base
@@ -162,6 +155,5 @@ toupload <- toupload[toupload$ZooniverseCode!="Nothing Here",]
 
 
 upload_to_Zooniverse(projectname,subjectset,toupload,tempdir)
-
 
 upload_to_Zooniverse(projectname,subjectset,toupload,tempdir,maxSeq=3,maxTime=15)

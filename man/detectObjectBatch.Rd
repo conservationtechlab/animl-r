@@ -19,6 +19,8 @@ detectObjectBatch(
 
 \item{images}{list of image filepaths}
 
+\item{mdversion}{select MegaDetector version, defaults to 5}
+
 \item{min_conf}{Confidence threshold for returning bounding boxes, defaults to 0.1}
 
 \item{batch}{Process images in batches, defaults to 1}
@@ -39,12 +41,10 @@ number of images
 \dontrun{
 images <- read_exif(imagedir,
   tags = c("filename", "directory", "DateTimeOriginal", "FileModifyDate"),
-  recursive = TRUE
-)
+  recursive = TRUE)
 colnames(images)[1] <- "FilePath"
 mdsession <- loadMDModel(mdmodel)
 mdres <- classifyImagesBatchMD(mdsession, images$FilePath,
-  resultsfile = mdresultsfile, checkpoint = 2500
-)
+  outfile = mdoutfile, checkpoint = 2500)
 }
 }

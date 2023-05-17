@@ -18,7 +18,7 @@ cropImageTrainGenerator(
   cache = FALSE,
   cache_dir = NULL,
   return_iterator = FALSE,
-  batch_size = 32
+  batch = 32
 )
 }
 \arguments{
@@ -27,6 +27,8 @@ cropImageTrainGenerator(
 \item{boxes}{a data frame or matrix of bounding box coordinates in the format left, top, width, height.}
 
 \item{label}{a vector of labels}
+
+\item{classes}{a vector of all classes for the active model}
 
 \item{resize_height}{the height the cropped image will be resized to.}
 
@@ -46,7 +48,7 @@ cropImageTrainGenerator(
 
 \item{return_iterator}{Should an iterator be returned? If RALSE a tfdataset will be returned.}
 
-\item{batch_size}{the batch size for the image generator.}
+\item{batch}{the batch size for the image generator.}
 }
 \value{
 A Tensorflow image data generator.
@@ -55,5 +57,6 @@ A Tensorflow image data generator.
 Creates an image data generator that crops images based on bounding box coordinates and returnes an image/label pair.
 }
 \examples{
-\dontrun{}
+\dontrun{
+dataset <- cropImageTrainGenerator(images, standardize = FALSE, batch = batch)}
 }

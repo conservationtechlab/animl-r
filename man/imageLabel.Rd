@@ -9,6 +9,8 @@ imageLabel(data, classes, height = 299, width = 299, standardize = FALSE)
 \arguments{
 \item{data}{a list with the first element being an image file path and the second element a label.}
 
+\item{classes}{list of classes}
+
 \item{height}{the height the cropped image will be resized to.}
 
 \item{width}{the width the cropped image will be resized to.}
@@ -20,7 +22,4 @@ An image and label tensor.
 }
 \description{
 Load image and return a tensor with an image and a corresponding label. Internal function to be called by image generator function.
-}
-\examples{
-\dontrun{}
 }

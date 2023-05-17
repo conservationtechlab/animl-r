@@ -7,15 +7,15 @@
 #' @param resize_height the height the cropped image will be resized to.
 #' @param resize_width the width the cropped image will be resized to.
 #' @param standardize standardize the image to the range 0 to 1, TRUE or FALSE.
-#' @param batch_size the batch size for the image generator.
+#' @param batch the batch size for the image generator.
 #'
 #' @return A Tensorflow image data generator.
-#' @examples
-#' \dontrun{}
 #' @export
 #' @import tensorflow
 #'
-cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width = 456, standardize = FALSE, batch_size = 32) {
+#' @examples
+#' \dontrun{#' dataset <- cropImageGenerator(images, boxes, standardize = FALSE, batch = batch)}
+cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width = 456, standardize = FALSE, batch = 32) {
   # create data generator for  training (image/label pair)
   if (!(is.vector(files) && inherits(files,"character"))) {
     stop("files needs to be a vector of file names.\n")
@@ -33,7 +33,7 @@ cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width =
   data <- data.frame(file = files, boxes)
   dataset <- tfdatasets::tensor_slices_dataset(data)
   dataset <- tfdatasets::dataset_map(dataset, function(x) loadImageResizeCrop(x, resize_height, resize_width, standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
-  dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
+  dataset <- tfdatasets::dataset_batch(dataset, batch, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
   dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
   # dataset<-dataset$apply(tf$data$experimental$ignore_errors())
   dataset <- reticulate::as_iterator(dataset)
@@ -48,6 +48,7 @@ cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width =
 #' @param files a vector of file names
 #' @param boxes a data frame or matrix of bounding box coordinates in the format left, top, width, height.
 #' @param label a vector of labels
+#' @param classes a vector of all classes for the active model
 #' @param resize_height the height the cropped image will be resized to.
 #' @param resize_width the width the cropped image will be resized to.
 #' @param standardize standardize the image to the range 0 to 1, TRUE or FALSE.
@@ -57,15 +58,20 @@ cropImageGenerator <- function(files, boxes, resize_height = 456, resize_width =
 #' @param cache use caching to reduce reading from disk, TRUE or FALSE.
 #' @param cache_dir directory used for caching, if none provided chaching will be done in memory.
 #' @param return_iterator Should an iterator be returned? If RALSE a tfdataset will be returned.
-#' @param batch_size the batch size for the image generator.
+#' @param batch the batch size for the image generator.
 #'
 #' @return A Tensorflow image data generator.
-#' @examples
-#' \dontrun{}
 #' @export
 #' @import tensorflow
 #'
-cropImageTrainGenerator <- function(files, boxes, label,classes,resize_height = 456, resize_width = 456, standardize = FALSE, augmentation_color=FALSE,augmentation_geometry=FALSE,shuffle=FALSE,cache=FALSE,cache_dir=NULL,return_iterator=FALSE,batch_size = 32) {
+#' @examples
+#' \dontrun{
+#' dataset <- cropImageTrainGenerator(images, standardize = FALSE, batch = batch)}
+cropImageTrainGenerator <- function(files, boxes, label, classes,
+                                    resize_height = 456, resize_width = 456, 
+                                    standardize = FALSE, augmentation_color=FALSE,
+                                    augmentation_geometry=FALSE, shuffle=FALSE,
+                                    cache=FALSE, cache_dir=NULL, return_iterator=FALSE, batch = 32) {
   # create data generator for  training (image/label pair)
   if (!(is.vector(files) && inherits(files,"character"))) {
     stop("files needs to be a vector of file names.\n")
@@ -101,7 +107,7 @@ cropImageTrainGenerator <- function(files, boxes, label,classes,resize_height = 
     dataset <- tfdatasets::dataset_map(dataset,function(x,y)list(auggeo(x,training=TRUE),y),num_parallel_calls = tf$data$experimental$AUTOTUNE)
   if(augmentation_color) 
     dataset <- tfdatasets::dataset_map(dataset,function(x,y)imageAugmentationColor(x,y,rng),num_parallel_calls = tf$data$experimental$AUTOTUNE)
-  dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
+  dataset <- tfdatasets::dataset_batch(dataset, batch, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
   # dataset<-dataset$apply(tf$data$experimental$ignore_errors())
   dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
   if(return_iterator)
@@ -120,17 +126,17 @@ cropImageTrainGenerator <- function(files, boxes, label,classes,resize_height = 
 #' @param resize_height the height the cropped image will be resized to. If NULL returns original size images.
 #' @param resize_width the width the cropped image will be resized to. If NULL returns original size images..
 #' @param standardize standardize the image to the range 0 to 1, TRUE or FALSE.
-#' @param batch_size the batch size for the image generator.
+#' @param batch the batch size for the image generator.
 #'
 #' @return A Tensorflow image data generator.
-#' @examples
-#' \dontrun{
-#' dataset <- ImageGenerator(images, standardize = FALSE, batch_size = batch_size)
-#' }
 #' @export
 #' @import tensorflow
 #'
-ImageGenerator <- function(files, resize_height = NULL, resize_width = NULL, standardize = FALSE, batch_size = 1) {
+#' @examples
+#' \dontrun{
+#' dataset <- ImageGenerator(images, standardize = FALSE, batch = batch)
+#' }
+ImageGenerator <- function(files, resize_height = NULL, resize_width = NULL, standardize = FALSE, batch = 1) {
   # create data generator for  training (image/label pair)
   if (!(is.vector(files) && inherits(files,"character"))) {
     stop("files needs to be a vector of file names.\n")
@@ -142,11 +148,11 @@ ImageGenerator <- function(files, resize_height = NULL, resize_width = NULL, sta
   if (is.null(resize_height) || is.null(resize_width)) {
     message("No values were provided for resize, returning full-size images.")
     dataset <- tfdatasets::dataset_map(dataset, function(x) loadImage(x, standardize=standardize), num_parallel_calls = tf$data$experimental$AUTOTUNE)
-    dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
+    dataset <- tfdatasets::dataset_batch(dataset, batch, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
   } 
   else {
     dataset <- tfdatasets::dataset_map(dataset, function(x) loadImageResize(x, resize_height, resize_width, standardize=standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
-    dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
+    dataset <- tfdatasets::dataset_batch(dataset, batch, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
   }
   dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
   dataset <- reticulate::as_iterator(dataset)
@@ -163,17 +169,17 @@ ImageGenerator <- function(files, resize_height = NULL, resize_width = NULL, sta
 #' @param resize_width the width the cropped image will be resized to. If NULL returns original size images..
 #' @param pad pad the image instead of stretching it, TRUE or FALSE.
 #' @param standardize standardize the image to the range 0 to 1, TRUE or FALSE.
-#' @param batch_size the batch size for the image generator.
+#' @param batch the batch size for the image generator.
 #'
 #' @return A Tensorflow image data generator.
-#' @examples
-#' \dontrun{
-#' dataset <- ImageGenerator(images, standardize = FALSE, batch_size = batch_size)
-#' }
 #' @export
 #' @import tensorflow
-#'
-ImageGeneratorSize <- function(files, resize_height = NULL, resize_width = NULL, pad=FALSE, standardize = FALSE, batch_size = 1) {
+#' 
+#' @examples
+#' \dontrun{
+#' dataset <- ImageGenerator(images, standardize = FALSE, batch = batch)
+#' }
+ImageGeneratorSize <- function(files, resize_height = NULL, resize_width = NULL, pad=FALSE, standardize = FALSE, batch = 1) {
   # create data generator for  training (image/label pair)
   if (!(is.vector(files) && inherits(files,"character"))) {
     stop("Please provide a vector of file names.\n")
@@ -183,11 +189,11 @@ ImageGeneratorSize <- function(files, resize_height = NULL, resize_width = NULL,
     message("No values were provided for resize, returning full-size images.")
     dataset <- tfdatasets::dataset_map(dataset, function(x) loadImage(x, standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
     dataset<-dataset$apply(tf$data$experimental$ignore_errors())
-    dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
+    dataset <- tfdatasets::dataset_batch(dataset, batch, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
   } else {
     dataset <- tfdatasets::dataset_map(dataset, function(x) loadImageResizeSize(x, height=resize_height, width=resize_width, pad=pad,standardize=standardize),num_parallel_calls = tf$data$experimental$AUTOTUNE)
     dataset<-dataset$apply(tf$data$experimental$ignore_errors())
-    dataset <- tfdatasets::dataset_batch(dataset, batch_size, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
+    dataset <- tfdatasets::dataset_batch(dataset, batch, num_parallel_calls = tf$data$experimental$AUTOTUNE,deterministic=TRUE)
   }
   dataset <- tfdatasets::dataset_prefetch(dataset, buffer_size = tf$data$experimental$AUTOTUNE)
   dataset <- reticulate::as_iterator(dataset)
@@ -203,10 +209,7 @@ ImageGeneratorSize <- function(files, resize_height = NULL, resize_width = NULL,
 #' @param standardize standardize the image, TRUE or FALSE.
 #'
 #' @return An image tensor.
-#' @examples
-#' \dontrun{}
 #' @import tensorflow
-#'
 loadImage <- function(file, standardize = FALSE) {
   # catch error caused by missing files and zero-length files
   if (is.null(tryCatch({image <- tf$io$read_file(file);
@@ -229,10 +232,7 @@ loadImage <- function(file, standardize = FALSE) {
 #' @param standardize standardize the image, TRUE or FALSE.
 #'
 #' @return An image tensor.
-#' @examples
-#' \dontrun{}
 #' @import tensorflow
-#'
 loadImageResize <- function(file, height = 299, width = 299, pad=FALSE,standardize = FALSE) {
   size <- as.integer(c(height, width))
   
@@ -264,10 +264,7 @@ loadImageResize <- function(file, height = 299, width = 299, pad=FALSE,standardi
 #' @param standardize standardize the image, TRUE or FALSE.
 #'
 #' @return An image tensor.
-#' @examples
-#' \dontrun{}
 #' @import tensorflow
-#'
 loadImageResizeSize <- function(file, height = 299, width = 299, pad=FALSE,standardize = FALSE) {
   # catch error caused by missing files and zero-length files
   if (!is.null(tryCatch({image <- tf$io$read_file(file);
@@ -291,8 +288,6 @@ loadImageResizeSize <- function(file, height = 299, width = 299, pad=FALSE,stand
 }
 
 
-
-
 #' @title Load, resize and crop an image and return an image tensor.
 #'
 #' @description Load a JPEG image and crop it to a bounding box. Internal function to be called by image generator function.
@@ -303,10 +298,7 @@ loadImageResizeSize <- function(file, height = 299, width = 299, pad=FALSE,stand
 #' @param standardize standardize the image, TRUE or FALSE.
 #'
 #' @return A Tensorflow image data generator.
-#' @examples 
-#' \dontrun{}
 #' @import tensorflow
-#'
 loadImageResizeCrop <- function(data, height = 299, width = 299, standardize = FALSE) {
   # catch error caused by missing files and zero-length files
   if (!is.null(tryCatch({image <- tf$io$read_file(data[[1]]);
@@ -338,14 +330,14 @@ loadImageResizeCrop <- function(data, height = 299, width = 299, standardize = F
 #' @description Load image and return a tensor with an image and a corresponding label. Internal function to be called by image generator function.
 #'
 #' @param data a list with the first element being an image file path and the second element a label.
+#' @param classes list of classes 
 #' @param height the height the cropped image will be resized to.
 #' @param width the width the cropped image will be resized to.
 #' @param standardize standardize the image, TRUE or FALSE.
 #'
 #' @return An image and label tensor.
-#' @examples
-#' \dontrun{}
-imageLabel <- function(data,classes, height = 299, width = 299, standardize = FALSE) {
+#' @import tensorflow
+imageLabel <- function(data, classes, height = 299, width = 299, standardize = FALSE) {
   image <- loadImageResize(data[[1]], height, width, standardize)
   list(image, tf$cast(classes==data[[6]],tf$int16))
 }
@@ -357,14 +349,14 @@ imageLabel <- function(data,classes, height = 299, width = 299, standardize = FA
 #' @description Load image, crop and return a tensor with an image and a corresponding label. Internal function to be called by image generator function.
 #'
 #' @param data a list with the first element being an image file path, the next four elements being the bounding box coordinates and the last element a label
+#' @param classes list of classes 
 #' @param height the height the cropped image will be resized to.
 #' @param width the width the cropped image will be resized to.
 #' @param standardize standardize the image, TRUE or FALSE.
 #'
 #' @return An image and label tensor.
-#' @examples
-#' \dontrun{}
-imageLabelCrop <- function(data,classes, height = 299, width = 299, standardize = FALSE) {
+#' @import tensorflow
+imageLabelCrop <- function(data, classes, height = 299, width = 299, standardize = FALSE) {
   image <- loadImageResizeCrop(list(data[[1]],data[[2]],data[[3]],data[[4]], data[[5]]), height, width, standardize)
   list(image, tf$cast(classes==data[[6]],tf$int16))
 }
@@ -379,8 +371,7 @@ imageLabelCrop <- function(data,classes, height = 299, width = 299, standardize 
 #' @param rng a random number generator use to generate a random seed.
 #'
 #' @return An image and label tensor.
-#' @examples
-#' \dontrun{}
+#' @import tensorflow
 imageAugmentationColor<-function(image,label,rng){
   seed=rng$make_seeds(as.integer(2))
   seed=seed[1,]
@@ -395,10 +386,8 @@ imageAugmentationColor<-function(image,label,rng){
 #'
 #' @description Returns a keras model that performs random geometric transformations on an image.
 #'
-#'
 #' @return A keras model.
-#' @examples
-#' \dontrun{}
+#' @import keras
 imageAugmentationGeometry<-function(){
   model<-keras_model_sequential()
   model<-layer_random_flip(model,mode="horizontal")

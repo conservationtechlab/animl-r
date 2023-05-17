@@ -22,9 +22,9 @@ predictSpecies(
 
 \item{standardize}{standardize images, defaults to FALSE}
 
-\item{workers}{number of cores}
+\item{batch}{number of images processed in each batch (keep small)}
 
-\item{batch_size}{number of images processed in each batch (keep small)}
+\item{workers}{number of cores}
 }
 \value{
 a matrix of likelihoods for each class for each image

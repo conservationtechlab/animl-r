@@ -28,8 +28,6 @@ extractBoxesFromFlat(
 \item{outdir}{Directory in which output cropped images will be saved}
 
 \item{quality}{Compression level of output cropped image, defaults to 0.8}
-
-\item{plot}{Toggle to plot each crop in the plot window, defaults to TRUE}
 }
 \value{
 A dataframe containing image and crop paths

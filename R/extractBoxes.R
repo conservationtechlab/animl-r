@@ -9,7 +9,6 @@
 #' @param image single image, raw MD output format (list)
 #' @param min_conf Confidence threshold (defaults to 0, not in use)
 #' @param buffer Adds a buffer to the MD bounding box, defaults to 2px
-#' @param plot Toggle to plot each crop in the plot window, defaults to TRUE
 #' @param return.crops Toggle to return list of cropped images, defaults to FALSE
 #' @param save Toggle to save output cropped, defaults to FALSE
 #' @param resize Size in pixels to resize cropped images, NA if images are not resized, defaults to NA
@@ -132,7 +131,6 @@ extractBoxesFromMD <- function(image, min_conf = 0, buffer = 0, return.crops = F
 #' @param image dataframe containing MD output (assumes single row)
 #' @param min_conf Confidence threshold (defaults to 0, not in use)
 #' @param buffer Adds a buffer to the MD bounding box, defaults to 2px
-#' @param plot Toggle to plot each crop in the plot window, defaults to TRUE
 #' @param save Toggle to save output cropped, defaults to FALSE
 #' @param resize Size in pixels to resize cropped images, NA if images are not resized, defaults to NA
 #' @param outdir Directory in which output cropped images will be saved

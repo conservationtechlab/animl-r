@@ -7,6 +7,7 @@
 #' @param counts Returns a table of all predictions, defaults to FALSE
 #'
 #' @return fully merged dataframe with Species predictions and confidence weighted by MD conf
+#' @importFrom methods is
 #' @export
 #'
 #' @examples
@@ -18,7 +19,7 @@ applyPredictions <- function(animals, pred, classfile, outfile = NULL, counts = 
   if (!is(animals, "data.frame")) { stop("'animals' must be DataFrame.")}
   if (!file.exists(classfile)) { stop("The given class file does not exist.")}
 
-  classes <- read.table(classfile, stringsAsFactors = F)$x
+  classes <- utils::read.table(classfile, stringsAsFactors = F)$x
 
   animals$prediction <- classes[apply(pred, 1, which.max)]
   animals$confidence <- apply(pred, 1, max) * animals$conf
