@@ -4,10 +4,12 @@
 \alias{setupDirectory}
 \title{Set Working Directory and Save File Global Variables}
 \usage{
-setupDirectory(imagedir)
+setupDirectory(workingdir, pkg.env)
 }
 \arguments{
-\item{imagedir}{local directory that contains data to process}
+\item{workingdir}{local directory that contains data to process}
+
+\item{pkg.env}{environment to create global variables in}
 }
 \value{
 None

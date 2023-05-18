@@ -2,14 +2,14 @@
 % Please edit documentation in R/parseMD.R
 \name{parseMD}
 \alias{parseMD}
-\title{parse MD JSON results file into a simple dataframe}
+\title{parse MD results into a simple dataframe}
 \usage{
-parseMD(allframes, mdresults, outfile = NULL)
+parseMD(mdresults, manifest = NULL, outfile = NULL)
 }
 \arguments{
-\item{allframes}{dataframe containing all frames}
-
 \item{mdresults}{raw MegaDetector output}
+
+\item{manifest}{dataframe containing all frames}
 
 \item{outfile}{file path to save dataframe to}
 }
@@ -17,10 +17,10 @@ parseMD(allframes, mdresults, outfile = NULL)
 original dataframe including md results
 }
 \description{
-parse MD JSON results file into a simple dataframe
+parse MD results into a simple dataframe
 }
 \examples{
 \dontrun{
-mdresults <- parseMDsimple(mdres)
+mdresults <- parseMD(mdres)
 }
 }

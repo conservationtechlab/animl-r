@@ -18,7 +18,7 @@ cropImageTrainGenerator(
   cache = FALSE,
   cache_dir = NULL,
   return_iterator = FALSE,
-  batch_size = 32
+  batch = 32
 )
 }
 \arguments{
@@ -28,17 +28,27 @@ cropImageTrainGenerator(
 
 \item{label}{a vector of labels}
 
+\item{classes}{a vector of all classes for the active model}
+
 \item{resize_height}{the height the cropped image will be resized to.}
 
 \item{resize_width}{the width the cropped image will be resized to.}
 
 \item{standardize}{standardize the image to the range 0 to 1, TRUE or FALSE.}
 
+\item{augmentation_color}{use data augmentation to change the color, TRUE or FALSE.}
+
+\item{augmentation_geometry}{use data augmentation to change the geometry of the images, TRUE or FALSE.}
+
 \item{shuffle}{return data pairas in random order, TRUE or FALSE.}
 
-\item{batch_size}{the batch size for the image generator.}
+\item{cache}{use caching to reduce reading from disk, TRUE or FALSE.}
 
-\item{augmentation}{use data augmentation, TRUE or FALSE.}
+\item{cache_dir}{directory used for caching, if none provided chaching will be done in memory.}
+
+\item{return_iterator}{Should an iterator be returned? If RALSE a tfdataset will be returned.}
+
+\item{batch}{the batch size for the image generator.}
 }
 \value{
 A Tensorflow image data generator.
@@ -47,5 +57,6 @@ A Tensorflow image data generator.
 Creates an image data generator that crops images based on bounding box coordinates and returnes an image/label pair.
 }
 \examples{
-\dontrun{}
+\dontrun{
+dataset <- cropImageTrainGenerator(images, standardize = FALSE, batch = batch)}
 }

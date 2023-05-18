@@ -1,24 +1,28 @@
 #' Select a Random Image and Run Through MegaDetector
 #'
-#' @param imagesall dataframe of all images
-#' @param mdsession MegaDetector tensorflow session
+#' @param input dataframe of all images
+#' @param mdsession MegaDetector mdsession
+#' @param mdversion megadetector version, defaults to 5
+#' @param minconf minimum confidence with which to draw boxes, defaults to 0
 #'
 #' @return Null, plots box on image
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' testMD(imagesall, mdsession)
+#' testMD(input, mdsession)
 #' }
-testMD <- function(imagesall, mdsession, minconf = 0.9, frame = NA) {
-  if (!is(imagesall, "data.frame")) {stop("'imagesall' must be DataFrame")}
-  if (!("mdsession" %in% class(mdsession))) {stop("Expecting a mdsession object.")}
-  if(is.na(frame)){ sample <- dplyr::slice_sample(imagesall, n = 1)}
-  else{sample <- imagesall[frame,]}
-  jpg <- jpeg::readJPEG(sample$Frame)
-  plot(as.raster(jpg))
-  mdres <- detectObject(mdsession, sample$Frame)
-  print(mdres)
+testMD <- function(input, mdsession, mdversion = 5, minconf = 0) {
+  if (is(input, "data.frame")) { 
+    sample <- dplyr::slice_sample(input, n = 1) 
+    path <- sample$Frame
+  }
+  else if (is(input, "character")) { path <- input }
+  else { stop("Must input a dataframe or image path") }
+  
+  jpg <- jpeg::readJPEG(path)
+  plot(grDevices::as.raster(jpg))
+  mdres <- detectObject(mdsession, path, mdversion)
   plotBoxes(mdres, minconf = minconf)
 }
 

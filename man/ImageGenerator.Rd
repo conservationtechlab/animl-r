@@ -9,7 +9,7 @@ ImageGenerator(
   resize_height = NULL,
   resize_width = NULL,
   standardize = FALSE,
-  batch_size = 32
+  batch = 1
 )
 }
 \arguments{
@@ -21,7 +21,7 @@ ImageGenerator(
 
 \item{standardize}{standardize the image to the range 0 to 1, TRUE or FALSE.}
 
-\item{batch_size}{the batch size for the image generator.}
+\item{batch}{the batch size for the image generator.}
 }
 \value{
 A Tensorflow image data generator.
@@ -31,6 +31,6 @@ Creates an image data generator that resizes images if requested.
 }
 \examples{
 \dontrun{
-dataset <- ImageGenerator(images, standardize = FALSE, batch_size = batch_size)
+dataset <- ImageGenerator(images, standardize = FALSE, batch = batch)
 }
 }

@@ -1,6 +1,6 @@
 Package: animl
 Title: A Collection of ML Tools for Conservation Research
-Version: 1.0.0
+Version: 1.1.0
 Authors@R: 
     c(person(given="Kyra", family="Swanson",email="tswanson@sdzwa.org", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-1496-3217")),person(given="Mathias",family="Tobler",role = "aut"))
@@ -8,10 +8,12 @@ Description: Functions required to classify subjects within camera trap field da
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Imports:
+    grDevices,
     methods,
     pbapply,
+    dplyr,
     jpeg,
     keras,
     reticulate,
@@ -19,16 +21,9 @@ Imports:
     parallel,
     exifr,
     av,
-    data.table,
     magrittr,
-    dplyr,
     stats,
     imager,
-    listarrays
-Suggests: 
-    knitr,
-    rmarkdown
 Depends: 
     R (>= 4.0.0),
     tensorflow (>= 2.5.0)
-VignetteBuilder: knitr

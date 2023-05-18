@@ -17,6 +17,3 @@ An image tensor.
 \description{
 Load an image and return the full size an image tensor. Internal function to be called by image generator function.
 }
-\examples{
-\dontrun{}
-}

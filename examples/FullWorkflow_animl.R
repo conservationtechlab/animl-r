@@ -11,108 +11,94 @@
 library(reticulate)
 use_condaenv("mlgpu")
 library(animl)
-library(magrittr)
 
-
-imagedir <- "/mnt/projects/Stacy-Dawes_Kenya/Images for ML_Oct_20/Loisaba_Round12_April-May 2019/L12/100EK113"
+imagedir <- "examples/test_data/Southwest"
 
 #create global variable file and directory names
-setupDirectory(imagedir)
+setupDirectory(imagedir,globalenv())
 
-
-#load data if needed
-#mdres <- loadData(mdresults)
-#alldata <- loadData(predresults)
-#alldata <- loadData(classifiedimages)
+# Build file manifest for all images and videos within base directory
+files <- buildFileManifest(imagedir, outfile = filemanifest, exif = TRUE)
 
 #===============================================================================
-# Extract EXIF data
+# Add Project-Specific Info
 #===============================================================================
-
-# Read exif data for all images within base directory
-files <- buildFileManifest(imagedir)
 
 #build new name
-basedepth=length(strsplit(basedir,split="/")[[1]])-1
-
+basedepth=length(strsplit(imagedir,split="/")[[1]])
 
 files$Region<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth])
 files$Site<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+1])
 files$Camera<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+2])
 
-
 #files must have a new name for symlink
-files$UniqueName=paste(files$Region,files$Site,format(files$DateTime,format="%Y%m%d_%H%M%S"),files$FileName,sep="_")
-files$UniqueName=files$FileName
+files$UniqueID = round(runif(nrow(files), 1, 99999),0)
+files$UniqueName = paste(files$Site,files$Camera,format(files$DateTime,format="%Y-%m-%d_%H%M"),files$UniqueID,sep="_")
+files$UniqueName = paste0(files$UniqueName, ".", tolower(tools::file_ext(files$FileName)))
+
+#files$UniqueName=paste(files$Region, files$Site, files$Camera, files$FileName, sep="_")
+#files$UniqueName=files$FileName
 
 # Process videos, extract frames for ID
-allframes<-imagesFromVideos(files,outfile=imageframes,frames=5,parallel=T,nproc=12)
-
+allframes <- imagesFromVideos(files, outdir = vidfdir, outfile=imageframes, 
+                              frames=5, parallel=T, workers=parallel::detectCores())
 
 #===============================================================================
 # MegaDetector
 #===============================================================================
+# Most functions assume MegaDetector version 5. If using an earlier version of 
+# MD, specify detectObjectBatch with argument 'mdversion'.
 
 # Load the MegaDetector model
-mdsession <- loadMDModel("/mnt/machinelearning/megaDetector/megadetector_v4.1.pb")
+mdsession <- loadMDModel("/mnt/machinelearning/megaDetector/md_v5b.0.0_saved_model")
 
-#+++++++++++++++++++++
-# Classify a single image to make sure everything works before continuing
-testMD(allframes,mdsession)
-#+++++++++++++++++++++
+mdres <- detectObjectBatch(mdsession, allframes$Frame, outfile = mdresults, checkpoint = 2500)
 
-mdres <- detectObjectBatch(mdsession,allframes$Frame, resultsfile = mdresults, checkpoint = 2500)
-
-allframes <- parseMD(allframes, mdres)
-
-
-#null out low-confidence crops
-#check the "empty" folder, if you find animals, lower the confidence or do not run
-allframes$max_detection_category[allframes$max_detection_conf<0.1] <- 0
+detections <- parseMD(mdres, manifest = allframes)
+#z <- detections[(detections$conf > 0.5 | is.na(detections$conf)),]
 
 #select animal crops for classification
-animals <- allframes[allframes$max_detection_category==1,]
-empty <- setEmpty(allframes)
+animals <- getAnimals(detections)
+empty <- getEmpty(detections)
 
 
 #===============================================================================
 # Species Classifier
 #===============================================================================
 
-modelfile <- "/mnt/machinelearning/Models/Southwest/EfficientNetB5_456_Unfrozen_01_0.58_0.82.h5"
+modelfile <- "/mnt/machinelearning/Models/Southwest/2022/EfficientNetB5_456_Unfrozen_05_0.26_0.92.h5"
 modelfile <- "/mnt/machinelearning/Models/Kenya/2022/EfficientNetB5_456_Unfrozen_04_0.60_0.89.h5"
 
-pred <- classifySpecies(animals,modelfile,resize=456,standardize=FALSE,batch_size = 64,workers=8)
+pred <- predictSpecies(animals, modelfile, batch = 64, workers = parallel::detectCores())
 
-alldata <- applyPredictions(animals,empty,"/mnt/machinelearning/Models/Southwest/classes.txt",pred,
+animals <- applyPredictions(animals, pred, "/mnt/machinelearning/Models/Southwest/2022/classes.txt", 
                             outfile = predresults, counts = TRUE)
 
+#rejoin animal and empty data splits
+manifest <- rbind(animals,empty)
 
 # Classify sequences / select best prediction
-#mdanimals <- classifySequence(mdanimals,pred,classes,18,maxdiff=60)
-alldata <- poolCrops(alldata, outfile = classifiedimages)
+best <- bestGuess(manifest, sort = "conf", parallel = T, 
+                  workers = parallel::detectCores(), shrink = TRUE)
 
+#mdanimals <- classifySequence(mdanimals,pred,classes,18,maxdiff=60)
 
 #===============================================================================
 # Symlinks
 #===============================================================================
 
 #symlink species predictions
-alldata <- symlinkClasses(alldata, "/mnt/projects/Goldberg_Carnivore/Link")
-
-mapply(file.link, alldata$FilePath, alldata$Link)
+alldata <- symlinkSpecies(best, linkdir, outfile = resultsfile)
 
 #symlink MD detections only
-symlinkMD(alldata,linkdir)
+symlinkMD(best,linkdir)
 
-#delete simlinks
-sapply(alldata$Link,file.remove)
 
 #===============================================================================
 # Export to Camera Base
 #===============================================================================
 
-species_list<-read.csv("R:/PeruTrainingData/SpeciesID/species_list_full.csv",stringsAsFactors = F)
+species_list<-read.csv("",stringsAsFactors = F)
 
 alldata$Species<-species_list[match(alldata$Common,species_list$Common),"Species"]
 
@@ -137,7 +123,7 @@ export<-export[!duplicated(export$SourceFile1),]
 export[export$Common=="Empty",]$Species="Blank"
 dim(export[export$Date>"2018-06-18",])
 
-write.table(export,file="R:/BrazilNutImportCB.txt",sep="\t",row.names = F,quote = F)
+write.table(export,file="",sep="\t",row.names = F,quote = F)
 
 #===============================================================================
 # Export to Zooniverse
@@ -145,33 +131,29 @@ write.table(export,file="R:/BrazilNutImportCB.txt",sep="\t",row.names = F,quote 
 
 source_python("ZooniverseFunctions.py")
 
-data = "/mnt/mathias/Camera Trap Data Raw/BIG GRID/September 2021/Data/ImportZooniverse.csv"
-alldata = read.csv(data)
-
-imagesallanimal<-alldata[!(alldata$Common %in% c("Empty","empty","human","Human","vehicle","Vehicle")),]
+imagesallanimal <- alldata[!(alldata$Common %in% c("Empty","empty","human","Human","vehicle","Vehicle")),]
 
 # Confirm project name and subject set name
 # where the images will be added
-projectname<-"2789"
-subjectset<-"Loisaba Round 12"
-
-#take only top classification for each image (adjust later for multiple classifications)
-topchoice2 = imagesallanimal[order(imagesallanimal[,'FileName'],-imagesallanimal[,'confidence']),]
-topchoice2 = topchoice2[!duplicated(topchoice$NewName),]
-
-#change species name to the one used on Zooniverse
-zooconvert <- read.csv("Models/Kenya/Zooniverse_SpeciesList.csv")
-topchoice2$ZooniverseCode<-zooconvert[match(topchoice2$Common,zooconvert$Common),"ZooniverseCode"]
-
-
-toupload<-topchoice2[topchoice2$ZooniverseCode!="Human/Vehicle",]
-toupload<-toupload[toupload$ZooniverseCode!="Nothing Here",]
-
-
-upload_to_Zooniverse(projectname,101729,toupload[58800,],tempdir)
+projectname <- ""
+subjectset <- ""
 
 
 create_SubjectSet(projectname,subjectset)
 
-upload_to_Zooniverse(projectname,99162,alldata[10:30,],tempdir,maxSeq=3,maxTime=15)
+#take only top classification for each image (adjust later for multiple classifications)
+topchoice = imagesallanimal[order(imagesallanimal[,'FileName'],-imagesallanimal[,'confidence']),]
+topchoice = topchoice[!duplicated(topchoice$NewName),]
 
+#change species name to the one used on Zooniverse
+zooconvert <- read.csv("")
+topchoice2$ZooniverseCode<-zooconvert[match(topchoice2$Common,zooconvert$Common),"ZooniverseCode"]
+
+
+toupload <- topchoice2[topchoice2$ZooniverseCode!="Human/Vehicle",]
+toupload <- toupload[toupload$ZooniverseCode!="Nothing Here",]
+
+
+upload_to_Zooniverse(projectname,subjectset,toupload,tempdir)
+
+upload_to_Zooniverse(projectname,subjectset,toupload,tempdir,maxSeq=3,maxTime=15)
