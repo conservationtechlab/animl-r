@@ -113,3 +113,11 @@ The first line creates the enviroment from the specifications file which only ne
 This environment is also necessary for the [python version of animl.](https://pypi.org/project/animl/) 
 
 
+
+### Contributors
+
+Kyra Swanson <br>
+Mathias Tobler <br> 
+Edgar Navarro <br>
+Josh Kessler <br>
+Jon Kohler <br>
