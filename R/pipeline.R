@@ -4,6 +4,7 @@
 #' @param mdmodel description
 #' @param speciesmodel description
 #' @param classes description
+#' @param hierarchy depth of folder hierarchy, defaults to 3 (region, site, cam)
 #'
 #' @return none
 #' @export
@@ -15,7 +16,7 @@
 #'  modelfile <- "/mnt/machinelearning/Models/Southwest/2022/Southwest_v2.h5"
 #'  classes <- "/mnt/machinelearning/Models/Southwest/2022/classes.txt"
 #'  animl(imagedir,mdmodel,modelfile,classes) }
-animl <-function(imagedir, mdmodel, speciesmodel, classes){
+animl <-function(imagedir, mdmodel, speciesmodel, classes, hierarchy=3){
   #establish animl global variables
   pkg.env <- new.env(parent = emptyenv())
   setupDirectory(imagedir,pkg.env)
@@ -23,15 +24,19 @@ animl <-function(imagedir, mdmodel, speciesmodel, classes){
   files <- buildFileManifest(imagedir, outfile = pkg.env$filemanifest, exif = TRUE)
   
   #build new name
-  basedepth=length(strsplit(imagedir,split="/")[[1]])
-  
-  files$Region<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth])
-  files$Site<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+1])
-  files$Camera<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+2])
-  
-  #files must have a new name for symlink
   files$UniqueID = round(stats::runif(nrow(files), 1, 99999),0)
-  files$UniqueName = paste(files$Region,files$Site,files$Camera,format(files$DateTime,format="%Y-%m-%d_%H%M"),files$UniqueID,sep="_")
+  
+  basedepth=length(strsplit(imagedir,split="/")[[1]])
+  files$Region<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth])
+  files$UniqueName = paste(files$Region,format(files$DateTime,format="%Y-%m-%d_%H%M"),files$UniqueID,sep="_")
+  if (hierarchy >= 2){
+    files$Site<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+1])
+    files$UniqueName = paste(files$Region,files$Site,format(files$DateTime,format="%Y-%m-%d_%H%M"),files$UniqueID,sep="_")
+  }
+  if (hierarchy >= 3){
+    files$Camera<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth+2])
+    files$UniqueName = paste(files$Region,files$Site,files$Camera,format(files$DateTime,format="%Y-%m-%d_%H%M"),files$UniqueID,sep="_")
+  }
   files$UniqueName = paste0(files$UniqueName, ".", tolower(tools::file_ext(files$FileName)))
 
   message("Extracting frames from videos...")

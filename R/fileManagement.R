@@ -36,7 +36,7 @@ buildFileManifest <- function(imagedir, exif = TRUE, offset=0, outfile = NULL) {
     files$FileModifyDate <- as.POSIXct(files$FileModifyDate, format="%Y:%m:%d %H:%M:%S")
     files$DateTimeAdjusted <- as.POSIXct(files$FileModifyDate, format="%Y:%m:%d %H:%M:%S") + (offset*3600)
     
-    files <- files %>% dplyr::mutate("DateTime" = dplyr::coalesce("DateTimeOriginal", "FileModifyDate"))
+    files <- files %>% dplyr::mutate("DateTime" = dplyr::coalesce(files$DateTimeOriginal, files$FileModifyDate))
   }
   # return simple file list 
   else {
