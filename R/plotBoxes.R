@@ -57,4 +57,28 @@ plotBoxes <- function(image, label = FALSE, minconf = 0) {
       }
     }
   }
+
 }
+
+#' Crops all images from an input file with specific required columns: Frame,
+#' bbox1, bbox2, bbox3, and bbox4
+#'
+#' @param imagelist The path for the input csv file
+#' @param outdir The path where generated cropped images should be uploaded
+#'
+#' @return no return value, outputs the cropped image
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' cropImagesFromFile("/image/path/file.csv", "/output/path/")
+#' }
+cropImages <- function(imagelist, outdir) {
+  uncropped_data <- loadData(imagelist)
+  
+  # for-loop over rows
+  for(i in 1:nrow(uncropped_data)) { 
+    #cropJpg(uncropped_data[i,],outdir)
+  }
+}
+

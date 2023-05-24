@@ -27,6 +27,8 @@ animl <-function(imagedir, mdmodel, speciesmodel, classes, hierarchy=3){
   files$UniqueID = round(stats::runif(nrow(files), 1, 99999),0)
   
   basedepth=length(strsplit(imagedir,split="/")[[1]])
+  
+  
   files$Region<-sapply(files$Directory,function(x)strsplit(x,"/")[[1]][basedepth])
   files$UniqueName = paste(files$Region,format(files$DateTime,format="%Y-%m-%d_%H%M"),files$UniqueID,sep="_")
   if (hierarchy >= 2){
@@ -73,6 +75,7 @@ animl <-function(imagedir, mdmodel, speciesmodel, classes, hierarchy=3){
   #rejoin animal and empty data splits
   manifest <- rbind(animals,empty)
   # Classify sequences / select best prediction
+  message("Tidying predictions...")
   best <- bestGuess(manifest, sort = "count", parallel = T, workers = parallel::detectCores(), shrink = TRUE)
   
   # Symlinks

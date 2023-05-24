@@ -4,7 +4,7 @@
 \alias{animl}
 \title{Title}
 \usage{
-animl(imagedir, mdmodel, speciesmodel, classes)
+animl(imagedir, mdmodel, speciesmodel, classes, hierarchy = 3)
 }
 \arguments{
 \item{imagedir}{description}
@@ -14,6 +14,8 @@ animl(imagedir, mdmodel, speciesmodel, classes)
 \item{speciesmodel}{description}
 
 \item{classes}{description}
+
+\item{hierarchy}{depth of folder hierarchy, defaults to 3 (region, site, cam)}
 }
 \value{
 none
