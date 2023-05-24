@@ -15,7 +15,6 @@ setupDirectory <- function(workingdir,pkg.env) {
   if (!dir.exists(workingdir)) { stop("Output directory invalid.\n") }
   if (!endsWith(workingdir, "/")) { workingdir <- paste0(workingdir,"/") }
   
-  #utils::globalVariables(c("basedir","datadir","cropdir","vidfdir","linkdir"))
   # Assign specific directory paths
   basedir <- paste0(workingdir, "Animl-Directory/")
   pkg.env$datadir <- paste0(basedir, "Data/")

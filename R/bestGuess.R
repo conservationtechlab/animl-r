@@ -26,7 +26,7 @@ bestGuess <- function(manifest, sort = "count", count = FALSE, shrink = FALSE,
   
   videonames <- unique(manifest$FilePath)
   steps <- length(videonames)
-
+  
   run.parallel <- function(i){
     sequence <- manifest[manifest$FilePath == videonames[i], ]
     
