@@ -35,6 +35,7 @@ buildFileManifest <- function(imagedir, exif = TRUE, offset=0, outfile = NULL) {
     
     files$FileModifyDate <- as.POSIXct(files$FileModifyDate, format="%Y:%m:%d %H:%M:%S")
     files$DateTimeAdjusted <- as.POSIXct(files$FileModifyDate, format="%Y:%m:%d %H:%M:%S") + (offset*3600)
+
   
     if ("DateTimeOriginal" %in% names(files)){
       files$DateTimeOriginal <- as.POSIXct(files$DateTimeOriginal, format="%Y:%m:%d %H:%M:%S")

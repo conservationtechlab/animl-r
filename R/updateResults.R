@@ -3,7 +3,7 @@
 #' @param resultsfile final results file with predictions, expects a "UniqueName" column
 #' @param linkdir symlink directory that has been validated
 #'
-#' @return dataframe with new "Species" column that contains the verifed species
+#' @return dataframe with new "Species" column that contains the verified species
 #' @export
 #'
 #' @examples

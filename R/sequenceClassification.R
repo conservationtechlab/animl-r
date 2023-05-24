@@ -74,6 +74,10 @@ sequenceClassification<-function(animals, empty=NULL, predictions, classes,
   }
   sort<-do.call(order,animals[,sortcolumns])
   
+  animals$prediction <- classes[apply(pred, 1, which.max)]
+  animals$confidence <- apply(pred, 1, max) * animals$conf
+  
+  
   
   animals<-animals[sort,]
   predsort<-predictions[sort,]
@@ -149,10 +153,20 @@ sequenceClassification<-function(animals, empty=NULL, predictions, classes,
   pbapply::setpb(pb, nrow(animals))
   pbapply::closepb(pb)
   
+  #classify non-animal images
   if(!is.null(empty)){
     cat("Classifying empty, human and vehicle images..\n")
     #set common name to the same for all boxes in non-animal images
     #select files with multiple boxes
+    
+    if(length(emptycol)==0){
+      empty<-rbind(empty,animals[(animals$FilePath %in% empty$FilePath) & animalas$prediction!=classes[emptycol],])
+      animals<-animals[!((animals$FilePath %in% empty$FilePath) & (animalas$prediction!=classes[emptycol])),]
+    }else{
+      empty<-rbind(empty,animals[(animals$FilePath %in% empty$FilePath),])
+      animals<-animals[!(animals$FilePath %in% empty$FilePath),]      
+    }
+    
     t<-tapply(1:nrow(empty),empty$FilePath,function(x)x)
     t2<-lapply(t,length)
     t3<-which(t2>1)
@@ -176,8 +190,8 @@ sequenceClassification<-function(animals, empty=NULL, predictions, classes,
         conf[c:(c+length(sel)-1)]<-rep(empty$confidence[sel][1],length(sel))
         predict[c:(c+length(sel)-1)]<-rep(empty$prediction[sel][1],length(sel))     
       }else{ #object detected
-        conf[c:(c+length(sel)-1)]<-rep(empty$confidence[sel][maxconf],length(sel))
-        predict[c:(c+length(sel)-1)]<-rep(empty$prediction[sel][maxconf],length(sel))
+        conf[c:(c+length(sel)-1)]<-rep(empty$confidence[sel][empty$confidence[sel]<1][maxconf],length(sel))
+        predict[c:(c+length(sel)-1)]<-rep(empty$prediction[sel][empty$confidence[sel]<1][maxconf],length(sel))
       }
       pbapply::setpb(pb, c)
       c=c+length(sel)
@@ -188,12 +202,6 @@ sequenceClassification<-function(animals, empty=NULL, predictions, classes,
     empty[rowsel,]$confidence<-conf
     empty[rowsel,]$prediction<-predict
     
-    t<-unique(animals[,c("FilePath","confidence","prediction")])
-    t2<-match(empty$FilePath,t$FilePath)
-    t3<-!is.na(t2)
-    empty[t3,]$confidence<-t[t2[t3],]$confidence
-    empty[t3,]$prediction<-t[t2[t3],]$prediction
-    
     #combine animal and empty images
     alldata<-rbind(empty,animals)
     alldata[do.call(order,alldata[,sortcolumns]),]
@@ -202,4 +210,3 @@ sequenceClassification<-function(animals, empty=NULL, predictions, classes,
   }
   
 }
-
