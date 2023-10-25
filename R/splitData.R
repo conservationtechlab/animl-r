@@ -12,7 +12,7 @@
 getEmpty <- function(manifest) {
   if (!is(manifest, "data.frame")) { stop("'allframes' must be Data Frame")}
   
-  empty <- manifest[manifest$max_detection_category != 1, ]
+  empty <- manifest[manifest$category != 1, ]
 
   if (nrow(empty) == 0) {
     empty <- data.frame(matrix(ncol = ncol(manifest), nrow = 0))
@@ -22,18 +22,18 @@ getEmpty <- function(manifest) {
   empty$prediction <- NA
   empty$confidence <- NA
 
-  categories <- unique(manifest$max_detection_category)
+  categories <- unique(manifest$category)
   if (0 %in% categories) {
-    empty[empty$max_detection_category == 0, ]$prediction <- "empty"
-    empty$confidence[empty$max_detection_category == 0] <- 1 - empty$max_detection_conf[empty$max_detection_category == 0]
+    empty[empty$category == 0, ]$prediction <- "empty"
+    empty$confidence[empty$category == 0] <- 1 - empty$max_detection_conf[empty$category == 0]
   }
   if (2 %in% categories) {
-    empty[empty$max_detection_category == 2, ]$prediction <- "human"
-    empty$confidence[empty$max_detection_category == 2] <- empty$conf[empty$max_detection_category == 2]
+    empty[empty$category == 2, ]$prediction <- "human"
+    empty$confidence[empty$category == 2] <- empty$conf[empty$category == 2]
   }
   if (3 %in% categories) {
-    empty[empty$max_detection_category == 3, ]$prediction <- "vehicle"
-    empty$confidence[empty$max_detection_category == 3] <- empty$conf[empty$max_detection_category == 3]
+    empty[empty$category == 3, ]$prediction <- "vehicle"
+    empty$confidence[empty$category == 3] <- empty$conf[empty$category == 3]
   }
   empty
 }
