@@ -36,12 +36,12 @@ imagesall<-imagesFromVideos(files,outdir=vidfdir,frames=5)
 
 This produces a dataframe of images, including frames taken from any videos to be fed into the classifier. The authors recommend a two-step approach using Microsoft's 'MegaDector' object detector to first identify potential animals and then using a second classification model trained on the species of interest. 
 
-MegaDetector can obtained from
-https://github.com/microsoft/CameraTraps/blob/main/megadetector.md
+A version of MegaDetector compatible with tensorflow can obtained from [our server](https://sandiegozoo.box.com/s/jodg7xxxworgd85jgk4hn28z3dqlohsd).
 
+More info on [MegaDetector](https://github.com/agentmorris/MegaDetector/tree/main).
 ```R
 #Load the Megadetector model
-mdsession<-loadMDModel("/path/to/megaDetector/megadetector_v4.1.pb")
+mdsession<-loadMDModel("/path/to/megaDetector/mdv5_.pb")
 
 #+++++++++++++++++++++
 # Classify a single image to make sure everything works before continuing
