@@ -28,7 +28,7 @@ plotBoxes <- function(image, label = FALSE, minconf = 0) {
   # process image data frame
   else if (is.data.frame(image) & nrow(image) > 0) {
     if (length(unique(image$FilePath)) > 1) {
-      stop("Provide data for a single image file.\n")
+      stop("Please provide data for a single image file.\n")
     }
     # load image
     jpg <- jpeg::readJPEG(image$FilePath[1])
@@ -43,7 +43,7 @@ plotBoxes <- function(image, label = FALSE, minconf = 0) {
   if (nrow(boxes) > 0) {
     # plot bounding boxes
     for (j in 1:nrow(boxes)) {
-      if (boxes[j, ]$conf >= minconf) {
+      if (!is.na(boxes[j, ]$conf) && boxes[j, ]$conf >= minconf) {
         graphics::rect(boxes[j, ]$bbox1 * jpgx, 
                        jpgy - boxes[j, ]$bbox2 * jpgy, 
                        (boxes[j, ]$bbox1 + boxes[j, ]$bbox3) * jpgx, 
