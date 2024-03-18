@@ -81,13 +81,15 @@ alldata <- poolCrops(alldata)
 
 ```
 
-## Models
-All of our pre-trained classification models can be obtained at [https://]
+# Models
 
-Geographical regions represented:
-* South America
-* African Savanna
-* Southwest United States
+The Conservation Technology Lab has several models available for use. 
+
+* Southwest United States [v3](https://sandiegozoo.box.com/s/0mait8k3san3jvet8251mpz8svqyjnc3)
+* [Amazon](https://sandiegozoo.box.com/s/dfc3ozdslku1ekahvz635kjloaaeopfl)
+* [Savannah](https://sandiegozoo.box.com/s/ai6yu45jgvc0to41xzd26moqh8amb4vw)
+* [MegaDetector](https://github.com/agentmorris/MegaDetector/releases/download/v5.0/md_v5a.0.0.pt)
+
 
 ## Installation
 
