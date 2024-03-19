@@ -24,7 +24,7 @@ buildFileManifest <- function(imagedir, exif = TRUE, offset=0, recursive=TRUE, o
     files <- tryCatch( 
       {
         exifr::read_exif(imagedir, tags = c("filename", "directory", "DateTimeOriginal","FileModifyDate","CreateDate"), recursive = recursive)
-      }
+      },
       error = function(cond) { return(NULL) },
       warning = function(cond) {},
       finally = {}
