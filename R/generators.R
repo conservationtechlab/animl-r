@@ -277,7 +277,7 @@ loadImageResizeSize <- function(file, height = 299, width = 299, pad=FALSE,stand
     if(pad==TRUE){
       image<-tf$image$resize_with_pad(image, as.integer(height), as.integer(width), method = "bilinear")
     }else{
-      image2<-tf$image$resize(image,size = size)
+      image<-tf$image$resize(image,size = size)
     }
     if (!standardize) image <- tf$image$convert_image_dtype(image, dtype = tf$uint8)
     image<-list(image=image,width=img_width,height=img_height,file=file)
