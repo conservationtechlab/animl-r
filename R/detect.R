@@ -2,10 +2,11 @@
 #'
 #' @param model_path path to MegaDetector model (v5)
 #'
-#' @return
+#' @return megadetector object
 #' @export
 #'
 #' @examples
+#' \dontrun{md_py <- megadetector("/mnt/machinelearning/megaDetector/md_v5a.0.0.pt")}
 megadetector <- function(model_path){
   # first check if animl-py is loaded
   if(py_module_available("animl")){
@@ -29,10 +30,11 @@ megadetector <- function(model_path){
 #' @param image_size overrides default image size, 1280
 #' @param file_col select which column if image_file_names is a manifest
 #'
-#' @return
+#' @return list of dictionaries of MegaDetector detections
 #' @export
 #'
 #' @examples
+#' \dontrun{mdres <- detectMD_batch(md_py, allframes$Frame)}
 detectMD_batch <- function(detector, image_file_names, checkpoint_path=NULL, checkpoint_frequency=-1,
                           confidence_threshold=0.1, quiet=TRUE, image_size=NULL, file_col='Frame'){
   if(py_module_available("animl")){
