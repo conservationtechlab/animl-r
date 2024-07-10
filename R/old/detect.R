@@ -74,7 +74,7 @@ detectObject <- function(mdsession, imagefile, mdversion=5 , min_conf = 0.1) {
     }
     
     
-    scores<-(as.array(res[,,6:8])*as.array(res)[,,c(5,5,5),drop=F])
+    scores<-(as.array(res[,,6:8],drop=F)*as.array(res)[,,c(5,5,5),drop=F])
     resfilter<-tensorflow::tf$image$combined_non_max_suppression(tf$reshape(res[,,1:4],as.integer(c(dim(res)[1],dim(res)[2],1,4))),scores,max_output_size_per_class=as.integer(100),
                                                                  max_total_size=as.integer(100),score_threshold=min_conf,clip_boxes=TRUE)
     #images[(i * batch - batch)+1]                                                                                                                                
@@ -214,7 +214,7 @@ detectObjectBatch <- function(mdsession, images, mdversion = 5, min_conf = 0.1, 
           resbatch<-resbatch[[1]]
         }
         
-        scores<-(as.array(resbatch[,,6:8])*as.array(resbatch)[,,c(5,5,5),drop=F])
+        scores<-(as.array(resbatch[,,6:8],drop=F)*as.array(resbatch)[,,c(5,5,5),drop=F])
         resfilter<-tensorflow::tf$image$combined_non_max_suppression(tf$reshape(resbatch[,,1:4],as.integer(c(dim(resbatch)[1],dim(resbatch)[2],1,4))),
                                                                      scores,max_output_size_per_class=as.integer(100),
                                                                      max_total_size=as.integer(100),score_threshold=min_conf,clip_boxes=TRUE)
