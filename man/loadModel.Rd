@@ -2,7 +2,7 @@
 % Please edit documentation in R/classification.R
 \name{loadModel}
 \alias{loadModel}
-\title{Title}
+\title{Load a Classifier Model with animl-py}
 \usage{
 loadModel(model_path, class_file, device = "gpu")
 }
@@ -13,6 +13,12 @@ loadModel(model_path, class_file, device = "gpu")
 
 \item{device}{send model to the specified device}
 }
+\value{
+list of \link{classifier, class_list}
+}
 \description{
-Title
+Load a Classifier Model with animl-py
+}
+\examples{
+\dontrun{andes <- loadModel('andes_v1.pt','andes_classes.csv')}
 }

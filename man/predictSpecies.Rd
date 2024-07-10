@@ -2,7 +2,7 @@
 % Please edit documentation in R/classification.R
 \name{predictSpecies}
 \alias{predictSpecies}
-\title{Title}
+\title{Infer Species for Given Detections}
 \usage{
 predictSpecies(
   detections,
@@ -21,32 +21,38 @@ predictSpecies(
 )
 }
 \arguments{
-\item{detections}{}
+\item{detections}{manifest of animal detections}
 
-\item{model}{}
+\item{model}{loaded classifier model}
 
-\item{classes}{}
+\item{classes}{data.frame of classes}
 
-\item{device}{}
+\item{device}{send model to the specified device}
 
-\item{out_file}{}
+\item{out_file}{path to csv to save results to}
 
-\item{file_col}{}
+\item{file_col}{column in manifest containing file paths}
 
-\item{crop}{}
+\item{crop}{use bbox to crop images before feeding into model}
 
-\item{resize}{}
+\item{resize}{model expected dimensions}
 
-\item{standardize}{}
+\item{standardize}{standardize color}
 
-\item{batch_size}{}
+\item{batch_size}{batch size for generator}
 
-\item{workers}{}
+\item{workers}{number of processes}
 
-\item{channel_last}{}
+\item{channel_last}{change matrix to BxWxHxC}
 
-\item{raw}{}
+\item{raw}{output raw logits in addition to manifest}
+}
+\value{
+detections manifest with added prediction and confidence columns
 }
 \description{
-Title
+Infer Species for Given Detections
+}
+\examples{
+\dontrun{animals <- predictSpecies(animals, classifier[[1]], classifier[[2]], raw=FALSE)}
 }
