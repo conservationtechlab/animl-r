@@ -32,7 +32,7 @@
 #'                                   emptyclass = "Empty",
 #'                                   stationcolumnumn="StationID", maxdiff=60)
 #' }
-sequenceClassification2<-function(animals, empty=NULL, predictions, classes, 
+sequenceClassification<-function(animals, empty=NULL, predictions, classes, 
                                   emptyclass="", stationcolumn, sortcolumns=NULL,recordfield="FilePath", maxdiff=60){
   if (!is(animals, "data.frame")) {
     stop("'animals' must be a Data Frame.")
