@@ -78,7 +78,7 @@ parseMD <- function(mdresults, manifest = NULL, outfile = NULL, buffer=0.02) {
           return(x)
       } 
       else {
-        return(data.frame(file = data$file, category = 0, conf = NA, 
+        return(data.frame(file = data$file, category = 0, conf = 1, 
                    bbox1 = NA, bbox2 = NA, bbox3 = NA, bbox4 = NA, stringsAsFactors = F))
         
       }

@@ -25,7 +25,7 @@ getEmpty <- function(manifest) {
   categories <- unique(manifest$category)
   if (0 %in% categories) {
     empty[empty$category == 0, ]$prediction <- "empty"
-    empty$confidence[empty$category == 0] <- 1 - empty$max_detection_conf[empty$category == 0]
+    empty$confidence[empty$category == 0] <- 1
   }
   if (2 %in% categories) {
     empty[empty$category == 2, ]$prediction <- "human"
