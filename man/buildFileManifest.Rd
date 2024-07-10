@@ -4,19 +4,27 @@
 \alias{buildFileManifest}
 \title{Extract exif Data and Create File Manifest}
 \usage{
-buildFileManifest(imagedir, exif = TRUE, offset = 0, outfile = NULL)
+buildFileManifest(
+  imagedir,
+  exif = TRUE,
+  offset = 0,
+  recursive = TRUE,
+  outfile = NULL
+)
 }
 \arguments{
-\item{imagedir}{file path}
+\item{imagedir}{path to a directory with image or video files.}
 
 \item{exif}{returns date and time information from exif data, defaults to true}
 
-\item{offset}{add offset to videos, defaults to 0}
+\item{offset}{add offset in hours for videos when using the File Modified date, defaults to 0}
+
+\item{recursive}{Should directories be scanned recursively? Default TRUE}
 
 \item{outfile}{file path to which the data frame should be saved}
 }
 \value{
-files dataframe with or without file modify dates
+files dataframe with or without file dates
 }
 \description{
 Extract exif Data and Create File Manifest
