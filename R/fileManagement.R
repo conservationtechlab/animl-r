@@ -43,7 +43,7 @@ buildFileManifest <- function(imagedir, exif = TRUE, offset=0, recursive=TRUE, o
       files <- files %>% dplyr::mutate("DateTime" = dplyr::coalesce(files$DateTimeOriginal, files$CreateDate, files$FileModifyDate + (offset*3600)))
     }
     else{
-      files$DateTime = files$FileModifyDate
+      files$DateTime = files$FileModifyDate + (offset*3600)
     }
   }
   # return simple file list 
