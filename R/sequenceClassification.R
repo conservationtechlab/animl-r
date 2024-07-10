@@ -69,6 +69,11 @@ sequenceClassification2<-function(animals, empty=NULL, predictions, classes,
     animals$conf=1
   }
   
+  #define which class is empty  
+  if(emptyclass>""){
+    emptycol<-which(classes == emptyclass)
+  }
+  
   if(!is.null(empty)){
     empty$ID<-1:nrow(empty)
     
@@ -78,7 +83,6 @@ sequenceClassification2<-function(animals, empty=NULL, predictions, classes,
     predempty<-cbind(matrix(0,nrow=nrow(empty),ncol=dim(predictions)[2]),predempty[,-1])
     
     if(emptyclass>""){
-      emptycol<-which(classes == emptyclass)
       predempty[,emptycol]<-predempty$confidence.empty
       predempty<-predempty[,-which(names(predempty)=="confidence.empty")]
       classes<-c(classes,unique(empty$prediction)[which(unique(empty$prediction)!="empty")])
