@@ -17,9 +17,9 @@
 #'
 #' @examples
 #' \dontrun{
-#' frames <- imagesFromVideos(videos, outdir = "C:\\Users\\usr\\Videos\\", frames = 5)
+#' frames <- extractFrames(videos, outdir = "C:\\Users\\usr\\Videos\\", frames = 5)
 #' }
-imagesFromVideos <- function(files, outdir = tempfile(), outfile = NULL, format = "jpg", 
+extractFrames <- function(files, outdir = tempfile(), outfile = NULL,
                              fps = NULL, frames = NULL, parallel = FALSE, workers = 1,
                              checkpoint = 1000) {
   if (checkFile(outfile)) { return(loadData(outfile)) } 
