@@ -42,7 +42,7 @@ loadModel <- function(model_path, class_file, device="gpu"){
 #' @examples
 #' \dontrun{animals <- predictSpecies(animals, classifier[[1]], classifier[[2]], raw=FALSE)}
 predictSpecies <- function(detections, model, classes, device='gpu', out_file=NULL,
-                           file_col='Frame', crop=TRUE, resize=299, standardize=TRUE,
+                           file_col='Frame', crop=TRUE, resize=as.integer(299), standardize=TRUE,
                            batch_size=1, workers=1, channel_last=FALSE, raw=FALSE){
   
   # check if animl-py is available
