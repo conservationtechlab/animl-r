@@ -31,8 +31,6 @@ extractFrames(
 \item{workers}{number of processors to use if parallel, defaults to 1}
 
 \item{checkpoint}{if not parallel, checkpoint ever n files, defaults to 1000}
-
-\item{format}{output format for frames, defaults to jpg}
 }
 \value{
 dataframe of still frames for each video

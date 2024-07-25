@@ -78,7 +78,7 @@ sequenceClassification<-function(animals, empty=NULL, predictions, classes,
     empty$ID<-1:nrow(empty)
     
     #create extended prediction matrix for empty, vehicles and human
-    predempty<-reshape(empty[,c("ID","prediction","confidence")],direction="wide",idvar="ID",timevar="prediction")
+    predempty<-stats::reshape(empty[,c("ID","prediction","confidence")],direction="wide",idvar="ID",timevar="prediction")
     predempty[is.na(predempty)]<-0
     predempty<-cbind(matrix(0,nrow=nrow(empty),ncol=dim(predictions)[2]),predempty[,-1])
     

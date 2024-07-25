@@ -1,21 +1,22 @@
 #' Load MegaDetector
 #'
 #' @param model_path path to MegaDetector model (v5)
+#' @param device load model onto given device description
 #'
 #' @return megadetector object
 #' @export
 #'
 #' @examples
 #' \dontrun{md_py <- megadetector("/mnt/machinelearning/megaDetector/md_v5a.0.0.pt")}
-megadetector <- function(model_path){
+megadetector <- function(model_path, device=NULL){
   # first check if animl-py is loaded
-  if(py_module_available("animl")){
-    animl_py <- import("animl")
+  if(reticulate::py_module_available("animl")){
+    animl_py <- reticulate::import("animl")
   }
   else{
     stop('animl-py environment must be loaded first via reticulate')
   }
-  animl_py$megadetector$MegaDetector("/mnt/machinelearning/megaDetector/md_v5a.0.0.pt")
+  animl_py$megadetector$MegaDetector("/mnt/machinelearning/megaDetector/md_v5a.0.0.pt", device=device)
 }
 
 
@@ -37,14 +38,15 @@ megadetector <- function(model_path){
 #' \dontrun{mdres <- detectMD_batch(md_py, allframes$Frame)}
 detectMD_batch <- function(detector, image_file_names, checkpoint_path=NULL, checkpoint_frequency=-1,
                           confidence_threshold=0.1, quiet=TRUE, image_size=NULL, file_col='Frame'){
-  if(py_module_available("animl")){
-    animl_py <- import("animl")
+  if(reticulate::py_module_available("animl")){
+    animl_py <- reticulate::import("animl")
   }
-  else{
-    stop('animl-py environment must be loaded first via reticulate')
-  }
-  animl_py$detect_MD_batch(detector, image_file_names, checkpoint_path, checkpoint_frequency,
-                           confidence_threshold, quiet, image_size, file_col)
+  else{ stop('animl-py environment must be loaded first via reticulate')}
+
+  animl_py$detect_MD_batch(detector, image_file_names, checkpoint_path=checkpoint_path, 
+                           checkpoint_frequency=checkpoint_frequency,
+                           confidence_threshold=confidence_threshold, quiet=quiet, 
+                           image_size=image_size, file_col=toString(file_col))
 }
 
 
@@ -80,7 +82,6 @@ parseMD <- function(mdresults, manifest = NULL, outfile = NULL, buffer=0.02) {
       else {
         return(data.frame(file = data$file, category = 0, conf = 1, 
                    bbox1 = NA, bbox2 = NA, bbox3 = NA, bbox4 = NA, stringsAsFactors = F))
-        
       }
     }
     
@@ -97,10 +98,10 @@ parseMD <- function(mdresults, manifest = NULL, outfile = NULL, buffer=0.02) {
     
     # merge to dataframe if given
     if (!is.null(manifest)) { results <- merge(manifest, results, by.x="Frame",by.y="file") } 
-    
+
     # Save file
     if (!is.null(outfile)) { saveData(results, outfile)}
-    
+
     return(results) 
   }
 }

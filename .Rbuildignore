@@ -1,9 +1,9 @@
 ^animl/.Rproj$
 ^/.Rproj/.user$
 ^LICENSE/.md$
-^examples/
+^examples/*
 ^animl-env.yml
 ^.Rhistory
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^R/old
+^R/old/*

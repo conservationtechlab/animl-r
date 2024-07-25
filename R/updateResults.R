@@ -1,4 +1,4 @@
-#' Title
+#' Udate Results from File Browser
 #'
 #' @param resultsfile final results file with predictions, expects a "UniqueName" column
 #' @param linkdir symlink directory that has been validated

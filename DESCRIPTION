@@ -20,7 +20,6 @@ Imports:
     av,
     magrittr,
     stats,
-    imager,
 Depends: 
     R (>= 4.0.0)
 

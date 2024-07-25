@@ -8,11 +8,11 @@ predictSpecies(
   detections,
   model,
   classes,
-  device = "gpu",
+  device = NULL,
   out_file = NULL,
   file_col = "Frame",
   crop = TRUE,
-  resize = 299,
+  resize = as.integer(299),
   standardize = TRUE,
   batch_size = 1,
   workers = 1,
@@ -48,7 +48,7 @@ predictSpecies(
 \item{raw}{output raw logits in addition to manifest}
 }
 \value{
-detections manifest with added prediction and confidence columns
+detection manifest with added prediction and confidence columns
 }
 \description{
 Infer Species for Given Detections

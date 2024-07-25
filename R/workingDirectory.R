@@ -8,7 +8,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' setupDirectory(/home/kyra/animl/examples)
+#' workingDirectory(/home/kyra/animl/examples)
 #' }
 workingDirectory <- function(workingdir,pkg.env) {
   
@@ -31,7 +31,8 @@ workingDirectory <- function(workingdir,pkg.env) {
   pkg.env$imageframes <- paste0(pkg.env$datadir, "ImageFrames.csv")
   pkg.env$resultsfile <- paste0(pkg.env$datadir, "Results.csv")
   pkg.env$predresults <- paste0(pkg.env$datadir, "Predictions.csv")
-  pkg.env$mdresults <- paste0(pkg.env$datadir, "Detections.csv")
+  pkg.env$detections <- paste0(pkg.env$datadir, "Detections.csv")
+  pkg.env$mdraw <- paste0(pkg.env$datadir, "MD_Raw.json")
 }
 
 

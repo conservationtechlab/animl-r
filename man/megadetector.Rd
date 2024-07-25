@@ -4,10 +4,12 @@
 \alias{megadetector}
 \title{Load MegaDetector}
 \usage{
-megadetector(model_path)
+megadetector(model_path, device = NULL)
 }
 \arguments{
 \item{model_path}{path to MegaDetector model (v5)}
+
+\item{device}{load model onto given device description}
 }
 \value{
 megadetector object

@@ -4,7 +4,7 @@
 \alias{loadModel}
 \title{Load a Classifier Model with animl-py}
 \usage{
-loadModel(model_path, class_file, device = "gpu")
+loadModel(model_path, class_file, device = NULL)
 }
 \arguments{
 \item{model_path}{path to model}
@@ -14,7 +14,7 @@ loadModel(model_path, class_file, device = "gpu")
 \item{device}{send model to the specified device}
 }
 \value{
-list of \link{classifier, class_list}
+list of c(classifier, class_list)
 }
 \description{
 Load a Classifier Model with animl-py

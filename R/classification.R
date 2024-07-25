@@ -4,18 +4,17 @@
 #' @param class_file path to class list
 #' @param device send model to the specified device
 #'
-#' @return list of [classifier, class_list]
+#' @return list of c(classifier, class_list)
 #' @export
 #'
 #' @examples
 #' \dontrun{andes <- loadModel('andes_v1.pt','andes_classes.csv')}
-loadModel <- function(model_path, class_file, device="gpu"){
-  if(py_module_available("animl")){
-    animl_py <- import("animl")
+loadModel <- function(model_path, class_file, device=NULL){
+  if(reticulate::py_module_available("animl")){
+    animl_py <- reticulate::import("animl")
   }
-  else{
-    stop('animl-py environment must be loaded first via reticulate')
-  }
+  else{ stop('animl-py environment must be loaded first via reticulate') }
+  
   animl_py$load_model(model_path, class_file, device=device)
 }
 
@@ -36,22 +35,21 @@ loadModel <- function(model_path, class_file, device="gpu"){
 #' @param channel_last change matrix to BxWxHxC
 #' @param raw output raw logits in addition to manifest
 #'
-#' @return detections manifest with added prediction and confidence columns
+#' @return detection manifest with added prediction and confidence columns
 #' @export
 #'
 #' @examples
 #' \dontrun{animals <- predictSpecies(animals, classifier[[1]], classifier[[2]], raw=FALSE)}
-predictSpecies <- function(detections, model, classes, device='gpu', out_file=NULL,
+predictSpecies <- function(detections, model, classes, device=NULL, out_file=NULL,
                            file_col='Frame', crop=TRUE, resize=as.integer(299), standardize=TRUE,
                            batch_size=1, workers=1, channel_last=FALSE, raw=FALSE){
   
   # check if animl-py is available
-  if(py_module_available("animl")){ animl_py <- import("animl")}
+  if(reticulate::py_module_available("animl")){ animl_py <- reticulate::import("animl")}
   else{ stop('animl-py environment must be loaded first via reticulate')}
   
   animl_py$predict_species(detections, model, classes, device=device, out_file=out_file,
                            file_col=file_col, crop=crop, resize=resize, standardize=standardize,
                            batch_size=as.integer(batch_size), workers=as.integer(workers), 
                            channel_last=channel_last, raw=raw)
-  
 }

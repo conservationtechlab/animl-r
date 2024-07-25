@@ -15,7 +15,6 @@
 #' manifest <- symlinkSpecies(manifest, linkdir)
 #' }
 symlinkSpecies <- function(manifest, linkdir, threshold = 0, outfile = NULL, copy = FALSE) {
-  if (checkFile(outfile)) { return(loadData(outfile))}
 
   # place low-confidence images into "Unknown" category
   manifest$prediction[manifest$confidence < threshold &
