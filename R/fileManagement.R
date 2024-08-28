@@ -29,21 +29,27 @@ buildFileManifest <- function(imagedir, exif = TRUE, offset=0, recursive=TRUE, o
       warning = function(cond) {},
       finally = {}
     )
-    if (length(files) == 0) { stop("No files found in directory.") }
+    if (length(files) == 0) {
+      files <- list.files(imagedir, full.names = TRUE, recursive = recursive)
+      files <- as.data.frame(files)
+    }
     
     colnames(files)[1] <- "FilePath"
     files <- as.data.frame(files)
     
-    files$FileModifyDate <- as.POSIXct(files$FileModifyDate, format="%Y:%m:%d %H:%M:%S")
-    files$CreateDate <- as.POSIXct(files$CreateDate, format="%Y:%m:%d %H:%M:%S")
-    
-    
+    files$FileModifyDate <- as.POSIXct(files$FileModifyDate, format="%Y:%m:%d %H:%M:%S") + (offset*3600)
+    # establish datetime
+    if ("CreateDate" %in% names(files)){
+      files$CreateDate <- as.POSIXct(files$CreateDate, format="%Y:%m:%d %H:%M:%S")
+    }
     if ("DateTimeOriginal" %in% names(files)){
       files$DateTimeOriginal <- as.POSIXct(files$DateTimeOriginal, format="%Y:%m:%d %H:%M:%S")
-      files <- files %>% dplyr::mutate("DateTime" = dplyr::coalesce(files$DateTimeOriginal, files$CreateDate, files$FileModifyDate + (offset*3600)))
     }
-    else{
-      files$DateTime = files$FileModifyDate + (offset*3600)
+    if ("DateTimeOriginal" %in% names(files) && "CreateDate" %in% names(files)){
+      files %>% dplyr::mutate("DateTime" = dplyr::coalesce(files$DateTimeOriginal, files$CreateDate, files$FileModifyDate))
+    }
+    else {
+      files$DateTime = files$FileModifyDate
     }
   }
   # return simple file list 
