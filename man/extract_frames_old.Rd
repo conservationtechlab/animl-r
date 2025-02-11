@@ -27,6 +27,8 @@ extract_frames_old(
 
 \item{frames}{number of frames to sample}
 
+\item{file_col}{string value indexing which column contains file paths}
+
 \item{parallel}{Toggle for parallel processing, defaults to FALSE}
 
 \item{workers}{number of processors to use if parallel, defaults to 1}

@@ -56,8 +56,8 @@ detect_MD_batch <- function(detector, image_file_names, checkpoint_path=NULL, ch
 #' @param manifest dataframe containing all frames
 #' @param out_file path to save dataframe
 #' @param buffer percentage buffer to move bbox away from image edge
-#' @param threshold 
-#' @param file_col 
+#' @param threshold confidence threshold to include bbox
+#' @param file_col column in manifest that refers to file paths 
 #' 
 #' @return original dataframe including md results
 #' @export

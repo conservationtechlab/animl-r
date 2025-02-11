@@ -7,6 +7,7 @@
 #' @param out_file file to which results will be saved
 #' @param fps frames per second, otherwise determine mathematically
 #' @param frames number of frames to sample
+#' @param file_col string value indexing which column contains file paths
 #' @param parallel Toggle for parallel processing, defaults to FALSE
 #' @param workers number of processors to use if parallel, defaults to 1
 #' @param checkpoint if not parallel, checkpoint ever n files, defaults to 1000
@@ -45,6 +46,7 @@ extract_frames <- function(files, out_dir = tempfile(), out_file = NULL,
 #' @param out_file file to which results will be saved
 #' @param fps frames per second, otherwise determine mathematically
 #' @param frames number of frames to sample
+#' @param file_col string value indexing which column contains file paths
 #' @param parallel Toggle for parallel processing, defaults to FALSE
 #' @param workers number of processors to use if parallel, defaults to 1
 #' @param checkpoint if not parallel, checkpoint ever n files, defaults to 1000

@@ -7,9 +7,11 @@
 update_labels(manifest, link_dir, unique_name = "UniqueName")
 }
 \arguments{
-\item{resultsfile}{final results file with predictions, expects a "UniqueName" column}
+\item{manifest}{dataframe containing file data and predictions}
 
-\item{linkdir}{symlink directory that has been validated}
+\item{link_dir}{directory to sort files into}
+
+\item{unique_name}{column name indicating a unique file name for each row}
 }
 \value{
 dataframe with new "Species" column that contains the verified species

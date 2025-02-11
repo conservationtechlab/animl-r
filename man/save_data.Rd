@@ -9,9 +9,9 @@ save_data(data, out_file, prompt = TRUE)
 \arguments{
 \item{data}{the dataframe to be saved}
 
-\item{prompt}{if true, prompts the user to confirm overwrite}
+\item{out_file}{the full path of the saved file}
 
-\item{outfile}{the full path of the saved file}
+\item{prompt}{if true, prompts the user to confirm overwrite}
 }
 \value{
 none

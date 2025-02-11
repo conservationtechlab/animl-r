@@ -12,7 +12,7 @@
 #' mdres <- classifyImageMD(mdsession, images$FilePath[30000])
 #' plotBoxes(mdres, minconf = 0.5)
 #' }
-plotBoxes <- function(image, label = FALSE, minconf = 0) {
+plot_boxes <- function(image, label = FALSE, minconf = 0) {
   # animal, human, unused, vehicle
   col <- c("green", "red", "blue", "orange")
   
@@ -73,8 +73,8 @@ plotBoxes <- function(image, label = FALSE, minconf = 0) {
 #' \dontrun{
 #' cropImagesFromFile("/image/path/file.csv", "/output/path/")
 #' }
-cropImages <- function(imagelist, outdir) {
-  uncropped_data <- loadData(imagelist)
+crop_images <- function(imagelist, outdir) {
+  uncropped_data <- load_data(imagelist)
   
   # for-loop over rows
   for(i in 1:nrow(uncropped_data)) { 

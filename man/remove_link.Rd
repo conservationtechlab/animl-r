@@ -9,7 +9,7 @@ remove_link(manifest, link_col = "Link")
 \arguments{
 \item{manifest}{DataFrame of classified images}
 
-\item{link_col}{}
+\item{link_col}{column in manifest that contains link paths}
 }
 \value{
 manifest without link column

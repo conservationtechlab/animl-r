@@ -22,9 +22,9 @@ parse_MD(
 
 \item{buffer}{percentage buffer to move bbox away from image edge}
 
-\item{threshold}{}
+\item{threshold}{confidence threshold to include bbox}
 
-\item{file_col}{}
+\item{file_col}{column in manifest that refers to file paths}
 }
 \value{
 original dataframe including md results

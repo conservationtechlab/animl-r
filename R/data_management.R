@@ -1,7 +1,7 @@
 #' Save Data to Given File
 #'
 #' @param data the dataframe to be saved
-#' @param outfile the full path of the saved file
+#' @param out_file the full path of the saved file
 #' @param prompt if true, prompts the user to confirm overwrite
 #'
 #' @return none

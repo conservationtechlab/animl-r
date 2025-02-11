@@ -6,11 +6,11 @@
 
 
 #' Find Image/Video Files and Gather exif Data
-#'
+#
+#' @param image_dir folder to search through and find media files
 #' @param exif returns date and time information from exif data, defaults to true
 #' @param offset add offset in hours for videos when using the File Modified date, defaults to 0
-#' @param image_dir 
-#' @param out_file 
+#' @param out_file directory to save .csv of manifest to
 #' @param recursive Should directories be scanned recursively? Default TRUE
 #'
 #' @return files dataframe with or without file dates
@@ -21,7 +21,7 @@
 #' \dontrun{
 #' files <- build_file_manifest("C:\\Users\\usr\\Pictures\\")
 #' }
-build_file_manifest <- function(image_dir, exif=True, out_file=NULL, 
+build_file_manifest <- function(image_dir, exif=TRUE, out_file=NULL, 
                                 offset=0, recursive=TRUE) {
   
   if (check_file(out_file)) { return(load_data(out_file)) }
@@ -41,7 +41,7 @@ build_file_manifest <- function(image_dir, exif=True, out_file=NULL,
       finally = {}
     )
     if (length(files) == 0) {
-      files <- list.files(image_dir, full.names = TRUE, recursive = recursive)
+      files <- list.files(image_dir, full.names=TRUE, recursive = recursive)
       files <- as.data.frame(files)
     }
     

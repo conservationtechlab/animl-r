@@ -79,8 +79,8 @@ sort_MD <- function(manifest, link_dir, file_col="FilePath", unique_name='Unique
 
 #' Remove Sorted Links
 #'
-#' @param link_col 
 #' @param manifest DataFrame of classified images 
+#' @param link_col column in manifest that contains link paths
 #'
 #' @return manifest without link column
 #' @export
@@ -98,8 +98,9 @@ remove_link <- function(manifest, link_col='Link'){
 
 #' Udate Results from File Browser
 #'
-#' @param resultsfile final results file with predictions, expects a "UniqueName" column
-#' @param linkdir symlink directory that has been validated
+#' @param manifest dataframe containing file data and predictions
+#' @param link_dir directory to sort files into
+#' @param unique_name column name indicating a unique file name for each row
 #'
 #' @return dataframe with new "Species" column that contains the verified species
 #' @export
@@ -118,6 +119,6 @@ update_labels <- function(manifest, link_dir, unique_name='UniqueName'){
   files[unique_name] <- sapply(files$FilePath,function(x)strsplit(x,"/")[[1]][2])
   files$label <- sapply(files$FilePath,function(x)strsplit(x,"/")[[1]][1])
   
-  corrected <- merge(results, files, by=unique_name)
+  corrected <- merge(manifest, files, by=unique_name)
   return(corrected)
 }
