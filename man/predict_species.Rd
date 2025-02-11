@@ -8,7 +8,7 @@ predict_species(
   detections,
   model,
   classes,
-  device = "cpu",
+  device = NULL,
   out_file = NULL,
   raw = FALSE,
   file_col = "Frame",
