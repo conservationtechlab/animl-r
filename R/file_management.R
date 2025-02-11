@@ -16,6 +16,7 @@
 #' @return files dataframe with or without file dates
 #' @export
 #' @importFrom magrittr %>%
+#' @importFrom rlang .data
 #'
 #' @examples
 #' \dontrun{
@@ -75,7 +76,7 @@ build_file_manifest <- function(image_dir, exif=TRUE, out_file=NULL,
   VALID_EXTENSIONS = c('png', 'jpg', 'jpeg', "tiff",
                        "mp4", "avi", "mov", "wmv",
                        "mpg", "mpeg", "asf", "m4v")
-  files <- dplyr::filter(files, Extension %in% VALID_EXTENSIONS)
+  files <- files %>% dplyr::filter(.data[["Extension"]] %in% VALID_EXTENSIONS)
   
   #save output
   if (!is.null(out_file)) { save_data(files, out_file) }

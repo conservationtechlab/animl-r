@@ -20,6 +20,7 @@ Imports:
     av,
     magrittr,
     stats,
+    rlang,
 Depends: 
     R (>= 4.0.0)
 

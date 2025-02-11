@@ -146,9 +146,9 @@ sequence_classification<-function(animals, empty=NULL, predictions, classes, sta
                        tapply(predclass==emptycol,animals[rows,recordfield],length)
         #classify files with species
         #records with animals and no empties
-        sel2<-which(animals[rows,recordfield] %in% names(sel[!sel]) & !(predclass %in% emptycol))
+        sel2<-which(animals[rows,recordfield] %in% names(sel_all_empty[!sel_all_empty]) & !(predclass %in% emptycol))
         #records in files with animals
-        sel3<-which(animals[rows,recordfield] %in% names(sel[!sel]))
+        sel3<-which(animals[rows,recordfield] %in% names(sel_all_empty[!sel_all_empty]))
 
         if(length(sel2)>0 & length(sel3)>0){
           predsort2<-matrix(predsort[rows[sel2],]*animals$conf[rows[sel2]],ncol=ncol(predsort))
