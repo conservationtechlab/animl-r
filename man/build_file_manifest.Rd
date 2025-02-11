@@ -6,18 +6,18 @@
 \usage{
 build_file_manifest(
   image_dir,
-  exif = True,
+  exif = TRUE,
   out_file = NULL,
   offset = 0,
   recursive = TRUE
 )
 }
 \arguments{
-\item{image_dir}{}
+\item{image_dir}{folder to search through and find media files}
 
 \item{exif}{returns date and time information from exif data, defaults to true}
 
-\item{out_file}{}
+\item{out_file}{directory to save .csv of manifest to}
 
 \item{offset}{add offset in hours for videos when using the File Modified date, defaults to 0}
 

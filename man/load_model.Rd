@@ -13,7 +13,7 @@ load_model(model_path, class_file, device = NULL, architecture = "CTL")
 
 \item{device}{send model to the specified device}
 
-\item{architecture}{}
+\item{architecture}{model architecture}
 }
 \value{
 list of c(classifier, class_list)

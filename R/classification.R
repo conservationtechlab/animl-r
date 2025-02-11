@@ -3,7 +3,7 @@
 #' @param model_path path to model
 #' @param class_file path to class list
 #' @param device send model to the specified device
-#' @param architecture 
+#' @param architecture model architecture
 #'
 #' @return list of c(classifier, class_list)
 #' @export
