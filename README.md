@@ -34,8 +34,6 @@ allframes <- extract_frames(files, out_dir = vidfdir, out_file=imageframes,
 
 This produces a dataframe of images, including frames taken from any videos to be fed into the classifier. The authors recommend a two-step approach using Microsoft's 'MegaDector' object detector to first identify potential animals and then using a second classification model trained on the species of interest. 
 
-A version of MegaDetector compatible with tensorflow can obtained from [our server](https://sandiegozoo.box.com/s/jodg7xxxworgd85jgk4hn28z3dqlohsd).
-
 More info on [MegaDetector](https://github.com/agentmorris/MegaDetector/tree/main).
 ```R
 #Load the Megadetector model
@@ -85,14 +83,7 @@ manifest <- sequenceClassification(animals, empty=empty, pred, classes, "Station
 
 # Models
 
-The Conservation Technology Lab has several models available for use. 
-
-* Southwest United States [v3](https://sandiegozoo.box.com/s/0mait8k3san3jvet8251mpz8svqyjnc3)
-* [Amazon](https://sandiegozoo.box.com/s/dfc3ozdslku1ekahvz635kjloaaeopfl)
-* [Savannah](https://sandiegozoo.box.com/s/ai6yu45jgvc0to41xzd26moqh8amb4vw)
-* [Andes](https://sandiegozoo.box.com/s/kvg89qh5xcg1m9hqbbvftw1zd05uwm07)
-* [MegaDetector](https://github.com/agentmorris/MegaDetector/releases/download/v5.0/md_v5a.0.0.pt)
-
+The Conservation Technology Lab has several [models](https://sandiegozoo.app.box.com/s/9f3xuqldvg9ysaix9c9ug8tdcrmc2eqx) available for use. 
 
 ## Installation
 
@@ -109,7 +100,7 @@ Animl also depends on [exiftool](https://exiftool.org/index.html) for accessing 
 animl depends on python and will install python package dependencies if they are not available if installed via CRAN. <br> 
 However, we recommend setting up a conda environment using the provided config file. 
 
-[Instructions to install conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html)
+[Instructions to install conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html)
 
 The R version of animl depends on the python version to handle the machine learning:
 [animl-py](https://github.com/conservationtechlab/animl-py)
