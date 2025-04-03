@@ -5,7 +5,6 @@
 #' @param prompt if true, prompts the user to confirm overwrite
 #'
 #' @return none
-#' @export
 #'
 #' @examples
 #' \dontrun{
@@ -47,7 +46,6 @@ load_data <- function(file) {
 #' @return a boolean indicating wether a file was found 
 #'             and the user wants to load or not
 #' @importFrom methods is
-#' @export
 #'
 #' @examples
 #' \dontrun{

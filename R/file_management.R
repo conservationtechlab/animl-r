@@ -116,7 +116,7 @@ WorkingDirectory <- function(workingdir, pkg.env) {
   # Assign specific file paths
   pkg.env$filemanifest <- paste0(pkg.env$datadir, "FileManifest.csv")
   pkg.env$imageframes <- paste0(pkg.env$datadir, "ImageFrames.csv")
-  pkg.env$reults <- paste0(pkg.env$datadir, "Results.csv")
+  pkg.env$results <- paste0(pkg.env$datadir, "Results.csv")
   pkg.env$predictions <- paste0(pkg.env$datadir, "Predictions.csv")
   pkg.env$detections <- paste0(pkg.env$datadir, "Detections.csv")
   pkg.env$mdraw <- paste0(pkg.env$datadir, "MD_Raw.json")

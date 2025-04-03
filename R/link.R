@@ -15,24 +15,10 @@
 #' }
 sort_species <- function(manifest, link_dir, file_col="FilePath", unique_name='UniqueName', copy=FALSE) {
   
-  # create species directories
-  for (s in unique(manifest$prediction)) {
-    dir.create(paste0(link_dir, s), recursive = TRUE,  showWarnings = FALSE)
-  }
+  if(reticulate::py_module_available("animl")){ animl_py <- reticulate::import("animl")}
+  else{ stop('animl-py environment must be loaded first via reticulate')}
   
-  if (!unique_name %in% names(manifest)) {
-    manifest[unique_name] <- sapply( manifest[[file_col]], function(x) paste0(strsplit(basename(x), ".", fixed = T)[[1]][1],
-                                                           "_", sprintf("%05d", round(stats::runif(1, 1, 99999), 0)),
-                                                           ".", tools::file_ext(x)))
-    }
-    
-  manifest$Link <- paste0(link_dir, manifest$prediction, "/", manifest[[unique_name]])
-  
-  # hard copy or link
-  if (copy) { mapply(file.copy, manifest[[file_col]], manifest$Link, MoreArgs = list(copy.date=TRUE))}
-  else { mapply(file.link, manifest[[file_col]], manifest$Link) }
-  
-  manifest
+  manifest <- animl_py$sort_species(manifest, link_dir, file_col=file_col, unique_name=unique_name, copy=copy)
 }
 
 
@@ -52,28 +38,11 @@ sort_species <- function(manifest, link_dir, file_col="FilePath", unique_name='U
 #' sort_MD(manifest, link_dir)
 #' }
 sort_MD <- function(manifest, link_dir, file_col="FilePath", unique_name='UniqueName', copy=FALSE){
-
-  # create directories
-  MDclasses <- c("empty", "animal", "human", "vehicle")
-  for (s in MDclasses) {
-    dir.create(paste0(link_dir, s), recursive = TRUE,  showWarnings = FALSE)
-  }
   
-  manifest$MD_prediction <- sapply(manifest$category, function(x) MDclasses[as.integer(x)+1])
+  if(reticulate::py_module_available("animl")){ animl_py <- reticulate::import("animl")}
+  else{ stop('animl-py environment must be loaded first via reticulate')}
   
-  if (!unique_name %in% names(manifest)) {
-    manifest[unique_name] <- sapply( manifest[[file_col]], function(x) paste0(strsplit(basename(x), ".", fixed = T)[[1]][1],
-                                                                              "_", sprintf("%05d", round(stats::runif(1, 1, 99999), 0)),
-                                                                              ".", tools::file_ext(x)))
-  }
-  
-  manifest$Link <- paste0(link_dir, manifest$MD_prediction, "/", manifest[[unique_name]])
-  
-  # hard copy or link
-  if (copy) { mapply(file.copy, manifest[[file_col]], manifest$Link, MoreArgs = list(copy.date=TRUE))}
-  else { mapply(file.link, manifest[[file_col]], manifest$Link) }
-  
-  manifest
+  manifest <- animl_py$sort_MD(manifest, link_dir, file_col=file_col, unique_name=unique_name, copy=copy)
 }
 
 

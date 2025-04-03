@@ -14,10 +14,10 @@
 #' @param empty optional, data frame non-animal images (empty, human and vehicle) that will be merged back with animal imagages
 #' @param predictions data frame of prediction probabilities from the classifySpecies function
 #' @param classes a vector or species corresponding to the columns of 'predictions'
-#' @param emptyclass a string indicating the class that should be considered 'Empty'
-#' @param stationcolumn a column in the animals and empty data frame that indicates the camera or camera station
-#' @param sortcolumns optional sort order. The default is 'stationcolumnumn' and DateTime.
-#' @param recordfield a field indicating a single record. The default is FilePath for single images/videos.
+#' @param empty_class a string indicating the class that should be considered 'Empty'
+#' @param station_col a column in the animals and empty data frame that indicates the camera or camera station
+#' @param sort_columns optional sort order. The default is 'station_column' and DateTime.
+#' @param file_col a field indicating a single record. The default is FilePath for single images/videos.
 #' @param maxdiff maximum difference between images in seconds to be included in a sequence, defaults to 60
 #'
 #' @return data frame with predictions and confidence values for animals and empty images
@@ -29,25 +29,29 @@
 #' animals <- allframes[allframes$max_detection_category==1,]
 #' empty <- setEmpty(allframes)
 #' animals <- sequenceClassification(animals, empty, predictions, classes,
-#'                                   emptyclass = "Empty",
-#'                                   stationcolumnumn="StationID", maxdiff=60)
+#'                                   empty_class = "Empty",
+#'                                   station_column="StationID", maxdiff=60)
 #' }
-sequence_classification<-function(animals, empty=NULL, predictions, classes, stationcolumn,
-                                  emptyclass="", sortcolumns=NULL,recordfield="FilePath", maxdiff=60){
+sequence_classification<-function(animals, empty, predictions_raw, classes, 
+                                  station_col="Station",
+                                  empty_class="empty", 
+                                  sort_columns=NULL, 
+                                  file_col="FilePath", 
+                                  maxdiff=60){
   # typechecking
   if (!is(animals, "data.frame")) { stop("'animals' must be a Data Frame.") }  
-  if (!is(predictions, "matrix")) { stop("'predictions' must be a matrix") }
-  if(nrow(animals)!=nrow(predictions)){ stop("'animals' and 'predictions' must have the same number of rows")}
-  if(!is.null(sortcolumns) && sum(sortcolumns %in% colnames(animals))!=length(sortcolumns)){
+  if (!is(predictions_raw, "matrix")) { stop("'predictions_raw' must be a matrix") }
+  if(nrow(animals)!=nrow(predictions_raw)){ stop("'animals' and 'predictions_raw' must have the same number of rows")}
+  if(!is.null(sort_columns) && sum(sort_columns %in% colnames(animals))!=length(sort_columns)){
     stop("not all sort columns are present in the 'animals' data.frame")
   }
-  if(!is.null(empty) && (!setequal(colnames(animals)[!colnames(animals) %in%c("prediction","confidence")],colnames(empty)[!colnames(empty) %in% c("prediction","confidence")]))){
+  if(!is.null(empty) && (!setequal(colnames(animals)[!colnames(animals) %in%c("predictions_raw","confidence")],colnames(empty)[!colnames(empty) %in% c("prediction","confidence")]))){
     stop("column names for animals and empty must be the same")
   }
-  if (length(emptyclass) > 1) { stop("'emptyclass' must be a vector of length 1") }
+  if (length(empty_class) > 1) { stop("'empty_class' must be a vector of length 1") }
   if(!is.numeric(maxdiff) | maxdiff<0){ stop("'maxdiff' must be a number >=0") }
-  if(length(classes)!=ncol(predictions)){ stop("'classes' must have the same length as the number or columns in 'predictions'") }
-  if(is.null(stationcolumn) | length(stationcolumn)>1){ stop("please provide a single character values for 'stationcolumn'") }
+  if(length(classes)!=ncol(predictions_raw)){ stop("'classes' must have the same length as the number or columns in 'predictions_raw'") }
+  if(is.null(station_col) | length(station_col)>1){ stop("please provide a single character values for 'station_col'") }
   
   #if column conf does not exist add it as 1s
   if(!("conf" %in% colnames(animals))){
@@ -55,8 +59,8 @@ sequence_classification<-function(animals, empty=NULL, predictions, classes, sta
   }
   
   #define which class is empty  
-  if(emptyclass>""){
-    emptycol<-which(classes == emptyclass)
+  if(empty_class>""){
+    empty_col<-which(classes == empty_class)
   }
   
   if(!is.null(empty)){
@@ -65,38 +69,38 @@ sequence_classification<-function(animals, empty=NULL, predictions, classes, sta
     #create extended prediction matrix for empty, vehicles and human
     predempty <- stats::reshape(empty[,c("ID","prediction","confidence")],direction="wide",idvar="ID",timevar="prediction")
     predempty[is.na(predempty)] <- 0
-    predempty <- cbind(matrix(0, nrow=nrow(empty), ncol=dim(predictions)[2]), predempty[,-1, drop=FALSE])
+    predempty <- cbind(matrix(0, nrow=nrow(empty), ncol=dim(predictions_raw)[2]), predempty[,-1, drop=FALSE])
     
-    if(emptyclass > ""){
-      predempty[,emptycol] <- predempty$confidence.empty
+    if(empty_class > ""){
+      predempty[,empty_col] <- predempty$confidence.empty
       
       predempty<-predempty[,-which(names(predempty)=="confidence.empty")]
       classes<-c(classes,unique(empty$prediction)[which(unique(empty$prediction)!="empty")])
     }
-    
     else{
       classes<-c(classes,unique(empty$prediction))
-      emptycol<-which(names(predempty)=="confidence.empty")
+      empty_col<-which(names(predempty)=="confidence.empty")
     }
     
-    animals$prediction <- classes[apply(predictions, 1, which.max)]
-    animals$confidence <- apply(predictions, 1, max) * animals$conf
+    
+    animals$prediction <- classes[apply(predictions_raw, 1, which.max)]
+    animals$confidence <- apply(predictions_raw, 1, max) * animals$conf
     empty$conf<-1
-    animals<-rbind(animals,empty[,-ncol(empty)])
-    predictions<-rbind(cbind(predictions,matrix(0,nrow(predictions),ncol(predempty)-ncol(predictions))),as.matrix(predempty))
+    animals<-rbind(animals,empty[,-ncol(empty)]) # dont add ID column
+    predictions_raw<-rbind(cbind(predictions_raw,matrix(0,nrow(predictions_raw),ncol(predempty)-ncol(predictions_raw))),as.matrix(predempty))
   }
   
   #sort animals and predictions
-  if(is.null(sortcolumns)){
-    sortcolumns<-c(stationcolumn,"DateTime")
+  if(is.null(sort_columns)){
+    sort_columns<-c(station_col,"DateTime")
   }
-  sort<-do.call(order,animals[,sortcolumns])
+  sort<-do.call(order,animals[,sort_columns])
   
   animals<-animals[sort,,drop=FALSE]
-  predsort<-predictions[sort,,drop=FALSE]
+  predsort<-predictions_raw[sort,,drop=FALSE]
   
   
-  i=1
+  i=480
   c=nrow(animals)/100
   
   #loop over all animals rows
@@ -104,8 +108,8 @@ sequence_classification<-function(animals, empty=NULL, predictions, classes, sta
   opb <- pbapply::pboptions(char = "=")
   pb <- pbapply::startpb(1, nrow(animals))
   
-  conf=numeric(nrow(animals))
-  predict=character(nrow(animals))
+  conf_placeholder = numeric(nrow(animals))
+  predict_placeholder = character(nrow(animals))
   
   while(i<=nrow(animals)){
     if(i > c){
@@ -114,71 +118,73 @@ sequence_classification<-function(animals, empty=NULL, predictions, classes, sta
     }
     
     #rows pertaining to a sequence
-    rows<-i
+    rows <- i
     
     #last row in current sequence
-    j=i+1
+    last_index = i+1
     
     # while within same sequence
-    while(!is.na(animals$DateTime[j]) & !is.na(animals$DateTime[i]) & 
-          j<nrow(animals) & animals[j,stationcolumn]==animals[i,stationcolumn] & 
-          difftime(animals$DateTime[j], animals$DateTime[i],units="secs") <= maxdiff){
-      rows<-c(rows,j)
-      j=j+1
+    while(!is.na(animals$DateTime[last_index]) & !is.na(animals$DateTime[i]) & 
+          last_index<nrow(animals) & animals[last_index,station_col]==animals[i,station_col] & 
+          difftime(animals$DateTime[last_index], animals$DateTime[i],units="secs") <= maxdiff){
+      rows<-c(rows,last_index)
+      last_index=last_index+1
     }
     
     #check if there are multiple boxes in a sequence
     if(length(rows)>1){ #multiple boxes in the sequence
       predclass<-apply(predsort[rows,],1,which.max)
       #check if there are empty predictions
-      if(length(emptycol)==0 | !(emptycol %in% predclass) | length(which(predclass %in% emptycol))==length(rows)){
+      if(length(empty_col)==0 | !(empty_col %in% predclass) | length(which(predclass %in% empty_col))==length(rows)){
         #no empties
-        predsort2<-predsort[rows,]*animals$conf[rows]
-        predbest<-apply(predsort2,2,mean)
-        conf[rows]<-max(predsort2[,which.max(predbest)])
-        predict[rows]<-classes[which.max(predbest)]
+        predsort_confidence <- predsort[rows,]*animals$conf[rows]
+        predbest <- apply(predsort_confidence, 2, mean)
+        conf_placeholder[rows]<-max(predsort_confidence[,which.max(predbest)])
+        predict_placeholder[rows]<-classes[which.max(predbest)]
       }
       
       #process sequences with some empty
       else{ 
         #select images for which all boxes or frames are empty
-        sel_all_empty<-tapply(predclass==emptycol,animals[rows,recordfield],sum) ==
-                       tapply(predclass==emptycol,animals[rows,recordfield],length)
+        sel_all_empty<-tapply(predclass==empty_col,animals[rows,file_col],sum) ==
+                       tapply(predclass==empty_col,animals[rows,file_col],length)
         #classify files with species
         #records with animals and no empties
-        sel2<-which(animals[rows,recordfield] %in% names(sel_all_empty[!sel_all_empty]) & !(predclass %in% emptycol))
+        sel_no_empties<-which(animals[rows,file_col] %in% names(sel_all_empty[!sel_all_empty]) & !(predclass %in% empty_col))
         #records in files with animals
-        sel3<-which(animals[rows,recordfield] %in% names(sel_all_empty[!sel_all_empty]))
+        sel_mixed<-which(animals[rows,file_col] %in% names(sel_all_empty[!sel_all_empty]))
 
-        if(length(sel2)>0 & length(sel3)>0){
-          predsort2<-matrix(predsort[rows[sel2],]*animals$conf[rows[sel2]],ncol=ncol(predsort))
-          predbest<-apply(predsort2,2,mean)
-          conf[rows[sel3]]<-max(predsort2[,which.max(predbest)])
-          predict[rows[sel3]]<-classes[which.max(predbest)]
+        if(length(sel_no_empties)>0 & length(sel_mixed)>0){
+          predsort_confidence<-matrix(predsort[rows[sel_no_empties],]*animals$conf[rows[sel_no_empties]],ncol=ncol(predsort))
+          predbest<-apply(predsort_confidence,2,mean)
+          conf_placeholder[rows[sel_mixed]]<-max(predsort_confidence[,which.max(predbest)])
+          predict_placeholder[rows[sel_mixed]]<-classes[which.max(predbest)]
         }
         #classify empty images
         for(s in names(sel_all_empty[sel_all_empty])){
-          sel2<-which(animals[rows,recordfield] %in% s)
-          predbest<-apply(matrix(predsort[rows[sel2],]*animals$conf[rows[sel2]],ncol=ncol(predsort)),2,mean) 
-          conf[rows[sel2]]<-max(predbest) 
-          predict[rows[sel2]]<-classes[which.max(predbest)]
+          row_index<-which(animals[rows,file_col] %in% s)
+          predsort_confidence <- matrix(predsort[rows[row_index],]*animals$conf[rows[row_index]],ncol=ncol(predsort))
+          predbest<-apply(predsort_confidence,2,mean) 
+          conf_placeholder[rows[row_index]]<-max(predbest) 
+          predict_placeholder[rows[row_index]]<-classes[which.max(predbest)]
         }
       }
     }
     #only one box in the sequence
     else{ 
       predbest<-predsort[rows,,drop=FALSE]
-      conf[rows]<-max(predbest*animals$conf[rows])
-      predict[rows]<-classes[which.max(predbest)]
+      conf_placeholder[rows]<-max(predbest*animals$conf[rows])
+      predict_placeholder[rows]<-classes[which.max(predbest)]
     }
     # move to next sequence
-    i=j
+    i=last_index
   }
-  animals$confidence<-conf
-  animals$prediction=predict
+  
+  animals$confidence <- conf_placeholder
+  animals$prediction <- predict_placeholder
   
   pbapply::setpb(pb, nrow(animals))
   pbapply::closepb(pb)
   
-  animals[do.call(order,animals[,sortcolumns]),]
+  animals[do.call(order,animals[,sort_columns]),]
 }

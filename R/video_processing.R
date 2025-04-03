@@ -31,8 +31,8 @@ extract_frames <- function(files, out_dir = tempfile(), out_file = NULL,
   if (!is.null(frames)){ frames <- as.integer(frames) }
 
   animl_py$extract_frames(files, out_dir, out_file=out_file, fps=fps, frames=frames, 
-                           file_col=file_col, parallel=parallel, workers=workers, checkpoint=checkpoint)
-  
+                          file_col=file_col, parallel=parallel, workers=as.integers(workers), 
+                          checkpoint=as.integer(checkpoint))
 }
 
 
@@ -52,7 +52,6 @@ extract_frames <- function(files, out_dir = tempfile(), out_file = NULL,
 #' @param checkpoint if not parallel, checkpoint ever n files, defaults to 1000
 #'
 #' @return dataframe of still frames for each video
-#' @export
 #'
 #' @examples
 #' \dontrun{
@@ -133,8 +132,7 @@ extract_frames_old <- function(files, out_dir = tempfile(), out_file = NULL,
 #' @param frames number of frames evenly distributed to save
 #'
 #' @return dataframe of filepaths, frame paths
-#' @export
-#'
+#' 
 #' @examples
 #' \dontrun{
 #' result <- extractFramesSingle(video$FilePath, out_dir, frames=3)

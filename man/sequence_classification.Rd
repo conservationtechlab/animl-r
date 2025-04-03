@@ -6,13 +6,13 @@
 \usage{
 sequence_classification(
   animals,
-  empty = NULL,
-  predictions,
+  empty,
+  predictions_raw,
   classes,
-  stationcolumn,
-  emptyclass = "",
-  sortcolumns = NULL,
-  recordfield = "FilePath",
+  station_col = "Station",
+  empty_class = "empty",
+  sort_columns = NULL,
+  file_col = "FilePath",
   maxdiff = 60
 )
 }
@@ -21,19 +21,19 @@ sequence_classification(
 
 \item{empty}{optional, data frame non-animal images (empty, human and vehicle) that will be merged back with animal imagages}
 
-\item{predictions}{data frame of prediction probabilities from the classifySpecies function}
-
 \item{classes}{a vector or species corresponding to the columns of 'predictions'}
 
-\item{stationcolumn}{a column in the animals and empty data frame that indicates the camera or camera station}
+\item{station_col}{a column in the animals and empty data frame that indicates the camera or camera station}
 
-\item{emptyclass}{a string indicating the class that should be considered 'Empty'}
+\item{empty_class}{a string indicating the class that should be considered 'Empty'}
 
-\item{sortcolumns}{optional sort order. The default is 'stationcolumnumn' and DateTime.}
+\item{sort_columns}{optional sort order. The default is 'station_column' and DateTime.}
 
-\item{recordfield}{a field indicating a single record. The default is FilePath for single images/videos.}
+\item{file_col}{a field indicating a single record. The default is FilePath for single images/videos.}
 
 \item{maxdiff}{maximum difference between images in seconds to be included in a sequence, defaults to 60}
+
+\item{predictions}{data frame of prediction probabilities from the classifySpecies function}
 }
 \value{
 data frame with predictions and confidence values for animals and empty images
@@ -56,7 +56,7 @@ predictions <-classifyCropsSpecies(images,modelfile,resize=456)
 animals <- allframes[allframes$max_detection_category==1,]
 empty <- setEmpty(allframes)
 animals <- sequenceClassification(animals, empty, predictions, classes,
-                                  emptyclass = "Empty",
-                                  stationcolumnumn="StationID", maxdiff=60)
+                                  empty_class = "Empty",
+                                  station_column="StationID", maxdiff=60)
 }
 }

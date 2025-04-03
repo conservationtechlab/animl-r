@@ -9,9 +9,9 @@
 #-------------------------------------------------------------------------------
 library(animl)
 library(reticulate)
-use_condaenv("test")
+use_condaenv("animl-gpu")
 
-imagedir <- "/home/kyra/animl-r/examples/Southwest"
+imagedir <- "/home/kyra/animl-py/examples/Southwest/"
 
 #create global variable file and directory namesfrom animl import file_management
 WorkingDirectory(imagedir, globalenv())
@@ -43,6 +43,8 @@ md_py <- megadetector("/home/kyra/animl-py/models/md_v5a.0.0.pt")
 mdraw <- detect_MD_batch(md_py, allframes)
 mdresults <- parse_MD(mdraw, manifest = allframes, out_file = detections)
 
+#mdresults <- read.csv(detections)
+#mdresults$Station <- sapply(mdresults$FilePath, function(x) strsplit(x,"/")[[1]][5])
 #select animal crops for classification
 animals <- get_animals(mdresults)
 empty <- get_empty(mdresults)
@@ -53,14 +55,17 @@ empty <- get_empty(mdresults)
 
 southwest <- load_model('/home/kyra/animl-py/models/sdzwa_southwest_v3.pt',
                        '/home/kyra/animl-py/models/sdzwa_southwest_v3_classes.csv')
+class_list=southwest[[2]]$Code
 
-# NO SEQUENCES/VIDEOS
-animals <- predict_species(animals, southwest[[1]], southwest[[2]], raw=FALSE)
+# get likelihoods
+pred_raw <- predict_species(animals, southwest[[1]])
+
+# Single Classification
+animals <- single_classification(animals, pred_raw, class_list)
 manifest <- rbind(animals, empty)
 
 # Sequence Classification
-pred <- predict_species(animals, southwest[[1]], southwest[[2]], raw=TRUE)
-manifest <- sequence_classification(animals, empty=empty, pred, southwest[[2]]$Code, "Station", emptyclass="empty")
+manifest <- sequence_classification(animals, empty=empty, pred_raw, classes=class_list, "Station", emptyclass="empty")
 
 
 #===============================================================================

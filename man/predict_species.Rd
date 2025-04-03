@@ -7,10 +7,8 @@
 predict_species(
   detections,
   model,
-  classes,
   device = NULL,
   out_file = NULL,
-  raw = FALSE,
   file_col = "Frame",
   crop = TRUE,
   resize_width = 299,
@@ -25,13 +23,9 @@ predict_species(
 
 \item{model}{loaded classifier model}
 
-\item{classes}{data.frame of classes}
-
 \item{device}{send model to the specified device}
 
 \item{out_file}{path to csv to save results to}
-
-\item{raw}{output raw logits in addition to manifest}
 
 \item{file_col}{column in manifest containing file paths}
 
@@ -46,6 +40,10 @@ predict_species(
 \item{batch_size}{batch size for generator}
 
 \item{workers}{number of processes}
+
+\item{classes}{data.frame of classes}
+
+\item{raw}{output raw logits in addition to manifest}
 }
 \value{
 detection manifest with added prediction and confidence columns

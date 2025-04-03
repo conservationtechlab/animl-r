@@ -41,7 +41,7 @@ load_model <- function(model_path, class_file, device=NULL, architecture="CTL"){
 #'
 #' @examples
 #' \dontrun{animals <- predictSpecies(animals, classifier[[1]], classifier[[2]], raw=FALSE)}
-predict_species <- function(detections, model, classes, device=NULL, out_file=NULL, raw=FALSE,
+  predict_species <- function(detections, model, device=NULL, out_file=NULL,
                            file_col='Frame', crop=TRUE, resize_width=299, resize_height=299,
                            normalize=TRUE, batch_size=1, workers=1){
   
@@ -49,7 +49,26 @@ predict_species <- function(detections, model, classes, device=NULL, out_file=NU
   if(reticulate::py_module_available("animl")){ animl_py <- reticulate::import("animl")}
   else{ stop('animl-py environment must be loaded first via reticulate')}
   
-  animl_py$predict_species(detections, model, classes, device=device, out_file=out_file, raw=raw,
+  animl_py$predict_species(detections, model, device=device, out_file=out_file,
                            file_col=file_col, crop=crop, resize_width=resize_width, resize_height=resize_height, 
                            normalize=normalize, batch_size=as.integer(batch_size), workers=as.integer(workers))
+}
+
+
+#' Get Maximum likelihood label for each Detection
+#'
+#' @param detections manifest of animal detections 
+#' @param predictions_raw softmaxed likelihoods from predict_species
+#' @param class_list list of class labels
+#'
+#' @returns dataframe with prediction and confidence columns
+#' @export
+#'
+#' @examples
+#' \dontrun{animals <- single_classification(animals, pred_raw, class_list)}
+single_classification <- function(detections, predictions_raw, class_list){
+  if(reticulate::py_module_available("animl")){ animl_py <- reticulate::import("animl")}
+  else{ stop('animl-py environment must be loaded first via reticulate')}
+
+  animl_py$single_classification(detections, predictions_raw, class_list)
 }

@@ -17,7 +17,7 @@ plot_boxes <- function(image, label = FALSE, minconf = 0) {
   col <- c("green", "red", "blue", "orange")
   
   # process MD output
-  if (is.list(image)) {
+  if (is.list(image) & !is.data.frame(image)) {
     jpg <- jpeg::readJPEG(image$file)
     plot(grDevices::as.raster(jpg)) ## where is this from??
     jpgy <- dim(jpg)[1]
