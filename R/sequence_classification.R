@@ -34,7 +34,7 @@
 #' }
 sequence_classification<-function(animals, empty, predictions_raw, classes, 
                                   station_col="Station",
-                                  empty_class="empty", 
+                                  empty_class="", 
                                   sort_columns=NULL, 
                                   file_col="FilePath", 
                                   maxdiff=60){
@@ -96,25 +96,25 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
   }
   sort<-do.call(order,animals[,sort_columns])
   
-  animals<-animals[sort,,drop=FALSE]
-  predsort<-predictions_raw[sort,,drop=FALSE]
+  animals_sort <- animals[sort,,drop=FALSE]
+  predsort <- predictions_raw[sort,,drop=FALSE]
   
   
-  i=480
-  c=nrow(animals)/100
+  i=1
+  c=nrow(animals_sort)/100
   
   #loop over all animals rows
   cat("Classifying animal images..\n")
   opb <- pbapply::pboptions(char = "=")
-  pb <- pbapply::startpb(1, nrow(animals))
+  pb <- pbapply::startpb(1, nrow(animals_sort))
   
-  conf_placeholder = numeric(nrow(animals))
-  predict_placeholder = character(nrow(animals))
+  conf_placeholder = numeric(nrow(animals_sort))
+  predict_placeholder = character(nrow(animals_sort))
   
-  while(i<=nrow(animals)){
+  while(i<=nrow(animals_sort)){
     if(i > c){
       pbapply::setpb(pb, i) 
-      c=c+nrow(animals)/100
+      c=c+nrow(animals_sort)/100
     }
     
     #rows pertaining to a sequence
@@ -124,12 +124,13 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
     last_index = i+1
     
     # while within same sequence
-    while(!is.na(animals$DateTime[last_index]) & !is.na(animals$DateTime[i]) & 
-          last_index<nrow(animals) & animals[last_index,station_col]==animals[i,station_col] & 
-          difftime(animals$DateTime[last_index], animals$DateTime[i],units="secs") <= maxdiff){
+    while(!is.na(animals_sort$DateTime[last_index]) & !is.na(animals_sort$DateTime[i]) & 
+          last_index<nrow(animals_sort) & animals_sort[last_index,station_col]==animals_sort[i,station_col] & 
+          difftime(animals_sort$DateTime[last_index], animals_sort$DateTime[i],units="secs") <= maxdiff){
       rows<-c(rows,last_index)
       last_index=last_index+1
     }
+    
     
     #check if there are multiple boxes in a sequence
     if(length(rows)>1){ #multiple boxes in the sequence
@@ -137,7 +138,7 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
       #check if there are empty predictions
       if(length(empty_col)==0 | !(empty_col %in% predclass) | length(which(predclass %in% empty_col))==length(rows)){
         #no empties
-        predsort_confidence <- predsort[rows,]*animals$conf[rows]
+        predsort_confidence <- predsort[rows,]*animals_sort$conf[rows]
         predbest <- apply(predsort_confidence, 2, mean)
         conf_placeholder[rows]<-max(predsort_confidence[,which.max(predbest)])
         predict_placeholder[rows]<-classes[which.max(predbest)]
@@ -146,24 +147,25 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
       #process sequences with some empty
       else{ 
         #select images for which all boxes or frames are empty
-        sel_all_empty<-tapply(predclass==empty_col,animals[rows,file_col],sum) ==
-                       tapply(predclass==empty_col,animals[rows,file_col],length)
+        sel_all_empty<-tapply(predclass==empty_col,animals_sort[rows,file_col],sum) ==
+                       tapply(predclass==empty_col,animals_sort[rows,file_col],length)
         #classify files with species
         #records with animals and no empties
-        sel_no_empties<-which(animals[rows,file_col] %in% names(sel_all_empty[!sel_all_empty]) & !(predclass %in% empty_col))
+        sel_no_empties<-which(animals_sort[rows,file_col] %in% names(sel_all_empty[!sel_all_empty]) & !(predclass %in% empty_col))
         #records in files with animals
-        sel_mixed<-which(animals[rows,file_col] %in% names(sel_all_empty[!sel_all_empty]))
+        sel_mixed<-which(animals_sort[rows,file_col] %in% names(sel_all_empty[!sel_all_empty]))
 
+        
         if(length(sel_no_empties)>0 & length(sel_mixed)>0){
-          predsort_confidence<-matrix(predsort[rows[sel_no_empties],]*animals$conf[rows[sel_no_empties]],ncol=ncol(predsort))
+          predsort_confidence<-matrix(predsort[rows[sel_no_empties],]*animals_sort$conf[rows[sel_no_empties]],ncol=ncol(predsort))
           predbest<-apply(predsort_confidence,2,mean)
           conf_placeholder[rows[sel_mixed]]<-max(predsort_confidence[,which.max(predbest)])
           predict_placeholder[rows[sel_mixed]]<-classes[which.max(predbest)]
         }
         #classify empty images
         for(s in names(sel_all_empty[sel_all_empty])){
-          row_index<-which(animals[rows,file_col] %in% s)
-          predsort_confidence <- matrix(predsort[rows[row_index],]*animals$conf[rows[row_index]],ncol=ncol(predsort))
+          row_index<-which(animals_sort[rows,file_col] %in% s)
+          predsort_confidence <- matrix(predsort[rows[row_index],]*animals_sort$conf[rows[row_index]],ncol=ncol(predsort))
           predbest<-apply(predsort_confidence,2,mean) 
           conf_placeholder[rows[row_index]]<-max(predbest) 
           predict_placeholder[rows[row_index]]<-classes[which.max(predbest)]
@@ -173,18 +175,18 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
     #only one box in the sequence
     else{ 
       predbest<-predsort[rows,,drop=FALSE]
-      conf_placeholder[rows]<-max(predbest*animals$conf[rows])
+      conf_placeholder[rows]<-max(predbest*animals_sort$conf[rows])
       predict_placeholder[rows]<-classes[which.max(predbest)]
     }
     # move to next sequence
     i=last_index
   }
   
-  animals$confidence <- conf_placeholder
-  animals$prediction <- predict_placeholder
+  animals_sort$confidence <- conf_placeholder
+  animals_sort$prediction <- predict_placeholder
   
-  pbapply::setpb(pb, nrow(animals))
+  pbapply::setpb(pb, nrow(animals_sort))
   pbapply::closepb(pb)
   
-  animals[do.call(order,animals[,sort_columns]),]
+  animals_sort[do.call(order,animals_sort[,sort_columns]),]
 }
