@@ -4,16 +4,16 @@
 \alias{load_model}
 \title{Load a Classifier Model with animl-py}
 \usage{
-load_model(model_path, class_file, device = NULL, architecture = "CTL")
+load_model(model_path, classes, device = NULL, architecture = "CTL")
 }
 \arguments{
 \item{model_path}{path to model}
 
-\item{class_file}{path to class list}
-
 \item{device}{send model to the specified device}
 
 \item{architecture}{model architecture}
+
+\item{class_file}{path to class list}
 }
 \value{
 list of c(classifier, class_list)

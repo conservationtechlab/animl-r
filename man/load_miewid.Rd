@@ -2,15 +2,21 @@
 % Please edit documentation in R/reid.R
 \name{load_miewid}
 \alias{load_miewid}
-\title{Title}
+\title{Load MiewID model}
 \usage{
-load_miewid(file_path, deivce = NULL)
+load_miewid(file_path, device = NULL)
 }
 \arguments{
-\item{file_path}{}
+\item{file_path}{path to model weights}
 
-\item{deivce}{}
+\item{device}{toggle cpu or gpu}
+}
+\value{
+meiwid model
 }
 \description{
-Title
+Load MiewID model
+}
+\examples{
+\dontrun{miew = load_miewid("/home/kyra/matchypatchy/Models/miewid_v3.bin")}
 }

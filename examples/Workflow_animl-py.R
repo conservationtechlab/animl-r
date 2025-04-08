@@ -11,7 +11,7 @@ library(animl)
 library(reticulate)
 use_condaenv("animl-gpu")
 
-imagedir <- "/home/kyra/animl-py/examples/Southwest/"
+imagedir <- "~/animl-py/examples/Southwest/"
 
 #create global variable file and directory namesfrom animl import file_management
 WorkingDirectory(imagedir, globalenv())
@@ -53,12 +53,12 @@ empty <- get_empty(mdresults)
 # Species Classifier
 #===============================================================================
 
-classes <- read.csv('/home/kyra/animl-py/models/sdzwa_southwest_v3_classes.csv')
-southwest <- load_model('/home/kyra/animl-py/models/sdzwa_southwest_v3.pt', length(classes))
-class_list <- classes[[2]]$Code
+classes <- read.csv('~/models/sdzwa_southwest_v3_classes.csv')
+class_list <- classes$Code
+southwest <- load_model('~/models/sdzwa_southwest_v3.pt', length(class_list))
 
 # get likelihoods
-pred_raw <- predict_species(animals, southwest[[1]])
+pred_raw <- predict_species(animals, southwest, out_file=predictions)
 
 # Single Classification
 animals <- single_classification(animals, pred_raw, class_list)
@@ -74,8 +74,14 @@ manifest <- sequence_classification(animals, empty=empty, pred_raw, classes=clas
 
 #symlink species predictions
 alldata <- sort_species(manifest, linkdir)
+write.csv(alldata, results)
 
 #symlink MD detections only
 sort_MD(manifest, linkdir)
 
+#===============================================================================
+# REID
+#===============================================================================
+miew = load_miewid("~/models/miewid_v3.bin")
+embeddings = extract_embeddings(manifest, miew)
 

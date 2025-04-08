@@ -10,7 +10,7 @@ sequence_classification(
   predictions_raw,
   classes,
   station_col = "Station",
-  empty_class = "empty",
+  empty_class = "",
   sort_columns = NULL,
   file_col = "FilePath",
   maxdiff = 60
