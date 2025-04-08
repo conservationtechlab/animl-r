@@ -10,13 +10,13 @@
 #'
 #' @examples
 #' \dontrun{andes <- loadModel('andes_v1.pt','andes_classes.csv')}
-load_model <- function(model_path, class_file, device=NULL, architecture="CTL"){
+load_model <- function(model_path, classes, device=NULL, architecture="CTL"){
   if(reticulate::py_module_available("animl")){
     animl_py <- reticulate::import("animl")
   }
   else{ stop('animl-py environment must be loaded first via reticulate') }
   
-  animl_py$load_model(model_path, class_file, device=device, architecture=architecture)
+  animl_py$load_model(model_path, as.integer(classes), device=device, architecture=architecture)
 }
 
 

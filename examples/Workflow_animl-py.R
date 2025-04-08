@@ -53,9 +53,9 @@ empty <- get_empty(mdresults)
 # Species Classifier
 #===============================================================================
 
-southwest <- load_model('/home/kyra/animl-py/models/sdzwa_southwest_v3.pt',
-                       '/home/kyra/animl-py/models/sdzwa_southwest_v3_classes.csv')
-class_list=southwest[[2]]$Code
+classes <- read.csv('/home/kyra/animl-py/models/sdzwa_southwest_v3_classes.csv')
+southwest <- load_model('/home/kyra/animl-py/models/sdzwa_southwest_v3.pt', length(classes))
+class_list <- classes[[2]]$Code
 
 # get likelihoods
 pred_raw <- predict_species(animals, southwest[[1]])
