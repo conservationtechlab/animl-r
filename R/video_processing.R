@@ -31,7 +31,7 @@ extract_frames <- function(files, out_dir = tempfile(), out_file = NULL,
   if (!is.null(frames)){ frames <- as.integer(frames) }
 
   animl_py$extract_frames(files, out_dir, out_file=out_file, fps=fps, frames=frames, 
-                          file_col=file_col, parallel=parallel, workers=as.integers(workers), 
+                          file_col=file_col, parallel=parallel, workers=as.integer(workers), 
                           checkpoint=as.integer(checkpoint))
 }
 
