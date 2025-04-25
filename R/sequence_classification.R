@@ -34,7 +34,9 @@
 #' }
 sequence_classification<-function(animals, empty, predictions_raw, classes, 
                                   station_col="Station",
-                                  empty_class="", 
+                                  empty_class="",
+                                  human_class="",
+                                  vehicle_class="",
                                   sort_columns=NULL, 
                                   file_col="FilePath", 
                                   maxdiff=60){
@@ -49,6 +51,8 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
     stop("column names for animals and empty must be the same")
   }
   if (length(empty_class) > 1) { stop("'empty_class' must be a vector of length 1") }
+  if (length(human_class) > 1) { stop("'human_class' must be a vector of length 1") }
+  if (length(vehicle_class) > 1) { stop("'vehicle_class' must be a vector of length 1") }
   if(!is.numeric(maxdiff) | maxdiff<0){ stop("'maxdiff' must be a number >=0") }
   if(length(classes)!=ncol(predictions_raw)){ stop("'classes' must have the same length as the number or columns in 'predictions_raw'") }
   if(is.null(station_col) | length(station_col)>1){ stop("please provide a single character values for 'station_col'") }
@@ -63,25 +67,57 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
     empty_col<-which(classes == empty_class)
   }
   
+  #define which class is human  
+  if(human_class>""){
+    human_col<-which(classes == human_class)
+  }
+  
+  #define which class is vehicle  
+  if(vehicle_class>""){
+    vehicle_col<-which(classes == vehicle_class)
+  }
+  
   if(!is.null(empty)){
     empty$ID<-1:nrow(empty)
+    
     
     #create extended prediction matrix for empty, vehicles and human
     predempty <- stats::reshape(empty[,c("ID","prediction","confidence")],direction="wide",idvar="ID",timevar="prediction")
     predempty[is.na(predempty)] <- 0
     predempty <- cbind(matrix(0, nrow=nrow(empty), ncol=dim(predictions_raw)[2]), predempty[,-1, drop=FALSE])
     
+    #update empty column if present in the classifier
     if(empty_class > ""){
       predempty[,empty_col] <- predempty$confidence.empty
+      predempty<-predempty[,names(predempty)!="confidence.empty"]
       
-      predempty<-predempty[,-which(names(predempty)=="confidence.empty")]
-      classes<-c(classes,unique(empty$prediction)[which(unique(empty$prediction)!="empty")])
     }
     else{
-      classes<-c(classes,unique(empty$prediction))
       empty_col<-which(names(predempty)=="confidence.empty")
+      classes <- c(classes, unique(empty$prediction)[which(unique(empty$prediction) ==  "empty")])
     }
     
+    #update human column if present in the classifier
+    if(human_class > ""){
+      predempty[,human_col] <- predempty$confidence.human
+      predempty<-predempty[,names(predempty)!="confidence.human"]
+      
+    }
+    else{
+      human_col<-which(names(predempty)=="confidence.human")
+      classes <- c(classes, unique(empty$prediction)[which(unique(empty$prediction) ==  "human")])
+    }
+    
+    #update vehicle column if present in the classifier
+    if(vehicle_class > ""){
+      predempty[,vehicle_col] <- predempty$confidence.vehicle
+      predempty<-predempty[,names(predempty)!="confidence.vehicle"]
+      
+    }
+    else{
+      vehicle_col<-which(names(predempty)=="confidence.vehicle")
+      classes <- c(classes, unique(empty$prediction)[which(unique(empty$prediction) ==  "vehicle")])
+    }
     
     animals$prediction <- classes[apply(predictions_raw, 1, which.max)]
     animals$confidence <- apply(predictions_raw, 1, max) * animals$conf
