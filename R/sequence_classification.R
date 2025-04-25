@@ -77,6 +77,8 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
     vehicle_col<-which(classes == vehicle_class)
   }
   
+  nclasses<-length(classes)
+  
   if(!is.null(empty)){
     empty$ID<-1:nrow(empty)
     
@@ -86,37 +88,36 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
     predempty[is.na(predempty)] <- 0
     predempty <- cbind(matrix(0, nrow=nrow(empty), ncol=dim(predictions_raw)[2]), predempty[,-1, drop=FALSE])
     
+    classes<-c(classes,unique(empty$prediction))
+    
     #update empty column if present in the classifier
     if(empty_class > ""){
       predempty[,empty_col] <- predempty$confidence.empty
       predempty<-predempty[,names(predempty)!="confidence.empty"]
-      
-    }
-    else{
+      classes[!(1:length(classes) %in% (which(classes[(nclasses+1):length(classes)]=="empty")+nclasses))]
+    }else{
       empty_col<-which(names(predempty)=="confidence.empty")
-      classes <- c(classes, unique(empty$prediction)[which(unique(empty$prediction) ==  "empty")])
+      #classes <- c(classes, unique(empty$prediction)[which(unique(empty$prediction) ==  "empty")])
     }
     
     #update human column if present in the classifier
     if(human_class > ""){
       predempty[,human_col] <- predempty$confidence.human
       predempty<-predempty[,names(predempty)!="confidence.human"]
-      
-    }
-    else{
+      classes[!(1:length(classes) %in% (which(classes[(nclasses+1):length(classes)]=="human")+nclasses))]
+    }else{
       human_col<-which(names(predempty)=="confidence.human")
-      classes <- c(classes, unique(empty$prediction)[which(unique(empty$prediction) ==  "human")])
+      #classes <- c(classes, unique(empty$prediction)[which(unique(empty$prediction) ==  "human")])
     }
     
     #update vehicle column if present in the classifier
     if(vehicle_class > ""){
       predempty[,vehicle_col] <- predempty$confidence.vehicle
       predempty<-predempty[,names(predempty)!="confidence.vehicle"]
-      
-    }
-    else{
+      classes[!(1:length(classes) %in% (which(classes[(nclasses+1):length(classes)]=="vehicle")+nclasses))]
+    }else{
       vehicle_col<-which(names(predempty)=="confidence.vehicle")
-      classes <- c(classes, unique(empty$prediction)[which(unique(empty$prediction) ==  "vehicle")])
+      #classes <- c(classes, unique(empty$prediction)[which(unique(empty$prediction) ==  "vehicle")])
     }
     
     animals$prediction <- classes[apply(predictions_raw, 1, which.max)]
@@ -172,7 +173,7 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
     if(length(rows)>1){ #multiple boxes in the sequence
       predclass<-apply(predsort[rows,],1,which.max)
       #check if there are empty predictions
-      if(length(empty_col)==0 | !(empty_col %in% predclass) | length(which(predclass %in% empty_col))==length(rows)){
+      if(length(empty_col)==0 || !(empty_col %in% predclass) || length(which(predclass %in% empty_col))==length(rows)){
         #no empties
         predsort_confidence <- predsort[rows,]*animals_sort$conf[rows]
         predbest <- apply(predsort_confidence, 2, mean)
@@ -184,13 +185,13 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
       else{ 
         #select images for which all boxes or frames are empty
         sel_all_empty<-tapply(predclass==empty_col,animals_sort[rows,file_col],sum) ==
-                       tapply(predclass==empty_col,animals_sort[rows,file_col],length)
+          tapply(predclass==empty_col,animals_sort[rows,file_col],length)
         #classify files with species
         #records with animals and no empties
         sel_no_empties<-which(animals_sort[rows,file_col] %in% names(sel_all_empty[!sel_all_empty]) & !(predclass %in% empty_col))
         #records in files with animals
         sel_mixed<-which(animals_sort[rows,file_col] %in% names(sel_all_empty[!sel_all_empty]))
-
+        
         
         if(length(sel_no_empties)>0 & length(sel_mixed)>0){
           predsort_confidence<-matrix(predsort[rows[sel_no_empties],]*animals_sort$conf[rows[sel_no_empties]],ncol=ncol(predsort))
