@@ -25,7 +25,7 @@
 build_file_manifest <- function(image_dir, exif=TRUE, out_file=NULL, 
                                 offset=0, recursive=TRUE) {
   
-  if (check_file(out_file)) { return(load_data(out_file)) }
+  if (animl:::check_file(out_file)) { return(load_data(out_file)) }
   
   if (!dir.exists(image_dir)) { stop("The given directory does not exist.") }
   
@@ -48,9 +48,9 @@ build_file_manifest <- function(image_dir, exif=TRUE, out_file=NULL,
     
     colnames(files)[1] <- "FilePath"
     files <- as.data.frame(files)
+    print(files)
     colnames(files)[colnames(files) == 'ImageWidth'] <- 'Width'
     colnames(files)[colnames(files) == 'ImageHeight'] <- 'Height'
-    
     files$FileModifyDate <- as.POSIXct(files$FileModifyDate, format="%Y:%m:%d %H:%M:%S") + (offset*3600)
     
     # establish datetime
