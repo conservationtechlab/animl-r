@@ -11,6 +11,8 @@ sequence_classification(
   classes,
   station_col = "Station",
   empty_class = "",
+  human_class = "",
+  vehicle_class = "",
   sort_columns = NULL,
   file_col = "FilePath",
   maxdiff = 60
