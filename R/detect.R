@@ -74,7 +74,7 @@ parse_MD <- function(results, manifest = NULL, out_file = NULL, buffer=0.02, thr
   else{
     f <- function(data) {
       if (!("detections" %in% names(data))){
-          print('File error ', data$file)
+          #print('File error ', data$file)
           return()
         }
       if (length(data$detections) > 0) {
