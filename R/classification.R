@@ -1,7 +1,7 @@
 #' Load a Classifier Model with animl-py
 #'
 #' @param model_path path to model
-#' @param class_file path to class list
+#' @param len_classes path to class list
 #' @param device send model to the specified device
 #' @param architecture model architecture
 #'
@@ -10,13 +10,49 @@
 #'
 #' @examples
 #' \dontrun{andes <- loadModel('andes_v1.pt','andes_classes.csv')}
-load_model <- function(model_path, classes, device=NULL, architecture="CTL"){
+load_classifier <- function(model_path, len_classes, device=NULL, architecture="CTL"){
   if(reticulate::py_module_available("animl")){
     animl_py <- reticulate::import("animl")
   }
   else{ stop('animl-py environment must be loaded first via reticulate') }
   
-  animl_py$load_model(model_path, as.integer(classes), device=device, architecture=architecture)
+  animl_py$load_classifier(model_path, as.integer(len_classes), device=device, architecture=architecture)
+}
+
+
+#' Save model state weights
+#'
+#' @param model 
+#' @param out_dir 
+#' @param epoch 
+#' @param stats 
+#' @param optimizer 
+#' @param scheduler 
+#'
+#' @returns None
+#' @export
+#'
+#' @examples
+#' \dontrun{save_classifier(model, 'models/', 10, {'acc': 0.85})}
+save_classifier <- function(model, out_dir, epoch, stats, optimizer=NULL, scheduler=NULL){
+  if(reticulate::py_module_available("animl")){
+    animl_py <- reticulate::import("animl")
+  }
+  else{ stop('animl-py environment must be loaded first via reticulate') }
+  
+  animl_py$save_classifier(model_path, out_dir, epoch, stats, optimizer=optimizer, scheduler=scheduler)
+}
+
+#' Load class list .csv file
+#'
+#' @param classlist_file path to class list
+#'
+#' @returns dataframe version of csv
+#' @export
+#'
+#' @examples
+load_class_list <- function(classlist_file){
+  read.csv(classlist_file)
 }
 
 
@@ -41,17 +77,19 @@ load_model <- function(model_path, classes, device=NULL, architecture="CTL"){
 #'
 #' @examples
 #' \dontrun{animals <- predictSpecies(animals, classifier[[1]], classifier[[2]], raw=FALSE)}
-  predict_species <- function(detections, model, device=NULL, out_file=NULL,
-                           file_col='Frame', crop=TRUE, resize_width=299, resize_height=299,
-                           normalize=TRUE, batch_size=1, workers=1){
+  classify <- function(model, detections, device=NULL, out_file=NULL,
+                       file_col='Frame', crop=TRUE, normalize=TRUE,
+                       resize_width=480, resize_height=480,
+                       batch_size=1, workers=1){
   
   # check if animl-py is available
   if(reticulate::py_module_available("animl")){ animl_py <- reticulate::import("animl")}
   else{ stop('animl-py environment must be loaded first via reticulate')}
   
-  animl_py$predict_species(detections, model, device=device, out_file=out_file,
-                           file_col=file_col, crop=crop, resize_width=resize_width, resize_height=resize_height, 
-                           normalize=normalize, batch_size=as.integer(batch_size), workers=as.integer(workers))
+  animl_py$classify(model, detections, device=device, out_file=out_file,
+                    file_col=file_col, crop=crop, normalize=normalize, 
+                    resize_width=resize_width, resize_height=resize_height,
+                    batch_size=as.integer(batch_size), num_workers=as.integer(workers))
 }
 
 
@@ -66,9 +104,9 @@ load_model <- function(model_path, classes, device=NULL, architecture="CTL"){
 #'
 #' @examples
 #' \dontrun{animals <- single_classification(animals, pred_raw, class_list)}
-single_classification <- function(detections, predictions_raw, class_list){
+single_classification <- function(animals, predictions_raw, class_list){
   if(reticulate::py_module_available("animl")){ animl_py <- reticulate::import("animl")}
   else{ stop('animl-py environment must be loaded first via reticulate')}
 
-  animl_py$single_classification(detections, predictions_raw, class_list)
+  animl_py$individual_classification(animals, predictions_raw, class_list)
 }

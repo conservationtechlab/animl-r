@@ -20,8 +20,8 @@
 #' frames <- extractFrames(videos, out_dir = "C:\\Users\\usr\\Videos\\", frames = 5)
 #' }
 extract_frames <- function(files, out_dir = tempfile(), out_file = NULL,
-                           fps = NULL, frames = NULL, file_col="FilePath", 
-                           parallel = FALSE, workers = 1, checkpoint = 1000) {
+                           fps = NULL, frames = NULL, file_col="filepath", 
+                           parallel = FALSE, num_workers = 1, checkpoint = 1000) {
   if(reticulate::py_module_available("animl")){
     animl_py <- reticulate::import("animl")
   }
@@ -31,7 +31,7 @@ extract_frames <- function(files, out_dir = tempfile(), out_file = NULL,
   if (!is.null(frames)){ frames <- as.integer(frames) }
 
   animl_py$extract_frames(files, out_dir, out_file=out_file, fps=fps, frames=frames, 
-                          file_col=file_col, parallel=parallel, workers=as.integer(workers), 
+                          file_col=file_col, parallel=parallel, num_workers=as.integer(num_workers), 
                           checkpoint=as.integer(checkpoint))
 }
 

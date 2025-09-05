@@ -4,14 +4,14 @@
 \alias{single_classification}
 \title{Get Maximum likelihood label for each Detection}
 \usage{
-single_classification(detections, predictions_raw, class_list)
+single_classification(animals, predictions_raw, class_list)
 }
 \arguments{
-\item{detections}{manifest of animal detections}
-
 \item{predictions_raw}{softmaxed likelihoods from predict_species}
 
 \item{class_list}{list of class labels}
+
+\item{detections}{manifest of animal detections}
 }
 \value{
 dataframe with prediction and confidence columns

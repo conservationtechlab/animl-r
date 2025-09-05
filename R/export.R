@@ -1,7 +1,8 @@
 #' Create SymLink Directories and Sort Classified Images
 #'
 #' @param manifest DataFrame of classified images 
-#' @param link_dir Destination directory for symlinks
+#' @param out_dir Destination directory for symlinks
+#' @param out_file 
 #' @param file_col Colun containing file paths
 #' @param unique_name Unique image name identifier 
 #' @param copy Toggle to determine copy or hard link, defaults to link
@@ -13,36 +14,13 @@
 #' \dontrun{
 #' manifest <- sort_species(manifest, link_dir)
 #' }
-sort_species <- function(manifest, link_dir, file_col="FilePath", unique_name='UniqueName', copy=FALSE) {
+export_folders <- function(manifest, out_dir, out_file, file_col="FilePath", label_col="prediction",
+                           unique_name='UniqueName', copy=FALSE) {
   
   if(reticulate::py_module_available("animl")){ animl_py <- reticulate::import("animl")}
   else{ stop('animl-py environment must be loaded first via reticulate')}
   
-  manifest <- animl_py$sort_species(manifest, link_dir, file_col=file_col, unique_name=unique_name, copy=copy)
-}
-
-
-#' Create SymLink Directories and Sort Classified Images Based on MD Results
-#'
-#' @param manifest DataFrame of classified images 
-#' @param link_dir Destination directory for symlinks
-#' @param file_col Colun containing file paths
-#' @param unique_name Unique image name identifier 
-#' @param copy Toggle to determine copy or hard link, defaults to link
-#'
-#' @return manifest with added link columns
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' sort_MD(manifest, link_dir)
-#' }
-sort_MD <- function(manifest, link_dir, file_col="FilePath", unique_name='UniqueName', copy=FALSE){
-  
-  if(reticulate::py_module_available("animl")){ animl_py <- reticulate::import("animl")}
-  else{ stop('animl-py environment must be loaded first via reticulate')}
-  
-  manifest <- animl_py$sort_MD(manifest, link_dir, file_col=file_col, unique_name=unique_name, copy=copy)
+  manifest <- animl_py$export_folders(manifest, out_dir, out_file, file_col=file_col, unique_name=unique_name, copy=copy)
 }
 
 
