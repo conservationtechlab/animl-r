@@ -10,9 +10,10 @@
 library(animl)
 library(reticulate)
 use_condaenv("animl-gpu")
+animl_py <- load_animl_py()
 
 
-imagedir <- "C:\\Users\\Kyra\\animl-py\\examples\\Southwest"
+imagedir <- "C:\\Users\\Kyra\\animl\\examples\\Southwest"
 
 #create global variable file and directory namesfrom animl import file_management
 WorkingDirectory(imagedir, globalenv())
@@ -64,7 +65,8 @@ pred_raw <- classify(southwest, animals, resize_width=299, resize_height=299, ou
 
 # Single Classification
 manifest <- single_classification(animals, empty, pred_raw, class_list)
-manifest$station <- 'test'
+animals$station <- 'test'
+empty$station <- 'test'
 
 # Sequence Classification
 manifest <- sequence_classification(animals, empty=empty, pred_raw, classes=class_list, station_col="station", empty_class="empty")
@@ -78,12 +80,9 @@ manifest <- sequence_classification(animals, empty=empty, pred_raw, classes=clas
 alldata <- export_folders(manifest, linkdir)
 write.csv(alldata, results)
 
-#symlink MD detections only
-sort_MD(manifest, linkdir)
-
 #===============================================================================
 # REID
 #===============================================================================
-miew = load_miewid("~/models/miewid_v3.bin")
-embeddings = extract_embeddings(manifest, miew)
+miew = load_miew("~/models/miewid_v3.bin")
+embeddings = extract_embeddings(miew, manifest)
 

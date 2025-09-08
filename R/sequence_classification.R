@@ -18,7 +18,7 @@
 #' @param empty_class a string indicating the class that should be considered 'Empty'
 #' @param human_class a string indicating the class that should be considered 'Human'
 #' @param vehicle_class a string indicating the class that should be considered 'Vehicle'
-#' @param sort_columns optional sort order. The default is 'station_column' and DateTime.
+#' @param sort_columns optional sort order. The default is 'station_column' and datetime.
 #' @param file_col a field indicating a single record. The default is FilePath for single images/videos.
 #' @param maxdiff maximum difference between images in seconds to be included in a sequence, defaults to 60
 #'
@@ -163,9 +163,9 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
     last_index = i+1
     
     # while within same sequence
-    while(!is.na(animals_sort$DateTime[last_index]) & !is.na(animals_sort$DateTime[i]) & 
+    while(!is.na(animals_sort$datetime[last_index]) & !is.na(animals_sort$datetime[i]) & 
           last_index<nrow(animals_sort) & animals_sort[last_index,station_col]==animals_sort[i,station_col] & 
-          difftime(animals_sort$DateTime[last_index], animals_sort$DateTime[i],units="secs") <= maxdiff){
+          difftime(animals_sort$datetime[last_index], animals_sort$datetime[i],units="secs") <= maxdiff){
       rows<-c(rows,last_index)
       last_index=last_index+1
     }
