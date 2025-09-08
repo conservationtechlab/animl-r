@@ -12,10 +12,12 @@
 #'
 #' @param animals sub-selection of all images that contain MD animals
 #' @param empty optional, data frame non-animal images (empty, human and vehicle) that will be merged back with animal imagages
-#' @param predictions data frame of prediction probabilities from the classifySpecies function
-#' @param classes a vector or species corresponding to the columns of 'predictions'
-#' @param empty_class a string indicating the class that should be considered 'Empty'
+#' @param predictions_raw data frame of prediction probabilities from the classifySpecies function
+#' @param classes class list associated with classifier model
 #' @param station_col a column in the animals and empty data frame that indicates the camera or camera station
+#' @param empty_class a string indicating the class that should be considered 'Empty'
+#' @param human_class a string indicating the class that should be considered 'Human'
+#' @param vehicle_class a string indicating the class that should be considered 'Vehicle'
 #' @param sort_columns optional sort order. The default is 'station_column' and DateTime.
 #' @param file_col a field indicating a single record. The default is FilePath for single images/videos.
 #' @param maxdiff maximum difference between images in seconds to be included in a sequence, defaults to 60
@@ -32,7 +34,7 @@
 #'                                   empty_class = "Empty",
 #'                                   station_column="StationID", maxdiff=60)
 #' }
-sequence_classification<-function(animals, empty, predictions_raw, classes, 
+sequence_classification<-function(animals, empty, predictions_raw, classes,
                                   station_col="station",
                                   empty_class="",
                                   human_class="",

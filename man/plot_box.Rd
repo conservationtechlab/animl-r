@@ -4,14 +4,16 @@
 \alias{plot_box}
 \title{Plot bounding boxes on image from md results}
 \usage{
-plot_box(image, label = FALSE, minconf = 0)
+plot_box(rows, file_col = "filepath", min_conf = 0, prediction = FALSE)
 }
 \arguments{
-\item{image}{The mdres for the image}
+\item{rows}{row or rows of images in which the bounding box will be plotted}
 
-\item{label}{T/F toggle to plot MD category}
+\item{file_col}{Column name containing file paths}
 
-\item{minconf}{minimum confidence to plot box}
+\item{min_conf}{minimum confidence to plot box}
+
+\item{prediction}{If True, display the prediction label alongside the bounding box.}
 }
 \value{
 no return value, produces bounding box in plot panel
@@ -21,7 +23,7 @@ Plot bounding boxes on image from md results
 }
 \examples{
 \dontrun{
-mdres <- classifyImageMD(mdsession, images$FilePath[30000])
-plotBoxes(mdres, minconf = 0.5)
+animals <- classify(mdsession, images$FilePath[30000])
+plot_box(animals, minconf = 0.5, prediction=TRUE)
 }
 }

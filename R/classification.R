@@ -18,12 +18,12 @@ load_classifier <- function(model_path, len_classes, device=NULL, architecture="
 
 #' Save model state weights
 #'
-#' @param model 
-#' @param out_dir 
-#' @param epoch 
-#' @param stats 
-#' @param optimizer 
-#' @param scheduler 
+#' @param model pytorch model
+#' @param out_dir directory to save model to
+#' @param epoch  current training epoch
+#' @param stats performance metrics of current epoch
+#' @param optimizer pytorch optimizer (optional)
+#' @param scheduler pytorch scheduler (optional)
 #'
 #' @returns None
 #' @export
@@ -32,7 +32,7 @@ load_classifier <- function(model_path, len_classes, device=NULL, architecture="
 #' \dontrun{save_classifier(model, 'models/', 10, {'acc': 0.85})}
 save_classifier <- function(model, out_dir, epoch, stats, optimizer=NULL, scheduler=NULL){
   animl_py <- load_animl_py()
-  animl_py$save_classifier(model_path, out_dir, epoch, stats, optimizer=optimizer, scheduler=scheduler)
+  animl_py$save_classifier(model, out_dir, epoch, stats, optimizer=optimizer, scheduler=scheduler)
 }
 
 #' Load class list .csv file
@@ -83,6 +83,7 @@ load_class_list <- function(classlist_file){
 #' Get Maximum likelihood label for each Detection
 #'
 #' @param animals manifest of animal detections 
+#' @param empty manifest of md human, vehicle and empty images
 #' @param predictions_raw softmaxed likelihoods from predict_species
 #' @param class_list list of class labels
 #'

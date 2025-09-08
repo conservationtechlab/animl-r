@@ -63,7 +63,7 @@ get_animals <- function(manifest){
 #' @param label_col column name containing class labels
 #' @param file_col column containing file paths
 #' @param percentage fraction of data dedicated to train-val-test
-#' @param seed RNG seed, if none will pick one at random within [0,100]
+#' @param seed RNG seed, if none will pick one at random 
 #'
 #' @return train manifest, validate manifest, test manifest, stats file
 #' @export

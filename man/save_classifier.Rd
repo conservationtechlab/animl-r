@@ -14,17 +14,17 @@ save_classifier(
 )
 }
 \arguments{
-\item{model}{}
+\item{model}{pytorch model}
 
-\item{out_dir}{}
+\item{out_dir}{directory to save model to}
 
-\item{epoch}{}
+\item{epoch}{current training epoch}
 
-\item{stats}{}
+\item{stats}{performance metrics of current epoch}
 
-\item{optimizer}{}
+\item{optimizer}{pytorch optimizer (optional)}
 
-\item{scheduler}{}
+\item{scheduler}{pytorch scheduler (optional)}
 }
 \value{
 None

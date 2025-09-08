@@ -16,5 +16,5 @@ None
 Test a model with a Config file
 }
 \examples{
-\dontrun{}
+\dontrun{test_main('training_cfg.yml')}
 }

@@ -20,5 +20,5 @@ Kyra Swanson 2025
 Train a model with a Config file
 }
 \examples{
-\dontrun{}
+\dontrun{train_main('training_cfg.yml')}
 }

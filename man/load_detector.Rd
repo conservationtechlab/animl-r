@@ -9,7 +9,7 @@ load_detector(model_path, model_type, device = NULL)
 \arguments{
 \item{model_path}{path to detector model file}
 
-\item{model_type}{type of model expected \link{"MDV5", "MDV6", "YOLO"}}
+\item{model_type}{type of model expected ie "MDV5", "MDV6", "YOLO"}
 
 \item{device}{specify to run on cpu or gpu}
 }

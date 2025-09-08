@@ -23,19 +23,23 @@ sequence_classification(
 
 \item{empty}{optional, data frame non-animal images (empty, human and vehicle) that will be merged back with animal imagages}
 
-\item{classes}{a vector or species corresponding to the columns of 'predictions'}
+\item{predictions_raw}{data frame of prediction probabilities from the classifySpecies function}
+
+\item{classes}{class list associated with classifier model}
 
 \item{station_col}{a column in the animals and empty data frame that indicates the camera or camera station}
 
 \item{empty_class}{a string indicating the class that should be considered 'Empty'}
+
+\item{human_class}{a string indicating the class that should be considered 'Human'}
+
+\item{vehicle_class}{a string indicating the class that should be considered 'Vehicle'}
 
 \item{sort_columns}{optional sort order. The default is 'station_column' and DateTime.}
 
 \item{file_col}{a field indicating a single record. The default is FilePath for single images/videos.}
 
 \item{maxdiff}{maximum difference between images in seconds to be included in a sequence, defaults to 60}
-
-\item{predictions}{data frame of prediction probabilities from the classifySpecies function}
 }
 \value{
 data frame with predictions and confidence values for animals and empty images

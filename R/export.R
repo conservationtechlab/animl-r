@@ -2,7 +2,8 @@
 #'
 #' @param manifest DataFrame of classified images 
 #' @param out_dir Destination directory for symlinks
-#' @param out_file 
+#' @param out_file if provided, save the manifest to this file
+#' @param label_col (str): specify 'prediction' for species or 'category' for megadetector class
 #' @param file_col Colun containing file paths
 #' @param unique_name Unique image name identifier 
 #' @param copy Toggle to determine copy or hard link, defaults to link
@@ -14,10 +15,10 @@
 #' \dontrun{
 #' manifest <- sort_species(manifest, link_dir)
 #' }
-export_folders <- function(manifest, out_dir, out_file, 
+export_folders <- function(manifest, out_dir, out_file=NULL, 
                            label_col="prediction", file_col="filepath",
                            unique_name='uniquename', copy=FALSE) {
-  animl_py <- animl_py_is_available()
+  animl_py <- load_animl_py()
   manifest <- animl_py$export_folders(manifest, out_dir, out_file,
                                       label_col=label_col, file_col=file_col,
                                       unique_name=unique_name, copy=copy)
@@ -68,4 +69,39 @@ update_labels_from_folders <- function(manifest, link_dir, unique_name='uniquena
   
   corrected <- merge(manifest, files, by=unique_name)
   return(corrected)
+}
+
+
+#' Converts the .csv file to the MD-formatted .json file.
+#'
+#' @param manifest dataframe containing images and associated detections
+#' @param output_file path to save the MD formatted file
+#' @param detector name of the detector model used
+#'
+#' @return None
+#' @export
+#'
+#' @examples
+#' \dontrun{export_megadetector(manifest, output_file= 'results.json', detector='MDv6')}
+export_megadetector <- function(manifest, output_file=NULL, detector='MegaDetector v5a'){
+  animl_py <- load_animl_py()
+  animl_py$export_megadetector(manifest, output_file=output_file, detector=detector)
+}
+
+
+#' Converts the Manifests to a csv file that contains columns needed for TimeLapse conversion in later step
+#'
+#' @param animals a DataFrame that has entries of anuimal classification
+#' @param empty a DataFrame that has detection of non-animal objects in images
+#' @param imagedir location of root directory where all images are stored (can contain subdirectories)
+#' @param only_animal A bool that confirms whether we want only animal detctions or all
+#'
+#' @returns animals.csv, non-anim.csv, csv_loc
+#' @export 
+#'
+#' @examples
+#' \dontrun{export_timelapse(animals, empty, '/path/to/images/')}
+export_timelapse <- function(animals, empty, imagedir, only_animal=TRUE){
+  animl_py <- load_animl_py()
+  animl_py$export_timelapse(animals, empty, imagedir, only_animal=only_animal)
 }

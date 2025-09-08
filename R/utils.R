@@ -17,10 +17,11 @@ load_animl_py <- function() {
 #' @param model_url url of the model to download
 #' @param out_dir Directory to save the model.
 #'
-#' @return
+#' @return None
 #' @export
 #'
 #' @examples
+#' \dontrun{download_model('animl_py$CLASSIFIER$get('SDZWA_savanna_v3')')}
 download_model <- function(model_url, out_dir='models'){
   animl_py <- load_animl_py()
   animl_py$download_model(model_url, outdir=out_dir)
@@ -30,10 +31,11 @@ download_model <- function(model_url, out_dir='models'){
 
 #' List models available for download
 #'
-#' @return
+#' @return None
 #' @export
 #'
 #' @examples
+#' \dontrun{list_models()}
 list_models <- function(){
   animl_py <- load_animl_py()
   animl_py$list_models

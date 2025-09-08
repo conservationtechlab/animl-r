@@ -9,6 +9,8 @@ single_classification(animals, empty, predictions_raw, class_list)
 \arguments{
 \item{animals}{manifest of animal detections}
 
+\item{empty}{manifest of md human, vehicle and empty images}
+
 \item{predictions_raw}{softmaxed likelihoods from predict_species}
 
 \item{class_list}{list of class labels}

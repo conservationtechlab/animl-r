@@ -56,8 +56,7 @@ animals <- get_animals(mdresults)
 # Set of crops with MD human, vehicle and empty MD predictions. 
 empty <- get_empty(mdresults)
 
-
-
+# load class list
 classes <- load_class_list("/Models/Southwest/v3/southwest_v3_classes.csv")
 class_list <- classes$class
 
@@ -74,12 +73,10 @@ manifest <- single_classification(animals, empty, pred_raw, class_list)
 
 ```
 
-If your data includes videos or sequences, we recommend using the sequenceClassification algorithm.
+If your data includes videos or sequences, we recommend using the sequence_classification algorithm.
 This requires the raw output of the prediction algorithm.
 
 ```
-classes = southwest[[2]]$Code
-
 # Sequence Classification
 manifest <- sequence_classification(animals, empty=empty, pred_raw, classes=class_list, station_col="station", empty_class="empty")
 ```
@@ -94,10 +91,9 @@ The Conservation Technology Lab has several [models](https://sandiegozoo.app.box
 * R >= 4.0
 * Reticulate
 * Python >= 3.9
-* [Animl-Py = 1.4.3](https://github.com/conservationtechlab/animl-py)
+* [Animl-Py >= 3.0.0](https://github.com/conservationtechlab/animl-py)
 
 We recommend running animl on a computer with a dedicated GPU.
-Animl also depends on [exiftool](https://exiftool.org/index.html) for accessing file metadata.
 
 #### Python
 animl depends on python and will install python package dependencies if they are not available if installed via CRAN. <br> 

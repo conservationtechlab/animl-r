@@ -7,7 +7,7 @@
 export_folders(
   manifest,
   out_dir,
-  out_file,
+  out_file = NULL,
   label_col = "prediction",
   file_col = "filepath",
   unique_name = "uniquename",
@@ -19,7 +19,9 @@ export_folders(
 
 \item{out_dir}{Destination directory for symlinks}
 
-\item{out_file}{}
+\item{out_file}{if provided, save the manifest to this file}
+
+\item{label_col}{(str): specify 'prediction' for species or 'category' for megadetector class}
 
 \item{file_col}{Colun containing file paths}
 

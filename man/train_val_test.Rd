@@ -24,7 +24,7 @@ train_val_test(
 
 \item{percentage}{fraction of data dedicated to train-val-test}
 
-\item{seed}{RNG seed, if none will pick one at random within \link{0,100}}
+\item{seed}{RNG seed, if none will pick one at random}
 }
 \value{
 train manifest, validate manifest, test manifest, stats file

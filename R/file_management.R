@@ -15,8 +15,6 @@
 #'
 #' @return files dataframe with or without file dates
 #' @export
-#' @importFrom magrittr %>%
-#' @importFrom rlang .data
 #'
 #' @examples
 #' \dontrun{

@@ -1,7 +1,7 @@
 #' Load an Object Detector
 #'
 #' @param model_path path to detector model file
-#' @param model_type type of model expected ["MDV5", "MDV6", "YOLO"]
+#' @param model_type type of model expected ie "MDV5", "MDV6", "YOLO"
 #' @param device specify to run on cpu or gpu
 #'
 #' @return megadetector object
