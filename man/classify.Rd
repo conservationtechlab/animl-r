@@ -9,7 +9,7 @@ classify(
   detections,
   device = NULL,
   out_file = NULL,
-  file_col = "Frame",
+  file_col = "frame",
   crop = TRUE,
   normalize = TRUE,
   resize_width = 480,
@@ -40,10 +40,6 @@ classify(
 \item{batch_size}{batch size for generator}
 
 \item{workers}{number of processes}
-
-\item{classes}{data.frame of classes}
-
-\item{raw}{output raw logits in addition to manifest}
 }
 \value{
 detection manifest with added prediction and confidence columns
@@ -52,5 +48,5 @@ detection manifest with added prediction and confidence columns
 Infer Species for Given Detections
 }
 \examples{
-\dontrun{animals <- predictSpecies(animals, classifier[[1]], classifier[[2]], raw=FALSE)}
+\dontrun{animals <- classify(classifier, animals, file_col='filepath')}
 }

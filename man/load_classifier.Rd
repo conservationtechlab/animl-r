@@ -16,11 +16,11 @@ load_classifier(model_path, len_classes, device = NULL, architecture = "CTL")
 \item{architecture}{model architecture}
 }
 \value{
-list of c(classifier, class_list)
+classifier model
 }
 \description{
 Load a Classifier Model with animl-py
 }
 \examples{
-\dontrun{andes <- loadModel('andes_v1.pt','andes_classes.csv')}
+\dontrun{andes <- load_classifier('andes_v1.pt')}
 }

@@ -14,13 +14,13 @@
 #' \dontrun{
 #' manifest <- sort_species(manifest, link_dir)
 #' }
-export_folders <- function(manifest, out_dir, out_file, file_col="FilePath", label_col="prediction",
-                           unique_name='UniqueName', copy=FALSE) {
-  
-  if(reticulate::py_module_available("animl")){ animl_py <- reticulate::import("animl")}
-  else{ stop('animl-py environment must be loaded first via reticulate')}
-  
-  manifest <- animl_py$export_folders(manifest, out_dir, out_file, file_col=file_col, unique_name=unique_name, copy=copy)
+export_folders <- function(manifest, out_dir, out_file, 
+                           label_col="prediction", file_col="filepath",
+                           unique_name='uniquename', copy=FALSE) {
+  animl_py <- animl_py_is_available()
+  manifest <- animl_py$export_folders(manifest, out_dir, out_file,
+                                      label_col=label_col, file_col=file_col,
+                                      unique_name=unique_name, copy=copy)
 }
 
 
@@ -36,7 +36,7 @@ export_folders <- function(manifest, out_dir, out_file, file_col="FilePath", lab
 #' \dontrun{
 #' remove_link(manifest)
 #' }
-remove_link <- function(manifest, link_col='Link'){
+remove_link <- function(manifest, link_col='link'){
   pbapply::pbapply(manifest[link_col], file.remove)
   manifest <- manifest[, !names(manifest) %in% c(link_col)]
   manifest
@@ -56,7 +56,7 @@ remove_link <- function(manifest, link_col='Link'){
 #' \dontrun{
 #' results <- updateResults(resultsfile, linkdir)
 #' }
-update_labels <- function(manifest, link_dir, unique_name='UniqueName'){
+update_labels_from_folders <- function(manifest, link_dir, unique_name='uniquename'){
   if (!dir.exists(link_dir)) {stop("The given directory does not exist.")}
   if (!unique_name %in% names(manifest)) {stop("Manifest does not have unique names, cannot match to sorted directories.")}
   

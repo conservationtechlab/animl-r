@@ -9,12 +9,12 @@ sequence_classification(
   empty,
   predictions_raw,
   classes,
-  station_col = "Station",
+  station_col = "station",
   empty_class = "",
   human_class = "",
   vehicle_class = "",
   sort_columns = NULL,
-  file_col = "FilePath",
+  file_col = "filepath",
   maxdiff = 60
 )
 }

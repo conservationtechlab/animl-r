@@ -17,6 +17,6 @@ Return MD empty, vehicle and human images in a dataframe
 }
 \examples{
 \dontrun{
-empty <- getEmpty(imagesall)
+empty <- get_empty(imagesall)
 }
 }

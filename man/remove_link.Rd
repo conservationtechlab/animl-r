@@ -4,7 +4,7 @@
 \alias{remove_link}
 \title{Remove Sorted Links}
 \usage{
-remove_link(manifest, link_col = "Link")
+remove_link(manifest, link_col = "link")
 }
 \arguments{
 \item{manifest}{DataFrame of classified images}

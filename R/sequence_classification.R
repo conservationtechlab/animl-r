@@ -33,12 +33,12 @@
 #'                                   station_column="StationID", maxdiff=60)
 #' }
 sequence_classification<-function(animals, empty, predictions_raw, classes, 
-                                  station_col="Station",
+                                  station_col="station",
                                   empty_class="",
                                   human_class="",
                                   vehicle_class="",
                                   sort_columns=NULL, 
-                                  file_col="FilePath", 
+                                  file_col="filepath", 
                                   maxdiff=60){
   # typechecking
   if (!is(animals, "data.frame")) { stop("'animals' must be a Data Frame.") }  
@@ -129,7 +129,7 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
   
   #sort animals and predictions
   if(is.null(sort_columns)){
-    sort_columns<-c(station_col,"DateTime")
+    sort_columns<-c(station_col,"datetime")
   }
   sort<-do.call(order,animals[,sort_columns])
   

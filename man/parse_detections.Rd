@@ -8,9 +8,8 @@ parse_detections(
   results,
   manifest = NULL,
   out_file = NULL,
-  buffer = 0.02,
   threshold = 0,
-  file_col = "Frame"
+  file_col = "frame"
 )
 }
 \arguments{
@@ -19,8 +18,6 @@ parse_detections(
 \item{manifest}{dataframe containing all frames}
 
 \item{out_file}{path to save dataframe}
-
-\item{buffer}{percentage buffer to move bbox away from image edge}
 
 \item{threshold}{confidence threshold to include bbox}
 

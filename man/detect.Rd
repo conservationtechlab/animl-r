@@ -11,7 +11,7 @@ detect(
   resize_height,
   letterbox = TRUE,
   confidence_threshold = 0.1,
-  file_col = "Frame",
+  file_col = "frame",
   batch_size = 1,
   num_workers = 1,
   device = NULL,
@@ -24,19 +24,25 @@ detect(
 
 \item{image_file_names}{list of image filenames, a single image filename, or folder}
 
-\item{letterbox}{}
+\item{resize_width}{width to resize images to}
+
+\item{resize_height}{height to resize images to}
+
+\item{letterbox}{if True, resize and pad image to keep aspect ratio, else resize without padding}
 
 \item{confidence_threshold}{only detections above this threshold are returned}
 
 \item{file_col}{select which column if image_file_names is a manifest}
 
+\item{batch_size}{size of each batch}
+
+\item{num_workers}{number of processes to handle the data}
+
+\item{device}{specify to run on cpu or gpu}
+
 \item{checkpoint_path}{path to checkpoint file}
 
 \item{checkpoint_frequency}{write results to checkpoint file every N images}
-
-\item{quiet}{print debugging statements when false, defaults to true}
-
-\item{image_size}{overrides default image size, 1280}
 }
 \value{
 list of dictionaries of MegaDetector detections

@@ -8,9 +8,9 @@ export_folders(
   manifest,
   out_dir,
   out_file,
-  file_col = "FilePath",
   label_col = "prediction",
-  unique_name = "UniqueName",
+  file_col = "filepath",
+  unique_name = "uniquename",
   copy = FALSE
 )
 }

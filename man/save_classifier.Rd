@@ -26,6 +26,12 @@ save_classifier(
 
 \item{scheduler}{}
 }
+\value{
+None
+}
 \description{
 Save model state weights
+}
+\examples{
+\dontrun{save_classifier(model, 'models/', 10, {'acc': 0.85})}
 }

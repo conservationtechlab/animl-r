@@ -24,63 +24,8 @@
 #' }
 build_file_manifest <- function(image_dir, exif=TRUE, out_file=NULL, 
                                 offset=0, recursive=TRUE) {
-  
-  if (animl:::check_file(out_file)) { return(load_data(out_file)) }
-  
-  if (!dir.exists(image_dir)) { stop("The given directory does not exist.") }
-  
-  # Reads files in directory and extracts their EXIF data
-  if (exif) {
-    files <- tryCatch( 
-      {
-        exifr::read_exif(image_dir, recursive = recursive,
-                         tags = c("filename", "FileModifyDate", "CreateDate", 
-                                  "File:ImageWidth", "File:ImageHeight"))
-      },
-      error = function(cond) { return(NULL) },
-      warning = function(cond) {},
-      finally = {}
-    )
-    if (length(files) == 0) {
-      files <- list.files(image_dir, full.names=TRUE, recursive = recursive)
-      files <- as.data.frame(files)
-    }
-    
-    colnames(files)[1] <- "FilePath"
-    files <- as.data.frame(files)
-    colnames(files)[colnames(files) == 'ImageWidth'] <- 'Width'
-    colnames(files)[colnames(files) == 'ImageHeight'] <- 'Height'
-    files$FileModifyDate <- as.POSIXct(files$FileModifyDate, format="%Y:%m:%d %H:%M:%S") + (offset*3600)
-    
-    # establish datetime
-    if ("CreateDate" %in% names(files)){
-      files$CreateDate <- as.POSIXct(files$CreateDate, format="%Y:%m:%d %H:%M:%S")
-      files <- files %>% dplyr::mutate("DateTime" = dplyr::coalesce(files$CreateDate, 
-                                                           files$FileModifyDate))
-    }
-    # Unable to get CreateDate from exif
-    else { files$DateTime = files$FileModifyDate }
-  }
-  # return simple file list 
-  else {
-    files <- list.files(image_dir, full.names = TRUE, recursive = recursive)
-    files <- as.data.frame(files)
-    colnames(files)[1] <- "FilePath"
-  }
-  
-  files$FileName <- sapply(files$FilePath, function(x) basename(x))
-  files$Extension <- sapply(files$FilePath, function(x) tolower(tools::file_ext(x)))
-  
-  # only keep images and videos
-  VALID_EXTENSIONS = c('png', 'jpg', 'jpeg', "tiff",
-                       "mp4", "avi", "mov", "wmv",
-                       "mpg", "mpeg", "asf", "m4v")
-  files <- files %>% dplyr::filter(.data[["Extension"]] %in% VALID_EXTENSIONS)
-  
-  #save output
-  if (!is.null(out_file)) { save_data(files, out_file) }
-  
-  return(files)
+  animl_py <- load_animl_py()
+  animl_py$build_file_manifest(image_dir, exif=exif, out_file=out_file, offset=offset, recursive=recursive)
 }
 
 
@@ -106,6 +51,7 @@ WorkingDirectory <- function(workingdir, pkg.env) {
   pkg.env$datadir <- paste0(basedir, "Data/")
   pkg.env$vidfdir <- paste0(basedir, "Frames/")
   pkg.env$linkdir <- paste0(basedir, "Sorted/")
+  pkg.env$visdir <- paste0(basedir, "Plots/")
   
   # Create directories if they do not already exist
   dir.create(pkg.env$datadir, recursive = T, showWarnings = F)
@@ -158,7 +104,7 @@ save_data <- function(data, out_file, prompt=TRUE) {
 
 load_data <- function(file) {
   ext <- strsplit(basename(file), split="\\.")[[1]][-1]
-  if (ext == "csv") { return(utils::read.csv(file)) }
+  if (tolower(ext) == "csv") { return(utils::read.csv(file)) }
   else{ stop("Error. Expecting a .csv file.") }
 }
 

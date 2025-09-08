@@ -15,3 +15,6 @@ dataframe version of csv
 \description{
 Load class list .csv file
 }
+\examples{
+\dontrun{classes <- load_class_list('andes_classes.csv')}
+}

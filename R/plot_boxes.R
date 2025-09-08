@@ -12,7 +12,7 @@
 #' mdres <- classifyImageMD(mdsession, images$FilePath[30000])
 #' plotBoxes(mdres, minconf = 0.5)
 #' }
-plot_boxes <- function(image, label = FALSE, minconf = 0) {
+plot_box <- function(image, label = FALSE, minconf = 0) {
   # animal, human, unused, vehicle
   col <- c("green", "red", "blue", "orange")
   
@@ -60,25 +60,39 @@ plot_boxes <- function(image, label = FALSE, minconf = 0) {
 
 }
 
-#' Crops all images from an input file with specific required columns: Frame,
-#' bbox1, bbox2, bbox3, and bbox4
+
+#' Plot all bounding boxes in a manifest
 #'
-#' @param imagelist The path for the input csv file
-#' @param outdir The path where generated cropped images should be uploaded
+#' @param manifest manifest of detections
+#' @param out_dir Name of the output directory
+#' @param file_col Column name containing file paths
+#' @param min_conf Confidence threshold to plot the box
+#' @param prediction flag determining whether prediction be printed alongside bounding box
 #'
-#' @return no return value, outputs the cropped image
+#' @return None
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' cropImagesFromFile("/image/path/file.csv", "/output/path/")
-#' }
-crop_images <- function(imagelist, outdir) {
-  uncropped_data <- load_data(imagelist)
-  
-  # for-loop over rows
-  for(i in 1:nrow(uncropped_data)) { 
-    #cropJpg(uncropped_data[i,],outdir)
-  }
+#' \dontrun{plot_all_bounding_boxes(manifest, 'Plots/''')}
+plot_all_bounding_boxes <- function(manifest, out_dir, file_col='frame',
+                                    min_conf=0.1, prediction=FALSE){
+  animl_py <- load_animl_py()
+  animl_py$plot_all_bounding_boxes(manifests, outdir, file_col=file_col, 
+                                   min_conf=min_conf, prediction=prediction)
 }
 
+
+#' Read a CSV manifest file and perform box plotting on the images.
+#'
+#' @param csv_file Path to the CSV file.
+#' @param output_dir Saved location  of boxed images output dir.
+#'
+#' @return None
+#' @export
+#'
+#' @examples
+#' \dontrun{plot_from_file('manifest.csv', 'Plots/''')}
+plot_from_file <- function(csv_file, output_dir){
+  animl_py <- load_animl_py()
+  animl_py$plot_from_file(csv_file, output_dir)
+}
