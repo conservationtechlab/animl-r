@@ -1,4 +1,4 @@
-# animl v2.0.0
+# animl v3.0.0
 
 Animl comprises a variety of machine learning tools for analyzing ecological data. The package includes a set of functions to classify subjects within camera trap field data and can handle both images and videos. 
 
@@ -21,14 +21,15 @@ library(animl)
 imagedir <- "examples/TestData"
 
 #create save-file placeholders and working directories
-WorkingDirectory(imagedir,globalenv())
+WorkingDirectory(imagedir, globalenv())
 
 # Read exif data for all images within base directory
 files <- build_file_manifest(imagedir, out_file=filemanifest, exif=TRUE)
 
 # Process videos, extract frames for ID
 allframes <- extract_frames(files, out_dir = vidfdir, out_file=imageframes,
-                           frames=2, parallel=T, workers=parallel::detectCores())
+                            frames=3, parallel=T, num_workers=parallel::detectCores())
+
 ```
 #### 2. Object Detection
 
@@ -37,14 +38,13 @@ This produces a dataframe of images, including frames taken from any videos to b
 More info on [MegaDetector](https://github.com/agentmorris/MegaDetector/tree/main).
 ```R
 #Load the Megadetector model
-md_py <- megadetector("/mnt/machinelearning/megaDetector/md_v5a.0.0.pt")
+md_py <- load_detector("/Models/md_v5a.0.0.pt", model_type = 'mdv5')
 
 # Obtain crop information for each image
-mdraw <- detect_MD_batch(md_py, allframes)
+mdraw <- detect(md_py, allframes, 1280, 1280, batch_size=4)
 
 # Add crop information to dataframe
-mdresults <- parse_MD(mdraw, manifest = allframes, out_file = detections)
-
+mdresults <- parse_detections(mdraw, manifest = allframes, out_file = detections)
 ```
 #### 3. Classification
 Then feed the crops into the classifier. We recommend only classifying crops identified by MD as animals.
@@ -56,29 +56,29 @@ animals <- get_animals(mdresults)
 # Set of crops with MD human, vehicle and empty MD predictions. 
 empty <- get_empty(mdresults)
 
-model_file <- "/Models/Southwest/v3/southwest_v3.pt"
-class_list <- "/Models/Southwest/v3/southwest_v3_classes.csv"
+# load class list
+classes <- load_class_list("/Models/Southwest/v3/southwest_v3_classes.csv")
+class_list <- classes$class
 
 # load the model
-southwest <- load_model(model_file, class_list)
+model_file <- "/Models/Southwest/v3/southwest_v3.pt"
+southwest <- load_classifier(model_file, len(class_list))
 
-# obtain species predictions
-animals <- predict_species(animals, southwest[[1]], southwest[[2]], raw=FALSE)
 
-# recombine animal detections with remaining detections
-manifest <- rbind(animals,empty)
+# obtain species predictions likelihoods
+pred_raw <- classify(southwest, animals, resize_width=299, resize_height=299, out_file=predictions, batch_size=4)
+
+# apply class_list labels and combine with empty set
+manifest <- single_classification(animals, empty, pred_raw, class_list)
 
 ```
 
-If your data includes videos or sequences, we recommend using the sequenceClassification algorithm.
+If your data includes videos or sequences, we recommend using the sequence_classification algorithm.
 This requires the raw output of the prediction algorithm.
 
 ```
-classes = southwest[[2]]$Code
-
 # Sequence Classification
-pred <- predict_species(animals, southwest[[1]], southwest[[2]], raw=TRUE)
-manifest <- sequenceClassification(animals, empty=empty, pred, classes, "Station", emptyclass="empty")
+manifest <- sequence_classification(animals, empty=empty, pred_raw, classes=class_list, station_col="station", empty_class="empty")
 ```
 
 # Models
@@ -91,10 +91,9 @@ The Conservation Technology Lab has several [models](https://sandiegozoo.app.box
 * R >= 4.0
 * Reticulate
 * Python >= 3.9
-* [Animl-Py = 1.4.3](https://github.com/conservationtechlab/animl-py)
+* [Animl-Py >= 3.0.0](https://github.com/conservationtechlab/animl-py)
 
 We recommend running animl on a computer with a dedicated GPU.
-Animl also depends on [exiftool](https://exiftool.org/index.html) for accessing file metadata.
 
 #### Python
 animl depends on python and will install python package dependencies if they are not available if installed via CRAN. <br> 

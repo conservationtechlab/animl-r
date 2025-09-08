@@ -4,10 +4,12 @@
 \alias{single_classification}
 \title{Get Maximum likelihood label for each Detection}
 \usage{
-single_classification(detections, predictions_raw, class_list)
+single_classification(animals, empty, predictions_raw, class_list)
 }
 \arguments{
-\item{detections}{manifest of animal detections}
+\item{animals}{manifest of animal detections}
+
+\item{empty}{manifest of md human, vehicle and empty images}
 
 \item{predictions_raw}{softmaxed likelihoods from predict_species}
 

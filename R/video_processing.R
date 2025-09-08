@@ -9,7 +9,7 @@
 #' @param frames number of frames to sample
 #' @param file_col string value indexing which column contains file paths
 #' @param parallel Toggle for parallel processing, defaults to FALSE
-#' @param workers number of processors to use if parallel, defaults to 1
+#' @param num_workers number of processors to use if parallel, defaults to 1
 #' @param checkpoint if not parallel, checkpoint ever n files, defaults to 1000
 #'
 #' @return dataframe of still frames for each video
@@ -20,18 +20,15 @@
 #' frames <- extractFrames(videos, out_dir = "C:\\Users\\usr\\Videos\\", frames = 5)
 #' }
 extract_frames <- function(files, out_dir = tempfile(), out_file = NULL,
-                           fps = NULL, frames = NULL, file_col="FilePath", 
-                           parallel = FALSE, workers = 1, checkpoint = 1000) {
-  if(reticulate::py_module_available("animl")){
-    animl_py <- reticulate::import("animl")
-  }
-  else{ stop('animl-py environment must be loaded first via reticulate') }
+                           fps = NULL, frames = NULL, file_col="filepath", 
+                           parallel = FALSE, num_workers = 1, checkpoint = 1000) {
+  animl_py <- load_animl_py()
   
   if (!is.null(fps)){ fps <- as.integer(fps) }
   if (!is.null(frames)){ frames <- as.integer(frames) }
 
   animl_py$extract_frames(files, out_dir, out_file=out_file, fps=fps, frames=frames, 
-                          file_col=file_col, parallel=parallel, workers=as.integer(workers), 
+                          file_col=file_col, parallel=parallel, num_workers=as.integer(num_workers), 
                           checkpoint=as.integer(checkpoint))
 }
 
