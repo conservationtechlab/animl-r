@@ -96,7 +96,7 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
     if(empty_class > ""){
       predempty[,empty_col] <- predempty$confidence.empty
       predempty<-predempty[,names(predempty)!="confidence.empty"]
-      classes[!(1:length(classes) %in% (which(classes[(nclasses+1):length(classes)]=="empty")+nclasses))]
+      classes <- classes[!(1:length(classes) %in% (which(classes[(nclasses+1):length(classes)]=="empty")+nclasses))]
     }else{
       empty_col<-which(names(predempty)=="confidence.empty")
       #classes <- c(classes, unique(empty$prediction)[which(unique(empty$prediction) ==  "empty")])
@@ -106,7 +106,7 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
     if(human_class > ""){
       predempty[,human_col] <- predempty$confidence.human
       predempty<-predempty[,names(predempty)!="confidence.human"]
-      classes[!(1:length(classes) %in% (which(classes[(nclasses+1):length(classes)]=="human")+nclasses))]
+      classes <- classes[!(1:length(classes) %in% (which(classes[(nclasses+1):length(classes)]=="human")+nclasses))]
     }else{
       human_col<-which(names(predempty)=="confidence.human")
       #classes <- c(classes, unique(empty$prediction)[which(unique(empty$prediction) ==  "human")])
@@ -116,7 +116,7 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
     if(vehicle_class > ""){
       predempty[,vehicle_col] <- predempty$confidence.vehicle
       predempty<-predempty[,names(predempty)!="confidence.vehicle"]
-      classes[!(1:length(classes) %in% (which(classes[(nclasses+1):length(classes)]=="vehicle")+nclasses))]
+      classes <- classes[!(1:length(classes) %in% (which(classes[(nclasses+1):length(classes)]=="vehicle")+nclasses))]
     }else{
       vehicle_col<-which(names(predempty)=="confidence.vehicle")
       #classes <- c(classes, unique(empty$prediction)[which(unique(empty$prediction) ==  "vehicle")])
