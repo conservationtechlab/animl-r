@@ -36,3 +36,80 @@ extract_miew_embeddings <- function(miew_model, manifest, file_col="filepath",
                                    num_workers=as.integer(num_workers),
                                    device=device)
 }
+
+
+#' Title
+#'
+#' @param A 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+remove_diagonal <- function(A){
+  animl_py <- load_animl_py()
+  animl_py$remove_diagonal(A)
+  
+}
+
+#' Computes euclidean squared distance of two sets of vectors
+#'
+#' @param input1 2-D feature matrix
+#' @param input2 2-D feature matrix
+#'
+#' @return distance matrix
+#' @export
+#'
+#' @examples
+euclidean_squared_distance <- function(input1, input2){
+  animl_py <- load_animl_py()
+  animl_py$euclidean_squared_distance(input1, input2)
+}
+
+#' Computes cosine distance of two sets of vectors
+#'
+#' @param input1 2-D feature matrix
+#' @param input2 2-D feature matrix 
+#' 
+#' @return
+#' @export
+#'
+#' @examples
+cosine_distance <- function(input1, input2){
+  animl_py <- load_animl_py()
+  animl_py$cosine_distance(input1, input2)
+}
+
+
+
+#'A wrapper function for computing distance matrix.
+#'
+#' @param input1 2-D feature matrix
+#' @param input2 2-D feature matrix
+#' @param metric "euclidean" or "cosine", Default is "euclidean"
+#'
+#' @return distance matrix
+#' @export
+#'
+#' @examples
+compute_distance_matrix <- function(input1, input2, metric='euclidean'){
+  animl_py <- load_animl_py()
+  animl_py$compute_distance_matrix(input1, input2, metric=metric)
+  
+}
+
+#' Computes the distance matrix in a batched manner to save memory.
+#'
+#' @param input1 2-D array of query features
+#' @param input2 2-D array of database features
+#' @param metric The distance metric to use. Options include 'euclidean', 'cosine', etc
+#' @param batch_size The number of rows from input1 to process at a time
+#'
+#' @return distance matrix
+#' @export
+#'
+#' @examples
+compute_batched_distance_matrix <- function(input1, input2, metric='cosine', batch_size=10){
+  animl_py <- load_animl_py()
+  animl_py$compute_batched_distance_matrix(input1, input2, metric=metric, batch_size=batch_size)
+}  
