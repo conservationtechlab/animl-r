@@ -20,10 +20,10 @@
   if(!reticulate::py_module_available("animl")){ animl_install() }
 
 
-  animl_py <- reticulate::import("animl")
+  animl_py <<- reticulate::import("animl")
  # if (animl_py$`__version__` != ANIML_VERSION){
 #    animl_update()
 #  }
 
-  print("animl-py loaded")
+  message("animl-py loaded successfully.")
 }

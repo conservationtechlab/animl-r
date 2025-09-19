@@ -1,6 +1,6 @@
 # VARIABLE FOR VERSION
-ANIML_VERSION = "3.0.0"
-
+ANIML_VERSION <- "3.0.0"
+animl_py <- NULL
 
 #' Create a miniconda environment for animl and install animl-py
 #'
