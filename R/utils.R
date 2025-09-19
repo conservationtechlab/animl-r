@@ -23,7 +23,6 @@ load_animl_py <- function() {
 #' @examples
 #' \dontrun{download_model('animl_py$CLASSIFIER$get('SDZWA_savanna_v3')')}
 download_model <- function(model_url, out_dir='models'){
-  animl_py <- load_animl_py()
   animl_py$download_model(model_url, outdir=out_dir)
   
 }
@@ -37,6 +36,5 @@ download_model <- function(model_url, out_dir='models'){
 #' @examples
 #' \dontrun{list_models()}
 list_models <- function(){
-  animl_py <- load_animl_py()
   animl_py$list_models
 }

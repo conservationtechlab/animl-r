@@ -16,7 +16,6 @@
 #' @examples
 #' \dontrun{train_main('training_cfg.yml')}
 train_main <- function(cfg){
-  animl_py <- load_animl_py()
   animl_py$train_main(cfg)
 }
 
@@ -31,6 +30,5 @@ train_main <- function(cfg){
 #' @examples
 #' \dontrun{test_main('training_cfg.yml')}
 test_main <- function(cfg){
-  animl_py <- load_animl_py()
   animl_py$test_main(cfg)
 }

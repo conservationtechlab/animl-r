@@ -46,7 +46,7 @@ extract_miew_embeddings <- function(miew_model, manifest, file_col="filepath",
 #' @export
 #'
 #' @examples
-#' \dontrun{}
+#' \dontrun{cleaned_dist <- remove_diagonal(dist_matrix)}
 remove_diagonal <- function(A){
   animl_py <- load_animl_py()
   animl_py$remove_diagonal(A)
@@ -62,7 +62,7 @@ remove_diagonal <- function(A){
 #' @export
 #'
 #' @examples
-#' \dontrun{}
+#' \dontrun{dist_matrix <- euclidean_squared_distance(embeddings, embeddings)}
 euclidean_squared_distance <- function(input1, input2){
   animl_py <- load_animl_py()
   animl_py$euclidean_squared_distance(input1, input2)
@@ -77,7 +77,7 @@ euclidean_squared_distance <- function(input1, input2){
 #' @export
 #'
 #' @examples
-#' \dontrun{}
+#' \dontrun{dist_matrix <- cosine_distance(embeddings, embeddings)}
 cosine_distance <- function(input1, input2){
   animl_py <- load_animl_py()
   animl_py$cosine_distance(input1, input2)
@@ -95,7 +95,7 @@ cosine_distance <- function(input1, input2){
 #' @export
 #'
 #' @examples
-#' \dontrun{}
+#' \dontrun{dist_matrix <- compute_distance_matrix(embeddings, embeddings, metric='cosine')}
 compute_distance_matrix <- function(input1, input2, metric='euclidean'){
   animl_py <- load_animl_py()
   animl_py$compute_distance_matrix(input1, input2, metric=metric)
@@ -113,7 +113,7 @@ compute_distance_matrix <- function(input1, input2, metric='euclidean'){
 #' @export
 #'
 #' @examples
-#' \dontrun{}
+#' \dontrun{dist_matrix <- compute_batched_distance_matrix(query_embeddings, database_embeddings, metric='cosine', batch_size=12)}
 compute_batched_distance_matrix <- function(input1, input2, metric='cosine', batch_size=10){
   animl_py <- load_animl_py()
   animl_py$compute_batched_distance_matrix(input1, input2, metric=metric, batch_size=batch_size)
