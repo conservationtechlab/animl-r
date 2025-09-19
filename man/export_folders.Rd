@@ -37,6 +37,6 @@ Create SymLink Directories and Sort Classified Images
 }
 \examples{
 \dontrun{
-manifest <- sort_species(manifest, link_dir)
+manifest <- export_folders(manifest, out_dir)
 }
 }

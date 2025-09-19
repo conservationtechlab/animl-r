@@ -7,7 +7,7 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{miew = load_miewid("/home/kyra/matchypatchy/Models/miewid_v3.bin")}
+#' \dontrun{miew = load_miewid("miewid_v3.bin")}
 load_miew <- function(file_path, device=NULL){
   animl_py <- load_animl_py()
   animl_py$load_miew(file_path, device=device)
@@ -27,7 +27,7 @@ load_miew <- function(file_path, device=NULL){
 #' @export
 #'
 #' @examples
-#' \dontrun{embeddings = extract_embeddings(manifest, miew)}
+#' \dontrun{embeddings = extract_embeddings(miew, manifest)}
 extract_miew_embeddings <- function(miew_model, manifest, file_col="filepath", 
                                     batch_size=1, num_workers=1, device=NULL){
   animl_py <- load_animl_py()
@@ -38,14 +38,15 @@ extract_miew_embeddings <- function(miew_model, manifest, file_col="filepath",
 }
 
 
-#' Title
+#' Removes the diagonal elements from a square matrix.
 #'
-#' @param A 
+#' @param A square matrix
 #'
-#' @return
+#' @return martix A with diagonals removed
 #' @export
 #'
 #' @examples
+#' \dontrun{}
 remove_diagonal <- function(A){
   animl_py <- load_animl_py()
   animl_py$remove_diagonal(A)
@@ -61,6 +62,7 @@ remove_diagonal <- function(A){
 #' @export
 #'
 #' @examples
+#' \dontrun{}
 euclidean_squared_distance <- function(input1, input2){
   animl_py <- load_animl_py()
   animl_py$euclidean_squared_distance(input1, input2)
@@ -71,10 +73,11 @@ euclidean_squared_distance <- function(input1, input2){
 #' @param input1 2-D feature matrix
 #' @param input2 2-D feature matrix 
 #' 
-#' @return
+#' @return distance matrix
 #' @export
 #'
 #' @examples
+#' \dontrun{}
 cosine_distance <- function(input1, input2){
   animl_py <- load_animl_py()
   animl_py$cosine_distance(input1, input2)
@@ -92,6 +95,7 @@ cosine_distance <- function(input1, input2){
 #' @export
 #'
 #' @examples
+#' \dontrun{}
 compute_distance_matrix <- function(input1, input2, metric='euclidean'){
   animl_py <- load_animl_py()
   animl_py$compute_distance_matrix(input1, input2, metric=metric)
@@ -109,6 +113,7 @@ compute_distance_matrix <- function(input1, input2, metric='euclidean'){
 #' @export
 #'
 #' @examples
+#' \dontrun{}
 compute_batched_distance_matrix <- function(input1, input2, metric='cosine', batch_size=10){
   animl_py <- load_animl_py()
   animl_py$compute_batched_distance_matrix(input1, input2, metric=metric, batch_size=batch_size)

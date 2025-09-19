@@ -43,6 +43,6 @@ This function can take
 }
 \examples{
 \dontrun{
-frames <- extractFrames(videos, out_dir = "C:\\\\Users\\\\usr\\\\Videos\\\\", frames = 5)
+frames <- extract_frames(manifest, out_dir = "C:\\\\Users\\\\usr\\\\Videos\\\\", frames = 5)
 }
 }

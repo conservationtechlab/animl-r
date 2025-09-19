@@ -13,7 +13,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' manifest <- sort_species(manifest, link_dir)
+#' manifest <- export_folders(manifest, out_dir)
 #' }
 export_folders <- function(manifest, out_dir, out_file=NULL, 
                            label_col="prediction", file_col="filepath",
@@ -22,6 +22,7 @@ export_folders <- function(manifest, out_dir, out_file=NULL,
   manifest <- animl_py$export_folders(manifest, out_dir, out_file,
                                       label_col=label_col, file_col=file_col,
                                       unique_name=unique_name, copy=copy)
+  return(manifest)
 }
 
 
@@ -40,7 +41,7 @@ export_folders <- function(manifest, out_dir, out_file=NULL,
 remove_link <- function(manifest, link_col='link'){
   pbapply::pbapply(manifest[link_col], file.remove)
   manifest <- manifest[, !names(manifest) %in% c(link_col)]
-  manifest
+  return(manifest)
 }
 
 
@@ -55,7 +56,7 @@ remove_link <- function(manifest, link_col='link'){
 #'
 #' @examples
 #' \dontrun{
-#' results <- updateResults(resultsfile, linkdir)
+#' results <- update_labels_from_folders(manifest, link_dir)
 #' }
 update_labels_from_folders <- function(manifest, link_dir, unique_name='uniquename'){
   if (!dir.exists(link_dir)) {stop("The given directory does not exist.")}

@@ -23,7 +23,7 @@ Plot bounding boxes on image from md results
 }
 \examples{
 \dontrun{
-animals <- classify(mdsession, images$FilePath[30000])
-plot_box(animals, minconf = 0.5, prediction=TRUE)
+test_image <- classify(classifier_model, test_image, file_col='filepath')
+plot_box(test_image, file_col='filepath', minconf = 0.5, prediction=TRUE)
 }
 }

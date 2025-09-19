@@ -58,11 +58,13 @@ Classification confidence is weighted by MD confidence.
 }
 \examples{
 \dontrun{
-predictions <-classifyCropsSpecies(images,modelfile,resize=456)
-animals <- allframes[allframes$max_detection_category==1,]
-empty <- setEmpty(allframes)
-animals <- sequenceClassification(animals, empty, predictions, classes,
-                                  empty_class = "Empty",
-                                  station_column="StationID", maxdiff=60)
+predictions_raw <-classify(classifier, images, resize_width=456, resize_height=456)
+animals <- get_animals(images)
+empty <- get_empty(images)
+animals <- sequence_classification(animals, empty, predictions_raw, classes,
+                                   station_column="StationID",
+                                   empty_class = "Empty",
+                                   sort_columns = c("StationID", "DateTime"),
+                                   maxdiff=60)
 }
 }

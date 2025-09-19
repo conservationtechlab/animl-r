@@ -21,6 +21,6 @@ Udate Results from File Browser
 }
 \examples{
 \dontrun{
-results <- updateResults(resultsfile, linkdir)
+results <- update_labels_from_folders(manifest, link_dir)
 }
 }

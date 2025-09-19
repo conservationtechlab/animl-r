@@ -22,5 +22,7 @@ classifier model
 Load a Classifier Model with animl-py
 }
 \examples{
-\dontrun{andes <- load_classifier('andes_v1.pt')}
+\dontrun{
+classes <- load_class_list('sdzwa_andes_v1_classes.csv')
+andes <- load_classifier('andes_v1.pt', nrow(classes))}
 }

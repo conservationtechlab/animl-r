@@ -18,5 +18,5 @@ meiwid model
 Load MiewID model
 }
 \examples{
-\dontrun{miew = load_miewid("/home/kyra/matchypatchy/Models/miewid_v3.bin")}
+\dontrun{miew = load_miewid("miewid_v3.bin")}
 }

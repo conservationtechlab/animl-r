@@ -8,11 +8,11 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{md_py <- megadetector("/mnt/machinelearning/megaDetector/md_v5a.0.0.pt")}
+#' \dontrun{md_py <- megadetector("/mnt/machinelearning/megaDetector/md_v5a.0.0.pt", model_type='mdv5', device = 'cuda:0')}
 load_detector <- function(model_path, model_type, device=NULL){
   # first check if animl-py is loaded
   animl_py <- load_animl_py()
-  animl_py$load_detector(model_path, model_type, device=device)
+  animl_py$load_detector(model_path, model_type=model_type, device=device)
 }
 
 
@@ -35,7 +35,7 @@ load_detector <- function(model_path, model_type, device=NULL){
 #' @export
 #'
 #' @examples
-#' \dontrun{mdres <- detectMD_batch(md_py, allframes$Frame)}
+#' \dontrun{mdres <- detect(md_py, allframes$Frame, 1280, 960, device='cpu')}
 detect <- function(detector, image_file_names, resize_width, resize_height,
                    letterbox=TRUE, confidence_threshold=0.1, file_col='frame',
                    batch_size=1, num_workers=1, device=NULL,

@@ -123,3 +123,6 @@ Mathias Tobler <br>
 Edgar Navarro <br>
 Josh Kessler <br>
 Jon Kohler <br>
+
+# Release Notes 
+## New for 3.0.0
