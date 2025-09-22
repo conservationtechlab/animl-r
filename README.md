@@ -50,8 +50,10 @@ mdraw <- detect(md_py, allframes, resize_width=1280, resize_height=960, batch_si
 # Add crop information to dataframe
 mdresults <- parse_detections(mdraw, manifest = allframes, out_file = detections)
 ```
+
 #### 3. Classification
 Then feed the crops into the classifier. We recommend only classifying crops identified by MD as animals.
+
 
 ```R
 # Pull out animal crops
@@ -73,13 +75,12 @@ pred_raw <- classify(southwest, animals, resize_width=480, resize_height=480, ou
 
 # apply class_list labels and combine with empty set
 manifest <- single_classification(animals, empty, pred_raw, class_list)
-
 ```
 
 If your data includes videos or sequences, we recommend using the sequence_classification algorithm.
 This requires the raw output of the prediction algorithm.
 
-```
+```R
 # Sequence Classification
 manifest <- sequence_classification(animals, empty=empty, pred_raw, classes=class_list, station_col="station", empty_class="empty")
 ```
@@ -92,10 +93,9 @@ Detectors:
 [MegaDetector v6](https://microsoft.github.io/CameraTraps/megadetector/) 
 
 
+# Installation
 
-## Installation
-
-#### Requirements
+### Requirements
 * R >= 4.0
 * Reticulate
 * Python >= 3.9
@@ -103,7 +103,7 @@ Detectors:
 
 We recommend running animl on a computer with a dedicated GPU.
 
-#### Python
+### Python
 animl depends on python and will install python package dependencies if they are not available if installed via CRAN. <br> 
 However, we recommend setting up a conda environment using the provided config file. 
 
@@ -124,6 +124,11 @@ install.packages('animl')
 Animl-r can also be installed by downloading this repo, opening the animl.Rproj file in RStudio and selecting Build -> Install Package.
 
 
+# Release Notes 
+## New for 3.0.0
+
+
+
 ### Contributors
 
 Kyra Swanson <br>
@@ -131,6 +136,3 @@ Mathias Tobler <br>
 Edgar Navarro <br>
 Josh Kessler <br>
 Jon Kohler <br>
-
-# Release Notes 
-## New for 3.0.0
