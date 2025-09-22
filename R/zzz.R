@@ -1,4 +1,5 @@
 .onLoad <- function(libname, pkgname) {
+  message('Loading animl R package...')
   requireNamespace("reticulate", quietly = TRUE)
   
   if (is.null(reticulate::miniconda_path())) {

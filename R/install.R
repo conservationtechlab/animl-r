@@ -69,7 +69,7 @@ animl_install <- function(py_env = "animl_env",
   # 3. Install the Earth Engine API
   message("\n3. Installing animl-py...")
   package = sprintf("animl==%s", animl_version)
-  reticulate::py_install(, envname=py_env, pip=TRUE)
+  reticulate::py_install(package, envname=py_env, pip=TRUE)
   
   message(paste("animl successfully installed.",
                 "Restart R session to see changes.\n"))
