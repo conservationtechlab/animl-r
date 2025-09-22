@@ -3,11 +3,12 @@
 Animl comprises a variety of machine learning tools for analyzing ecological data. The package includes a set of functions to classify subjects within camera trap field data and can handle both images and videos. 
 
 ## Table of Contents
-1. [Camera Trap Classificaton](#camera-trap-classification)
+1. [Tips for Use](#tips-for-use)
 2. [Models](#models)
 3. [Installation](#installation)
+4. [Release Notes](#release-notes)
 
-## Camera Trap Classification
+# Tips for Use
 
 Below are the steps required for automatic identification of animals within camera trap images or videos. 
 
@@ -33,15 +34,18 @@ allframes <- extract_frames(files, out_dir = vidfdir, out_file=imageframes,
 ```
 #### 2. Object Detection
 
-This produces a dataframe of images, including frames taken from any videos to be fed into the classifier. The authors recommend a two-step approach using Microsoft's 'MegaDector' object detector to first identify potential animals and then using a second classification model trained on the species of interest. 
+This produces a dataframe of images, including frames taken from any videos to be fed into the classifier. The authors recommend a two-step approach using the 'MegaDector' object detector to first identify potential animals and then using a second classification model trained on the species of interest. 
 
-More info on [MegaDetector](https://github.com/agentmorris/MegaDetector/tree/main).
+More info on <br>
+[MegaDetector v5/v1000](https://github.com/agentmorris/MegaDetector/tree/main) <br>
+[MegaDetector v6](https://microsoft.github.io/CameraTraps/megadetector/) 
+
 ```R
 #Load the Megadetector model
-md_py <- load_detector("/Models/md_v5a.0.0.pt", model_type = 'mdv5')
+md_py <- load_detector("/Models/md_v5a.0.0.pt", model_type = 'mdv5', device='cuda:0')
 
 # Obtain crop information for each image
-mdraw <- detect(md_py, allframes, 1280, 1280, batch_size=4)
+mdraw <- detect(md_py, allframes, resize_width=1280, resize_height=960, batch_size=4, device='cuda:0')
 
 # Add crop information to dataframe
 mdresults <- parse_detections(mdraw, manifest = allframes, out_file = detections)
@@ -64,9 +68,8 @@ class_list <- classes$class
 model_file <- "/Models/Southwest/v3/southwest_v3.pt"
 southwest <- load_classifier(model_file, len(class_list))
 
-
 # obtain species predictions likelihoods
-pred_raw <- classify(southwest, animals, resize_width=299, resize_height=299, out_file=predictions, batch_size=4)
+pred_raw <- classify(southwest, animals, resize_width=480, resize_height=480, out_file=predictions, batch_size=16, num_workers=8)
 
 # apply class_list labels and combine with empty set
 manifest <- single_classification(animals, empty, pred_raw, class_list)
@@ -83,7 +86,12 @@ manifest <- sequence_classification(animals, empty=empty, pred_raw, classes=clas
 
 # Models
 
-The Conservation Technology Lab has several [models](https://sandiegozoo.app.box.com/s/9f3xuqldvg9ysaix9c9ug8tdcrmc2eqx) available for use. 
+The Conservation Technology Lab has several [models](https://sandiegozoo.app.box.com/s/9f3xuqldvg9ysaix9c9ug8tdcrmc2eqx) available for use. <br><br>
+Detectors:
+[MegaDetector v5/v1000](https://github.com/agentmorris/MegaDetector/tree/main) <br>
+[MegaDetector v6](https://microsoft.github.io/CameraTraps/megadetector/) 
+
+
 
 ## Installation
 

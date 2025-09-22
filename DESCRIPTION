@@ -13,9 +13,6 @@ Imports:
     pbapply,
     reticulate,
     parallel,
-    exifr,
-    av,
     stats,
 Depends: 
     R (>= 4.0.0)
-
