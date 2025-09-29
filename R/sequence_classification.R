@@ -97,9 +97,6 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
       predempty[,empty_col] <- predempty$confidence.empty
       predempty<-predempty[,names(predempty)!="confidence.empty"]
       classes <- classes[!(1:length(classes) %in% (which(classes[(nclasses+1):length(classes)]=="empty")+nclasses))]
-    }else{
-      empty_col<-which(names(predempty)=="confidence.empty")
-      #classes <- c(classes, unique(empty$prediction)[which(unique(empty$prediction) ==  "empty")])
     }
     
     #update human column if present in the classifier
@@ -107,9 +104,6 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
       predempty[,human_col] <- predempty$confidence.human
       predempty<-predempty[,names(predempty)!="confidence.human"]
       classes <- classes[!(1:length(classes) %in% (which(classes[(nclasses+1):length(classes)]=="human")+nclasses))]
-    }else{
-      human_col<-which(names(predempty)=="confidence.human")
-      #classes <- c(classes, unique(empty$prediction)[which(unique(empty$prediction) ==  "human")])
     }
     
     #update vehicle column if present in the classifier
@@ -117,9 +111,17 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
       predempty[,vehicle_col] <- predempty$confidence.vehicle
       predempty<-predempty[,names(predempty)!="confidence.vehicle"]
       classes <- classes[!(1:length(classes) %in% (which(classes[(nclasses+1):length(classes)]=="vehicle")+nclasses))]
-    }else{
+    }
+    
+    #set columns if the are not in classes
+    if(empty_class==""){
+      empty_col<-which(names(predempty)=="confidence.empty")
+    }
+    if(human_class==""){
+      human_col<-which(names(predempty)=="confidence.human")
+    }
+    if(vehicle_class==""){
       vehicle_col<-which(names(predempty)=="confidence.vehicle")
-      #classes <- c(classes, unique(empty$prediction)[which(unique(empty$prediction) ==  "vehicle")])
     }
     
     animals$prediction <- classes[apply(predictions_raw, 1, which.max)]
