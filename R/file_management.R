@@ -22,6 +22,7 @@
 #' }
 build_file_manifest <- function(image_dir, exif=TRUE, out_file=NULL, 
                                 offset=0, recursive=TRUE) {
+  animl_py <- get("animl_py", envir = parent.env(environment()))
   animl_py$build_file_manifest(image_dir, exif=exif, out_file=out_file, offset=offset, recursive=recursive)
 }
 

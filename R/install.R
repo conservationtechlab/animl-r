@@ -18,62 +18,50 @@ animl_install <- function(py_env = "animl_env",
                           animl_version = ANIML_VERSION,
                           python_version = "3.12",
                           confirm=TRUE) {
+  # 1. Load environment if exists
+  message(sprintf("1. Loading Python Environment (%s)...", py_env))
+  try_error <- try(reticulate::use_condaenv(py_env, required = TRUE), silent=TRUE)
   
-  # 0. If Python not found install miniconda
-  if ((!reticulate::py_available(initialize = TRUE))) {
-    text <- paste(
-      "animl-r did not find any Python ENV on your system.",
-      "","Would you like to download and install Miniconda?",
-      "Miniconda is an open source environment management system for Python.",
-      "See https://docs.conda.io/en/latest/miniconda.html for more details.",
-      "Windows users must install miniconda/anaconda to use animl.",
-      "",
-      "If you think it is an error since you know you have a Python environment",
-      "try restarting your system.", sep = "\n")
-  
-    message(text)
+  # 2. Install if not exists
+  if (inherits(try_error, "try-error")) {
+    message(sprintf("%s not found \n", py_env))
+    # 2. Create new environment
+    message("\n", sprintf("2. Creating a Python Environment (%s)", py_env))
+    animl_path <- tryCatch(expr = create_pyenv(python_version = python_version, py_env = py_env),
+                           error = function(e) stop(e, "An error occur when animl_install was creating the Python Environment.",
+                                                    "Check that you've accepted the conda TOS and restart the R session, before trying again."))
+    #print(animl_path)
+    # 3. Install animl-py
+    message("\n3. Installing animl-py...")
+    package = sprintf("animl==%s", animl_version)
+    reticulate::py_install(package, envname=py_env, pip=TRUE)
     
-    if (confirm) {response <- readline("Would you like to install Miniconda? [Y/n]: ")} 
-    else {response <- "y"}
-    
-    repeat {
-      ch <- tolower(substring(response, 1, 1))
-      if (ch == "y" || ch == "") {
-        reticulate::install_miniconda()
-        message("Miniconda was successfully installed, please restart R and run animl_install() again.")
-        return(TRUE)
-      } 
-      else if (ch == "n") {
-        message("Installation aborted.")
-        return(FALSE)
-      }
-      else { response <- readline("Please answer yes or no: ")}
-    }
+    message("animl successfully installed. Restart R session to see changes.\n")
+    invisible(TRUE)
+    return(FALSE)
   }
+  # conda env exists
+  else{
+    return(TRUE)
+  }
+}
+
+
+#' Load animl-py if available
+#'
+#' @return animl-py module
+#' @export
+#'
+#' @examples
+#' \dontrun{animl_py <- load_animl_py()}
+load_animl_py <- function() {
+  if(reticulate::py_module_available("animl")){
+    animl_py <- reticulate::import("animl", delay_load = TRUE)
+  }
+  else{ stop('animl_env environment must be loaded first via reticulate') }
   
-  # 1. Remove environment if exists
-  message(sprintf("1. Removing the previous Python Environment (%s), if it exists ...", py_env))
-  try_error <- try(delete_pyenv(py_env), silent = TRUE)
-  if (inherits(try_error, "try-error")) {message(sprintf("%s not found \n", py_env))}
-  
-  # 2. Create new environment
-  message("\n", sprintf("2. Creating a Python Environment (%s)", py_env))
-  animl_path <- tryCatch(
-    expr = create_pyenv(python_version = python_version, py_env = py_env),
-    error = function(e) stop(e,
-      "An error occur when animl_install was creating the Python Environment.",
-      "Check that you've accepted the conda TOS and restart the R session, before trying again."
-    )
-  )
-  
-  # 3. Install the Earth Engine API
-  message("\n3. Installing animl-py...")
-  package = sprintf("animl==%s", animl_version)
-  reticulate::py_install(package, envname=py_env, pip=TRUE)
-  
-  message(paste("animl successfully installed.",
-                "Restart R session to see changes.\n"))
-  invisible(TRUE)
+  message("animl-py loaded successfully.")
+  return(animl_py)
 }
 
 

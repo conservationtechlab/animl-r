@@ -24,7 +24,7 @@ extract_frames <- function(files, out_dir = tempfile(), out_file = NULL,
                            parallel = FALSE, num_workers = 1, checkpoint = 1000) {
   if (!is.null(fps)){ fps <- as.integer(fps) }
   if (!is.null(frames)){ frames <- as.integer(frames) }
-
+  animl_py <- get("animl_py", envir = parent.env(environment()))
   animl_py$extract_frames(files, out_dir, out_file=out_file, fps=fps, frames=frames, 
                           file_col=file_col, parallel=parallel, num_workers=as.integer(num_workers), 
                           checkpoint=as.integer(checkpoint))

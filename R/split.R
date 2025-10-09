@@ -75,6 +75,7 @@ get_animals <- function(manifest){
 train_val_test <- function(manifest, out_dir=NULL, label_col="class",
                            file_col='filepath', percentage=c(0.7, 0.2, 0.1),
                            seed=NULL){
+  animl_py <- get("animl_py", envir = parent.env(environment()))
   animl_py$train_val_test(manifest, out_dir=out_dir, label_col=label_col,
                           file_col=file_col, percentage=percentage, seed=NULL)
 }
