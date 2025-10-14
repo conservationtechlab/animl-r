@@ -18,7 +18,7 @@
 #' @param empty_class a string indicating the class that should be considered 'Empty'
 #' @param human_class a string indicating the class that should be considered 'Human'
 #' @param vehicle_class a string indicating the class that should be considered 'Vehicle'
-#' @param sort_columns optional sort order. The default is 'station_column' and DateTime.
+#' @param sort_columns optional sort order. The default is 'station_column' and datetime.
 #' @param file_col a field indicating a single record. The default is FilePath for single images/videos.
 #' @param maxdiff maximum difference between images in seconds to be included in a sequence, defaults to 60
 #'
@@ -98,30 +98,32 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
     if(empty_class > ""){
       predempty[,empty_col] <- predempty$confidence.empty
       predempty<-predempty[,names(predempty)!="confidence.empty"]
-      classes[!(1:length(classes) %in% (which(classes[(nclasses+1):length(classes)]=="empty")+nclasses))]
-    }else{
-      empty_col<-which(names(predempty)=="confidence.empty")
-      #classes <- c(classes, unique(empty$prediction)[which(unique(empty$prediction) ==  "empty")])
+      classes <- classes[!(1:length(classes) %in% (which(classes[(nclasses+1):length(classes)]=="empty")+nclasses))]
     }
     
     #update human column if present in the classifier
     if(human_class > ""){
       predempty[,human_col] <- predempty$confidence.human
       predempty<-predempty[,names(predempty)!="confidence.human"]
-      classes[!(1:length(classes) %in% (which(classes[(nclasses+1):length(classes)]=="human")+nclasses))]
-    }else{
-      human_col<-which(names(predempty)=="confidence.human")
-      #classes <- c(classes, unique(empty$prediction)[which(unique(empty$prediction) ==  "human")])
+      classes <- classes[!(1:length(classes) %in% (which(classes[(nclasses+1):length(classes)]=="human")+nclasses))]
     }
     
     #update vehicle column if present in the classifier
     if(vehicle_class > ""){
       predempty[,vehicle_col] <- predempty$confidence.vehicle
       predempty<-predempty[,names(predempty)!="confidence.vehicle"]
-      classes[!(1:length(classes) %in% (which(classes[(nclasses+1):length(classes)]=="vehicle")+nclasses))]
-    }else{
+      classes <- classes[!(1:length(classes) %in% (which(classes[(nclasses+1):length(classes)]=="vehicle")+nclasses))]
+    }
+    
+    #set columns if the are not in classes
+    if(empty_class==""){
+      empty_col<-which(names(predempty)=="confidence.empty")
+    }
+    if(human_class==""){
+      human_col<-which(names(predempty)=="confidence.human")
+    }
+    if(vehicle_class==""){
       vehicle_col<-which(names(predempty)=="confidence.vehicle")
-      #classes <- c(classes, unique(empty$prediction)[which(unique(empty$prediction) ==  "vehicle")])
     }
     
     animals$prediction <- classes[apply(predictions_raw, 1, which.max)]
@@ -165,9 +167,9 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
     last_index = i+1
     
     # while within same sequence
-    while(!is.na(animals_sort$DateTime[last_index]) & !is.na(animals_sort$DateTime[i]) & 
+    while(!is.na(animals_sort$datetime[last_index]) & !is.na(animals_sort$datetime[i]) & 
           last_index<nrow(animals_sort) & animals_sort[last_index,station_col]==animals_sort[i,station_col] & 
-          difftime(animals_sort$DateTime[last_index], animals_sort$DateTime[i],units="secs") <= maxdiff){
+          difftime(animals_sort$datetime[last_index], animals_sort$datetime[i],units="secs") <= maxdiff){
       rows<-c(rows,last_index)
       last_index=last_index+1
     }

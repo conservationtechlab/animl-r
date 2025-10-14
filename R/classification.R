@@ -63,7 +63,7 @@ load_class_list <- function(classlist_file){
 #' @param resize_width image width input size
 #' @param resize_height image height input size
 #' @param batch_size batch size for generator 
-#' @param workers number of processes 
+#' @param num_workers number of processes 
 #'
 #' @return detection manifest with added prediction and confidence columns
 #' @export
