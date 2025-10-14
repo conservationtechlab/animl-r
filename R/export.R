@@ -13,15 +13,16 @@
 #'
 #' @examples
 #' \dontrun{
-#' manifest <- sort_species(manifest, link_dir)
+#' manifest <- export_folders(manifest, out_dir)
 #' }
 export_folders <- function(manifest, out_dir, out_file=NULL, 
                            label_col="prediction", file_col="filepath",
                            unique_name='uniquename', copy=FALSE) {
-  animl_py <- load_animl_py()
+  animl_py <- get("animl_py", envir = parent.env(environment()))
   manifest <- animl_py$export_folders(manifest, out_dir, out_file,
                                       label_col=label_col, file_col=file_col,
                                       unique_name=unique_name, copy=copy)
+  return(manifest)
 }
 
 
@@ -40,7 +41,7 @@ export_folders <- function(manifest, out_dir, out_file=NULL,
 remove_link <- function(manifest, link_col='link'){
   pbapply::pbapply(manifest[link_col], file.remove)
   manifest <- manifest[, !names(manifest) %in% c(link_col)]
-  manifest
+  return(manifest)
 }
 
 
@@ -55,7 +56,7 @@ remove_link <- function(manifest, link_col='link'){
 #'
 #' @examples
 #' \dontrun{
-#' results <- updateResults(resultsfile, linkdir)
+#' results <- update_labels_from_folders(manifest, link_dir)
 #' }
 update_labels_from_folders <- function(manifest, link_dir, unique_name='uniquename'){
   if (!dir.exists(link_dir)) {stop("The given directory does not exist.")}
@@ -84,7 +85,7 @@ update_labels_from_folders <- function(manifest, link_dir, unique_name='uniquena
 #' @examples
 #' \dontrun{export_megadetector(manifest, output_file= 'results.json', detector='MDv6')}
 export_megadetector <- function(manifest, output_file=NULL, detector='MegaDetector v5a'){
-  animl_py <- load_animl_py()
+  animl_py <- get("animl_py", envir = parent.env(environment()))
   animl_py$export_megadetector(manifest, output_file=output_file, detector=detector)
 }
 
@@ -102,6 +103,6 @@ export_megadetector <- function(manifest, output_file=NULL, detector='MegaDetect
 #' @examples
 #' \dontrun{export_timelapse(animals, empty, '/path/to/images/')}
 export_timelapse <- function(animals, empty, imagedir, only_animal=TRUE){
-  animl_py <- load_animl_py()
+  animl_py <- get("animl_py", envir = parent.env(environment()))
   animl_py$export_timelapse(animals, empty, imagedir, only_animal=only_animal)
 }

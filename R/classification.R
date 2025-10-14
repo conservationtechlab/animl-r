@@ -9,9 +9,11 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{andes <- load_classifier('andes_v1.pt')}
+#' \dontrun{
+#' classes <- load_class_list('sdzwa_andes_v1_classes.csv')
+#' andes <- load_classifier('andes_v1.pt', nrow(classes))}
 load_classifier <- function(model_path, len_classes, device=NULL, architecture="CTL"){
-  animl_py <- load_animl_py()
+  animl_py <- get("animl_py", envir = parent.env(environment()))
   animl_py$load_classifier(model_path, as.integer(len_classes), device=device, architecture=architecture)
 }
 
@@ -29,10 +31,10 @@ load_classifier <- function(model_path, len_classes, device=NULL, architecture="
 #' @export
 #'
 #' @examples
-#' \dontrun{save_classifier(model, 'models/', 10, {'acc': 0.85})}
+#' \dontrun{save_classifier(model, 'models/', 10, list(acc = 0.85))}
 save_classifier <- function(model, out_dir, epoch, stats, optimizer=NULL, scheduler=NULL){
-  animl_py <- load_animl_py()
-  animl_py$save_classifier(model, out_dir, epoch, stats, optimizer=optimizer, scheduler=scheduler)
+  animl_py <- get("animl_py", envir = parent.env(environment()))
+  animl_py$save_classifier(model, out_dir, epoch, reticulate::r_to_py(stats), optimizer=optimizer, scheduler=scheduler)
 }
 
 #' Load class list .csv file
@@ -71,12 +73,12 @@ load_class_list <- function(classlist_file){
   classify <- function(model, detections, device=NULL, out_file=NULL,
                        file_col='frame', crop=TRUE, normalize=TRUE,
                        resize_width=480, resize_height=480,
-                       batch_size=1, num_workers=1){
-  animl_py <- load_animl_py()
-  animl_py$classify(model, detections, device=device, out_file=out_file,
-                    file_col=file_col, crop=crop, normalize=normalize, 
-                    resize_width=as.integer(resize_width), resize_height=as.integer(resize_height),
-                    batch_size=as.integer(batch_size), num_workers=as.integer(num_workers))
+                       batch_size=1, workers=1){
+    animl_py <- get("animl_py", envir = parent.env(environment()))
+    animl_py$classify(model, detections, device=device, out_file=out_file,
+                      file_col=file_col, crop=crop, normalize=normalize, 
+                      resize_width=as.integer(resize_width), resize_height=as.integer(resize_height),
+                      batch_size=as.integer(batch_size), num_workers=as.integer(workers))
 }
 
 
@@ -91,8 +93,8 @@ load_class_list <- function(classlist_file){
 #' @export
 #'
 #' @examples
-#' \dontrun{animals <- single_classification(animals, pred_raw, class_list)}
+#' \dontrun{animals <- single_classification(animals, empty, pred_raw, class_list)}
 single_classification <- function(animals, empty, predictions_raw, class_list){
-  animl_py <- load_animl_py()
+  animl_py <- get("animl_py", envir = parent.env(environment()))
   animl_py$single_classification(animals, empty, predictions_raw, class_list)
 }

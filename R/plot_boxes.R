@@ -11,13 +11,12 @@
 #'
 #' @examples
 #' \dontrun{
-#' animals <- classify(mdsession, images$FilePath[30000])
-#' plot_box(animals, minconf = 0.5, prediction=TRUE)
+#' test_image <- classify(classifier_model, test_image, file_col='filepath')
+#' plot_box(test_image, file_col='filepath', minconf = 0.5, prediction=TRUE)
 #' }
 plot_box <- function(rows, file_col='filepath', min_conf = 0, prediction=FALSE) {
-  animl_py <- load_animl_py()
+  animl_py <- get("animl_py", envir = parent.env(environment()))
   animl_py$plot_box(rows, file_col=file_col, min_conf=min_conf, prediction=prediction)
-
 }
 
 
@@ -36,7 +35,7 @@ plot_box <- function(rows, file_col='filepath', min_conf = 0, prediction=FALSE) 
 #' \dontrun{plot_all_bounding_boxes(manifest, 'Plots/''')}
 plot_all_bounding_boxes <- function(manifest, out_dir, file_col='frame',
                                     min_conf=0.1, prediction=FALSE){
-  animl_py <- load_animl_py()
+  animl_py <- get("animl_py", envir = parent.env(environment()))
   animl_py$plot_all_bounding_boxes(manifest, out_dir, file_col=file_col, 
                                    min_conf=min_conf, prediction=prediction)
 }
@@ -53,6 +52,6 @@ plot_all_bounding_boxes <- function(manifest, out_dir, file_col='frame',
 #' @examples
 #' \dontrun{plot_from_file('manifest.csv', 'Plots/''')}
 plot_from_file <- function(csv_file, output_dir){
-  animl_py <- load_animl_py()
+  animl_py <- get("animl_py", envir = parent.env(environment()))
   animl_py$plot_from_file(csv_file, output_dir)
 }

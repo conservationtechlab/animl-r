@@ -22,7 +22,7 @@
 #' }
 build_file_manifest <- function(image_dir, exif=TRUE, out_file=NULL, 
                                 offset=0, recursive=TRUE) {
-  animl_py <- load_animl_py()
+  animl_py <- get("animl_py", envir = parent.env(environment()))
   animl_py$build_file_manifest(image_dir, exif=exif, out_file=out_file, offset=offset, recursive=recursive)
 }
 
@@ -121,7 +121,7 @@ load_data <- function(file) {
 #' }
 check_file <- function(file) {
   if (!is.null(file) && file.exists(file)) {
-    date <- exifr::read_exif(file, tags = "FileModifyDate")[[2]]
+    date <- file.info(file)$mtime
     date <- strsplit(date, split = " ")[[1]][1]
     if (tolower(readline(prompt = sprintf("Output file already exists and was last modified %s, would you like to load it? y/n: ", date)) == "y")) {
       return(TRUE)

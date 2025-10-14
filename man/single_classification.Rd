@@ -22,5 +22,5 @@ dataframe with prediction and confidence columns
 Get Maximum likelihood label for each Detection
 }
 \examples{
-\dontrun{animals <- single_classification(animals, pred_raw, class_list)}
+\dontrun{animals <- single_classification(animals, empty, pred_raw, class_list)}
 }

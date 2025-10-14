@@ -51,5 +51,5 @@ list of dictionaries of MegaDetector detections
 Apply MegaDetector to a Given Batch of Images
 }
 \examples{
-\dontrun{mdres <- detectMD_batch(md_py, allframes$Frame)}
+\dontrun{mdres <- detect(md_py, allframes$Frame, 1280, 960, device='cpu')}
 }

@@ -20,5 +20,5 @@ megadetector object
 Load an Object Detector
 }
 \examples{
-\dontrun{md_py <- megadetector("/mnt/machinelearning/megaDetector/md_v5a.0.0.pt")}
+\dontrun{md_py <- megadetector("/mnt/machinelearning/megaDetector/md_v5a.0.0.pt", model_type='mdv5', device = 'cuda:0')}
 }
