@@ -11,12 +11,14 @@ Animl comprises a variety of machine learning tools for analyzing ecological dat
 # Tips for Use
 
 Below are the steps required for automatic identification of animals within camera trap images or videos. 
+You must load the [reticulate](https://cran.r-project.org/web/packages/reticulate/index.html) library before loading animl into your workspace.
 
 #### 1. File Manifest
 
 First, build the file manifest of a given directory.
 
 ```R
+library(reticulate)
 library(animl)
 
 imagedir <- "examples/TestData"
@@ -126,7 +128,17 @@ Animl-r can also be installed by downloading this repo, opening the animl.Rproj 
 
 # Release Notes 
 ## New for 3.0.0
-
+ - compatible with animl-py v3.0.0
+ - remove package dependencies
+ - on load, also load animl-py
+ - change function name "predict_species" to "classify"
+ - add "load_detector" function that can handle MDv5, v6, v1000 and other YOLO models
+ - change "sort" to "export"
+ - add function to install animl-py and create conda env if does not exist
+ - add distance calculation functions for re-id
+ - fix bug in sequence_classification that mishandled overlap in classifier classes with megadetector classes
+ - changed function naming conventions to follow animl-py
+ - correct examples and documentation to reflect above changes
 
 
 ### Contributors
