@@ -108,7 +108,7 @@ check_python <- function(initialize = TRUE) {
 #' \dontrun{create_env("3.12", py_env='animl_env')}
 create_pyenv <- function(python_version, py_env = "animl_env") {
   #Check is Python is greather than 3.9
-  check_python(initialize=FALSE)
+  check_python(initialize=TRUE)
   pyenv_path <- reticulate::conda_create(py_env, python_version = python_version)
   print(pyenv_path)
   pyenv_path

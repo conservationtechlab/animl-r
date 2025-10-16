@@ -35,7 +35,7 @@ sequence_classification(
 
 \item{vehicle_class}{a string indicating the class that should be considered 'Vehicle'}
 
-\item{sort_columns}{optional sort order. The default is 'station_column' and DateTime.}
+\item{sort_columns}{optional sort order. The default is 'station_column' and datetime.}
 
 \item{file_col}{a field indicating a single record. The default is FilePath for single images/videos.}
 

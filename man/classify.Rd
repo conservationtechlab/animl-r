@@ -39,7 +39,7 @@ classify(
 
 \item{batch_size}{batch size for generator}
 
-\item{workers}{number of processes}
+\item{num_workers}{number of processes}
 }
 \value{
 detection manifest with added prediction and confidence columns
