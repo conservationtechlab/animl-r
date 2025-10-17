@@ -60,6 +60,10 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
   if(!is.numeric(maxdiff) | maxdiff<0){ stop("'maxdiff' must be a number >=0") }
   if(length(classes)!=ncol(predictions_raw)){ stop("'classes' must have the same length as the number or columns in 'predictions_raw'") }
   if(is.null(station_col) | length(station_col)>1){ stop("please provide a single character values for 'station_col'") }
+  if(!(empty_class %in% classes) & empty_class>""){ stop(paste0("empty_class '",empty_class,"' not found in classes")) }
+  if(!(human_class %in% classes) & human_class>""){ stop(paste0("human_class '",human_class,"' not found in classes")) }
+  if(!(vehicle_class %in% classes) & vehicle_class>""){ stop(paste0("vehicle_class '",vehicle_class,"' not found in classes")) }
+  
   
   #if column conf does not exist add it as 1s
   if(!("conf" %in% colnames(animals))){
