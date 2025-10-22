@@ -12,11 +12,13 @@
 #'
 #' @param animals sub-selection of all images that contain MD animals
 #' @param empty optional, data frame non-animal images (empty, human and vehicle) that will be merged back with animal imagages
-#' @param predictions data frame of prediction probabilities from the classifySpecies function
-#' @param classes a vector or species corresponding to the columns of 'predictions'
-#' @param empty_class a string indicating the class that should be considered 'Empty'
+#' @param predictions_raw data frame of prediction probabilities from the classifySpecies function
+#' @param classes class list associated with classifier model
 #' @param station_col a column in the animals and empty data frame that indicates the camera or camera station
-#' @param sort_columns optional sort order. The default is 'station_column' and DateTime.
+#' @param empty_class a string indicating the class that should be considered 'Empty'
+#' @param human_class a string indicating the class that should be considered 'Human'
+#' @param vehicle_class a string indicating the class that should be considered 'Vehicle'
+#' @param sort_columns optional sort order. The default is 'station_column' and datetime.
 #' @param file_col a field indicating a single record. The default is FilePath for single images/videos.
 #' @param maxdiff maximum difference between images in seconds to be included in a sequence, defaults to 60
 #'
@@ -25,20 +27,22 @@
 #'
 #' @examples
 #' \dontrun{
-#' predictions <-classifyCropsSpecies(images,modelfile,resize=456)
-#' animals <- allframes[allframes$max_detection_category==1,]
-#' empty <- setEmpty(allframes)
-#' animals <- sequenceClassification(animals, empty, predictions, classes,
-#'                                   empty_class = "Empty",
-#'                                   station_column="StationID", maxdiff=60)
+#' predictions_raw <-classify(classifier, images, resize_width=456, resize_height=456)
+#' animals <- get_animals(images)
+#' empty <- get_empty(images)
+#' animals <- sequence_classification(animals, empty, predictions_raw, classes,
+#'                                    station_column="StationID",
+#'                                    empty_class = "Empty",
+#'                                    sort_columns = c("StationID", "DateTime"),
+#'                                    maxdiff=60)
 #' }
-sequence_classification<-function(animals, empty, predictions_raw, classes, 
-                                  station_col="Station",
+sequence_classification<-function(animals, empty, predictions_raw, classes,
+                                  station_col="station",
                                   empty_class="",
                                   human_class="",
                                   vehicle_class="",
                                   sort_columns=NULL, 
-                                  file_col="FilePath", 
+                                  file_col="filepath", 
                                   maxdiff=60){
   # typechecking
   if (!is(animals, "data.frame")) { stop("'animals' must be a Data Frame.") }  
@@ -56,6 +60,10 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
   if(!is.numeric(maxdiff) | maxdiff<0){ stop("'maxdiff' must be a number >=0") }
   if(length(classes)!=ncol(predictions_raw)){ stop("'classes' must have the same length as the number or columns in 'predictions_raw'") }
   if(is.null(station_col) | length(station_col)>1){ stop("please provide a single character values for 'station_col'") }
+  if(!(empty_class %in% classes) & empty_class>""){ stop(paste0("empty_class '",empty_class,"' not found in classes")) }
+  if(!(human_class %in% classes) & human_class>""){ stop(paste0("human_class '",human_class,"' not found in classes")) }
+  if(!(vehicle_class %in% classes) & vehicle_class>""){ stop(paste0("vehicle_class '",vehicle_class,"' not found in classes")) }
+  
   
   #if column conf does not exist add it as 1s
   if(!("conf" %in% colnames(animals))){
@@ -94,30 +102,32 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
     if(empty_class > ""){
       predempty[,empty_col] <- predempty$confidence.empty
       predempty<-predempty[,names(predempty)!="confidence.empty"]
-      classes[!(1:length(classes) %in% (which(classes[(nclasses+1):length(classes)]=="empty")+nclasses))]
-    }else{
-      empty_col<-which(names(predempty)=="confidence.empty")
-      #classes <- c(classes, unique(empty$prediction)[which(unique(empty$prediction) ==  "empty")])
+      classes <- classes[!(1:length(classes) %in% (which(classes[(nclasses+1):length(classes)]=="empty")+nclasses))]
     }
     
     #update human column if present in the classifier
     if(human_class > ""){
       predempty[,human_col] <- predempty$confidence.human
       predempty<-predempty[,names(predempty)!="confidence.human"]
-      classes[!(1:length(classes) %in% (which(classes[(nclasses+1):length(classes)]=="human")+nclasses))]
-    }else{
-      human_col<-which(names(predempty)=="confidence.human")
-      #classes <- c(classes, unique(empty$prediction)[which(unique(empty$prediction) ==  "human")])
+      classes <- classes[!(1:length(classes) %in% (which(classes[(nclasses+1):length(classes)]=="human")+nclasses))]
     }
     
     #update vehicle column if present in the classifier
     if(vehicle_class > ""){
       predempty[,vehicle_col] <- predempty$confidence.vehicle
       predempty<-predempty[,names(predempty)!="confidence.vehicle"]
-      classes[!(1:length(classes) %in% (which(classes[(nclasses+1):length(classes)]=="vehicle")+nclasses))]
-    }else{
+      classes <- classes[!(1:length(classes) %in% (which(classes[(nclasses+1):length(classes)]=="vehicle")+nclasses))]
+    }
+    
+    #set columns if the are not in classes
+    if(empty_class==""){
+      empty_col<-which(names(predempty)=="confidence.empty")
+    }
+    if(human_class==""){
+      human_col<-which(names(predempty)=="confidence.human")
+    }
+    if(vehicle_class==""){
       vehicle_col<-which(names(predempty)=="confidence.vehicle")
-      #classes <- c(classes, unique(empty$prediction)[which(unique(empty$prediction) ==  "vehicle")])
     }
     
     animals$prediction <- classes[apply(predictions_raw, 1, which.max)]
@@ -129,7 +139,7 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
   
   #sort animals and predictions
   if(is.null(sort_columns)){
-    sort_columns<-c(station_col,"DateTime")
+    sort_columns<-c(station_col,"datetime")
   }
   sort<-do.call(order,animals[,sort_columns])
   
@@ -161,9 +171,9 @@ sequence_classification<-function(animals, empty, predictions_raw, classes,
     last_index = i+1
     
     # while within same sequence
-    while(!is.na(animals_sort$DateTime[last_index]) & !is.na(animals_sort$DateTime[i]) & 
+    while(!is.na(animals_sort$datetime[last_index]) & !is.na(animals_sort$datetime[i]) & 
           last_index<nrow(animals_sort) & animals_sort[last_index,station_col]==animals_sort[i,station_col] & 
-          difftime(animals_sort$DateTime[last_index], animals_sort$DateTime[i],units="secs") <= maxdiff){
+          difftime(animals_sort$datetime[last_index], animals_sort$datetime[i],units="secs") <= maxdiff){
       rows<-c(rows,last_index)
       last_index=last_index+1
     }

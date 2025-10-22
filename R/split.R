@@ -7,7 +7,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' empty <- getEmpty(imagesall)
+#' empty <- get_empty(imagesall)
 #' }
 get_empty <- function(manifest) {
   if (!is(manifest, "data.frame")) { stop("'manifest' must be Data Frame")}
@@ -48,9 +48,34 @@ get_empty <- function(manifest) {
 #'
 #' @examples
 #' \dontrun{
-#' animals <- getAnimals(imagesall)
+#' animals <- get_animals(imagesall)
 #' }
 get_animals <- function(manifest){
   if (!is(manifest, "data.frame")) { stop("'manifest' must be Data Frame")}
   return(manifest[manifest$category==1,])
+}
+
+
+#' Splits the manifest into training validation and test datasets for training
+#'
+#' @param manifest list of files to split for training
+#' @param out_dir location to save split lists to
+#' @param label_col column name containing class labels
+#' @param file_col column containing file paths
+#' @param percentage fraction of data dedicated to train-val-test
+#' @param seed RNG seed, if none will pick one at random 
+#'
+#' @return train manifest, validate manifest, test manifest, stats file
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#'   output <- train_val_test(manifest)
+#' }
+train_val_test <- function(manifest, out_dir=NULL, label_col="class",
+                           file_col='filepath', percentage=c(0.7, 0.2, 0.1),
+                           seed=NULL){
+  animl_py <- get("animl_py", envir = parent.env(environment()))
+  animl_py$train_val_test(manifest, out_dir=out_dir, label_col=label_col,
+                          file_col=file_col, percentage=percentage, seed=NULL)
 }

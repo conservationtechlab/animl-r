@@ -4,10 +4,5 @@ inst/doc
 .toml
 .cfg
 .ipynb
-.jpg
-.JPG
-.avi
-.AVI
 animl-py/src/animl/__pycache__/**
 animl-py/src/animl/.ipynb_checkpoints/**
-examples/
