@@ -11,14 +11,12 @@ Animl comprises a variety of machine learning tools for analyzing ecological dat
 # Tips for Use
 
 Below are the steps required for automatic identification of animals within camera trap images or videos. 
-You must load the [reticulate](https://cran.r-project.org/web/packages/reticulate/index.html) library before loading animl into your workspace.
 
 #### 1. File Manifest
 
 First, build the file manifest of a given directory.
 
 ```R
-library(reticulate)
 library(animl)
 
 imagedir <- "examples/TestData"
