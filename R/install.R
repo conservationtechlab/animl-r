@@ -85,8 +85,9 @@ check_python <- function(initialize = TRUE) {
   python_test <- reticulate::py_available(initialize=initialize)
   if (python_test) { py_version <- reticulate::py_discover_config()[["version"]]
   } 
-  else { stop("Unable to find a Python version, you will need to fix before run ",
-              "animl_initialize(). For more details run reticulate::py_available()")
+  else { stop("Unable to find a Python installation.",
+              "Please install Python befor running animl_initiaialzer().",
+              "For more details run reticulate::py_discover_config()")
   }
   if (utils::compareVersion(as.character(py_version), "3.9") == -1) {
     stop("animl needs Python >=3.9")
