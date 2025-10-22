@@ -1,61 +1,53 @@
-# animl v3.0.0
+# animl v2.0.0
 
 Animl comprises a variety of machine learning tools for analyzing ecological data. The package includes a set of functions to classify subjects within camera trap field data and can handle both images and videos. 
 
 ## Table of Contents
-1. [Tips for Use](#tips-for-use)
+1. [Camera Trap Classificaton](#camera-trap-classification)
 2. [Models](#models)
 3. [Installation](#installation)
-4. [Release Notes](#release-notes)
 
-# Tips for Use
+## Camera Trap Classification
 
 Below are the steps required for automatic identification of animals within camera trap images or videos. 
-You must load the [reticulate](https://cran.r-project.org/web/packages/reticulate/index.html) library before loading animl into your workspace.
 
 #### 1. File Manifest
 
 First, build the file manifest of a given directory.
 
 ```R
-library(reticulate)
 library(animl)
 
 imagedir <- "examples/TestData"
 
 #create save-file placeholders and working directories
-WorkingDirectory(imagedir, globalenv())
+WorkingDirectory(imagedir,globalenv())
 
 # Read exif data for all images within base directory
 files <- build_file_manifest(imagedir, out_file=filemanifest, exif=TRUE)
 
 # Process videos, extract frames for ID
 allframes <- extract_frames(files, out_dir = vidfdir, out_file=imageframes,
-                            frames=3, parallel=T, num_workers=parallel::detectCores())
-
+                           frames=2, parallel=T, workers=parallel::detectCores())
 ```
 #### 2. Object Detection
 
-This produces a dataframe of images, including frames taken from any videos to be fed into the classifier. The authors recommend a two-step approach using the 'MegaDector' object detector to first identify potential animals and then using a second classification model trained on the species of interest. 
+This produces a dataframe of images, including frames taken from any videos to be fed into the classifier. The authors recommend a two-step approach using Microsoft's 'MegaDector' object detector to first identify potential animals and then using a second classification model trained on the species of interest. 
 
-More info on <br>
-[MegaDetector v5/v1000](https://github.com/agentmorris/MegaDetector/tree/main) <br>
-[MegaDetector v6](https://microsoft.github.io/CameraTraps/megadetector/) 
-
+More info on [MegaDetector](https://github.com/agentmorris/MegaDetector/tree/main).
 ```R
 #Load the Megadetector model
-md_py <- load_detector("/Models/md_v5a.0.0.pt", model_type = 'mdv5', device='cuda:0')
+md_py <- megadetector("/mnt/machinelearning/megaDetector/md_v5a.0.0.pt")
 
 # Obtain crop information for each image
-mdraw <- detect(md_py, allframes, resize_width=1280, resize_height=960, batch_size=4, device='cuda:0')
+mdraw <- detect_MD_batch(md_py, allframes)
 
 # Add crop information to dataframe
-mdresults <- parse_detections(mdraw, manifest = allframes, out_file = detections)
-```
+mdresults <- parse_MD(mdraw, manifest = allframes, out_file = detections)
 
+```
 #### 3. Classification
 Then feed the crops into the classifier. We recommend only classifying crops identified by MD as animals.
-
 
 ```R
 # Pull out animal crops
@@ -64,48 +56,47 @@ animals <- get_animals(mdresults)
 # Set of crops with MD human, vehicle and empty MD predictions. 
 empty <- get_empty(mdresults)
 
-# load class list
-classes <- load_class_list("/Models/Southwest/v3/southwest_v3_classes.csv")
-class_list <- classes$class
+model_file <- "/Models/Southwest/v3/southwest_v3.pt"
+class_list <- "/Models/Southwest/v3/southwest_v3_classes.csv"
 
 # load the model
-model_file <- "/Models/Southwest/v3/southwest_v3.pt"
-southwest <- load_classifier(model_file, len(class_list))
+southwest <- load_model(model_file, class_list)
 
-# obtain species predictions likelihoods
-pred_raw <- classify(southwest, animals, resize_width=480, resize_height=480, out_file=predictions, batch_size=16, num_workers=8)
+# obtain species predictions
+animals <- predict_species(animals, southwest[[1]], southwest[[2]], raw=FALSE)
 
-# apply class_list labels and combine with empty set
-manifest <- single_classification(animals, empty, pred_raw, class_list)
+# recombine animal detections with remaining detections
+manifest <- rbind(animals,empty)
+
 ```
 
-If your data includes videos or sequences, we recommend using the sequence_classification algorithm.
+If your data includes videos or sequences, we recommend using the sequenceClassification algorithm.
 This requires the raw output of the prediction algorithm.
 
-```R
+```
+classes = southwest[[2]]$Code
+
 # Sequence Classification
-manifest <- sequence_classification(animals, empty=empty, pred_raw, classes=class_list, station_col="station", empty_class="empty")
+pred <- predict_species(animals, southwest[[1]], southwest[[2]], raw=TRUE)
+manifest <- sequenceClassification(animals, empty=empty, pred, classes, "Station", emptyclass="empty")
 ```
 
 # Models
 
-The Conservation Technology Lab has several [models](https://sandiegozoo.app.box.com/s/9f3xuqldvg9ysaix9c9ug8tdcrmc2eqx) available for use. <br><br>
-Detectors:
-[MegaDetector v5/v1000](https://github.com/agentmorris/MegaDetector/tree/main) <br>
-[MegaDetector v6](https://microsoft.github.io/CameraTraps/megadetector/) 
+The Conservation Technology Lab has several [models](https://sandiegozoo.app.box.com/s/9f3xuqldvg9ysaix9c9ug8tdcrmc2eqx) available for use. 
 
+## Installation
 
-# Installation
-
-### Requirements
+#### Requirements
 * R >= 4.0
 * Reticulate
 * Python >= 3.9
-* [Animl-Py >= 3.0.0](https://github.com/conservationtechlab/animl-py)
+* [Animl-Py = 1.4.3](https://github.com/conservationtechlab/animl-py)
 
 We recommend running animl on a computer with a dedicated GPU.
+Animl also depends on [exiftool](https://exiftool.org/index.html) for accessing file metadata.
 
-### Python
+#### Python
 animl depends on python and will install python package dependencies if they are not available if installed via CRAN. <br> 
 However, we recommend setting up a conda environment using the provided config file. 
 
@@ -124,21 +115,6 @@ Animl-r can be installed through CRAN:
 install.packages('animl')
 ```
 Animl-r can also be installed by downloading this repo, opening the animl.Rproj file in RStudio and selecting Build -> Install Package.
-
-
-# Release Notes 
-## New for 3.0.0
- - compatible with animl-py v3.0.0
- - remove package dependencies
- - on load, also load animl-py
- - change function name "predict_species" to "classify"
- - add "load_detector" function that can handle MDv5, v6, v1000 and other YOLO models
- - change "sort" to "export"
- - add function to install animl-py and create conda env if does not exist
- - add distance calculation functions for re-id
- - fix bug in sequence_classification that mishandled overlap in classifier classes with megadetector classes
- - changed function naming conventions to follow animl-py
- - correct examples and documentation to reflect above changes
 
 
 ### Contributors

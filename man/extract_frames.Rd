@@ -10,9 +10,9 @@ extract_frames(
   out_file = NULL,
   fps = NULL,
   frames = NULL,
-  file_col = "filepath",
+  file_col = "FilePath",
   parallel = FALSE,
-  num_workers = 1,
+  workers = 1,
   checkpoint = 1000
 )
 }
@@ -31,7 +31,7 @@ extract_frames(
 
 \item{parallel}{Toggle for parallel processing, defaults to FALSE}
 
-\item{num_workers}{number of processors to use if parallel, defaults to 1}
+\item{workers}{number of processors to use if parallel, defaults to 1}
 
 \item{checkpoint}{if not parallel, checkpoint ever n files, defaults to 1000}
 }
@@ -43,6 +43,6 @@ This function can take
 }
 \examples{
 \dontrun{
-frames <- extract_frames(manifest, out_dir = "C:\\\\Users\\\\usr\\\\Videos\\\\", frames = 5)
+frames <- extractFrames(videos, out_dir = "C:\\\\Users\\\\usr\\\\Videos\\\\", frames = 5)
 }
 }
