@@ -17,6 +17,6 @@ Return a dataframe of only MD animals
 }
 \examples{
 \dontrun{
-animals <- get_animals(imagesall)
+animals <- getAnimals(imagesall)
 }
 }

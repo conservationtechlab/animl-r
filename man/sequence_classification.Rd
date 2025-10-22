@@ -9,12 +9,10 @@ sequence_classification(
   empty,
   predictions_raw,
   classes,
-  station_col = "station",
+  station_col = "Station",
   empty_class = "",
-  human_class = "",
-  vehicle_class = "",
   sort_columns = NULL,
-  file_col = "filepath",
+  file_col = "FilePath",
   maxdiff = 60
 )
 }
@@ -23,23 +21,19 @@ sequence_classification(
 
 \item{empty}{optional, data frame non-animal images (empty, human and vehicle) that will be merged back with animal imagages}
 
-\item{predictions_raw}{data frame of prediction probabilities from the classifySpecies function}
-
-\item{classes}{class list associated with classifier model}
+\item{classes}{a vector or species corresponding to the columns of 'predictions'}
 
 \item{station_col}{a column in the animals and empty data frame that indicates the camera or camera station}
 
 \item{empty_class}{a string indicating the class that should be considered 'Empty'}
 
-\item{human_class}{a string indicating the class that should be considered 'Human'}
-
-\item{vehicle_class}{a string indicating the class that should be considered 'Vehicle'}
-
-\item{sort_columns}{optional sort order. The default is 'station_column' and datetime.}
+\item{sort_columns}{optional sort order. The default is 'station_column' and DateTime.}
 
 \item{file_col}{a field indicating a single record. The default is FilePath for single images/videos.}
 
 \item{maxdiff}{maximum difference between images in seconds to be included in a sequence, defaults to 60}
+
+\item{predictions}{data frame of prediction probabilities from the classifySpecies function}
 }
 \value{
 data frame with predictions and confidence values for animals and empty images
@@ -58,13 +52,11 @@ Classification confidence is weighted by MD confidence.
 }
 \examples{
 \dontrun{
-predictions_raw <-classify(classifier, images, resize_width=456, resize_height=456)
-animals <- get_animals(images)
-empty <- get_empty(images)
-animals <- sequence_classification(animals, empty, predictions_raw, classes,
-                                   station_column="StationID",
-                                   empty_class = "Empty",
-                                   sort_columns = c("StationID", "DateTime"),
-                                   maxdiff=60)
+predictions <-classifyCropsSpecies(images,modelfile,resize=456)
+animals <- allframes[allframes$max_detection_category==1,]
+empty <- setEmpty(allframes)
+animals <- sequenceClassification(animals, empty, predictions, classes,
+                                  empty_class = "Empty",
+                                  station_column="StationID", maxdiff=60)
 }
 }
