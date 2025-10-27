@@ -18,6 +18,6 @@ Check for files existence and prompt user if they want to load
 }
 \examples{
 \dontrun{
-  checkFile("path/to/newfile.csv")
+  check_file("path/to/newfile.csv")
 }
 }

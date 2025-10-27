@@ -23,7 +23,9 @@
 build_file_manifest <- function(image_dir, exif=TRUE, out_file=NULL, 
                                 offset=0, recursive=TRUE) {
   animl_py <- get("animl_py", envir = parent.env(environment()))
-  animl_py$build_file_manifest(image_dir, exif=exif, out_file=out_file, offset=offset, recursive=recursive)
+  manifest <- animl_py$build_file_manifest(image_dir, exif=exif, out_file=out_file, offset=offset, recursive=recursive)
+  manifest$datetime<-as.POSIXct(sapply(manifest$datetime, function(x) as.POSIXct(x)))  # hotfix for type error
+  return(manifest)
 }
 
 
@@ -117,7 +119,7 @@ load_data <- function(file) {
 #'
 #' @examples
 #' \dontrun{
-#'   checkFile("path/to/newfile.csv")
+#'   check_file("path/to/newfile.csv")
 #' }
 check_file <- function(file) {
   if (!is.null(file) && file.exists(file)) {
@@ -130,3 +132,37 @@ check_file <- function(file) {
   FALSE
 }
 
+
+
+#' Download specified model to the given directory.
+#'
+#' @param model_url url of the model to download, obtained via the constants above
+#' @param out_dir Directory to save the model.
+#'
+#' @returns None
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#'   list_models()
+#'   download_model("https://models.com/path/to/model.pt", out_dir='models')
+#' }
+download_model <- function(model_url, out_dir='models'){
+  animl_py <- get("animl_py", envir = parent.env(environment()))
+  animl_py$download_model(model_url, out_dir = out_dir)
+}
+
+#' List available models for download.
+#'
+#' @returns printout of models
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#'   list_models()
+#'   download_model("https://models.com/path/to/model.pt", out_dir='models')
+#' }
+list_models <- function(){
+  animl_py <- get("animl_py", envir = parent.env(environment()))
+  animl_py$list_models()
+}

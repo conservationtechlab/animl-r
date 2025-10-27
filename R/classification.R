@@ -73,12 +73,12 @@ load_class_list <- function(classlist_file){
   classify <- function(model, detections, device=NULL, out_file=NULL,
                        file_col='frame', crop=TRUE, normalize=TRUE,
                        resize_width=480, resize_height=480,
-                       batch_size=1, workers=1){
+                       batch_size=1, num_workers=1){
     animl_py <- get("animl_py", envir = parent.env(environment()))
     animl_py$classify(model, detections, device=device, out_file=out_file,
                       file_col=file_col, crop=crop, normalize=normalize, 
                       resize_width=as.integer(resize_width), resize_height=as.integer(resize_height),
-                      batch_size=as.integer(batch_size), num_workers=as.integer(workers))
+                      batch_size=as.integer(batch_size), num_workers=as.integer(num_workers))
 }
 
 
