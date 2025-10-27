@@ -47,7 +47,7 @@ save_classifier <- function(model, out_dir, epoch, stats, optimizer=NULL, schedu
 #' @examples
 #' \dontrun{classes <- load_class_list('andes_classes.csv')}
 load_class_list <- function(classlist_file){
-  read.csv(classlist_file)
+  utils::read.csv(classlist_file)
 }
 
 

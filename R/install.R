@@ -1,5 +1,5 @@
 # VARIABLE FOR VERSION
-ANIML_VERSION <- "3.0.0"
+ANIML_VERSION <- "3.0.1"
 animl_py <- NULL
 
 #' Create a miniconda environment for animl and install animl-py
@@ -19,24 +19,24 @@ animl_install <- function(py_env = "animl_env",
                           python_version = "3.12",
                           confirm=TRUE) {
   # 1. Load environment if exists
-  message(sprintf("1. Loading Python Environment (%s)...", py_env))
+  packageStartupMessage(sprintf("1. Loading Python Environment (%s)...", py_env))
   try_error <- try(reticulate::use_condaenv(py_env, required = TRUE), silent=TRUE)
   
   # 2. Install if not exists
   if (inherits(try_error, "try-error")) {
-    message(sprintf("%s not found \n", py_env))
+    packageStartupMessage(sprintf("%s not found \n", py_env))
     # 2. Create new environment
-    message("\n", sprintf("2. Creating a Python Environment (%s)", py_env))
+    packageStartupMessage("\n", sprintf("2. Creating a Python Environment (%s)", py_env))
     animl_path <- tryCatch(expr = create_pyenv(python_version = python_version, py_env = py_env),
                            error = function(e) stop(e, "An error occur when animl_install was creating the Python Environment.",
                                                     "Check that you've accepted the conda TOS and restart the R session, before trying again."))
     #print(animl_path)
     # 3. Install animl-py
-    message("\n3. Installing animl-py...")
-    package = sprintf("animl==%s", animl_version)
+    packageStartupMessage("\n3. Installing animl-py...")
+    package <- sprintf("animl==%s", animl_version)
     reticulate::py_install(package, envname=py_env, pip=TRUE)
     
-    message("animl successfully installed. Restart R session to see changes.\n")
+    packageStartupMessage("animl successfully installed. Restart R session to see changes.\n")
     invisible(TRUE)
     return(FALSE)
   }
@@ -60,16 +60,11 @@ load_animl_py <- function() {
   }
   else{ stop('animl_env environment must be loaded first via reticulate') }
   
-  message("animl-py loaded successfully.")
+  packageStartupMessage("animl-py loaded successfully.")
   return(animl_py)
 }
 
 
-
-animl_update <- function(){
-  
-
-}
 
 
 #' Check that the python version is compatible with the current version of animl-py
@@ -92,7 +87,7 @@ check_python <- function(initialize = TRUE) {
   if (utils::compareVersion(as.character(py_version), "3.9") == -1) {
     stop("animl needs Python >=3.9")
   }
-  message(sprintf("Python version %s compatible with animl.", py_version))
+  packageStartupMessage(sprintf("Python version %s compatible with animl.", py_version))
 }
 
 

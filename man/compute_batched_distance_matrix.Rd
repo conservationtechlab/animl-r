@@ -27,5 +27,7 @@ distance matrix
 Computes the distance matrix in a batched manner to save memory.
 }
 \examples{
-\dontrun{dist_matrix <- compute_batched_distance_matrix(query_embeddings, database_embeddings, metric='cosine', batch_size=12)}
+\dontrun{
+dist_matrix <- compute_batched_distance_matrix(query_embeddings, database_embeddings, 
+                                               metric='cosine', batch_size=12)}
 }

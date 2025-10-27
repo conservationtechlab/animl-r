@@ -15,7 +15,7 @@ classify(
   resize_width = 480,
   resize_height = 480,
   batch_size = 1,
-  workers = 1
+  num_workers = 1
 )
 }
 \arguments{
