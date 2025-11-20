@@ -48,23 +48,20 @@ WorkingDirectory <- function(workingdir, pkg.env) {
   
   # Assign specific directory paths
   basedir <- paste0(workingdir, "Animl-Directory/")
-  pkg.env$datadir <- paste0(basedir, "Data/")
-  pkg.env$vidfdir <- paste0(basedir, "Frames/")
   pkg.env$linkdir <- paste0(basedir, "Sorted/")
   pkg.env$visdir <- paste0(basedir, "Plots/")
   
   # Create directories if they do not already exist
-  dir.create(pkg.env$datadir, recursive = T, showWarnings = F)
-  dir.create(pkg.env$vidfdir, recursive = T, showWarnings = F)
   dir.create(pkg.env$linkdir, recursive = T, showWarnings = F)
+  dir.create(pkg.env$visdir, recursive = T, showWarnings = F)
   
   # Assign specific file paths
-  pkg.env$filemanifest <- paste0(pkg.env$datadir, "FileManifest.csv")
-  pkg.env$imageframes <- paste0(pkg.env$datadir, "ImageFrames.csv")
-  pkg.env$results <- paste0(pkg.env$datadir, "Results.csv")
-  pkg.env$predictions <- paste0(pkg.env$datadir, "Predictions.csv")
-  pkg.env$detections <- paste0(pkg.env$datadir, "Detections.csv")
-  pkg.env$mdraw <- paste0(pkg.env$datadir, "MD_Raw.json")
+  pkg.env$filemanifest <- paste0(pkg.env$basedir, "FileManifest.csv")
+  pkg.env$imageframes <- paste0(pkg.env$basedir, "ImageFrames.csv")
+  pkg.env$results <- paste0(pkg.env$basedir, "Results.csv")
+  pkg.env$predictions <- paste0(pkg.env$basedir, "Predictions.csv")
+  pkg.env$detections <- paste0(pkg.env$basedir, "Detections.csv")
+  pkg.env$mdraw <- paste0(pkg.env$basedir, "MD_Raw.json")
 }
 
 
@@ -112,6 +109,7 @@ load_data <- function(file) {
 #' Check for files existence and prompt user if they want to load
 #'
 #' @param file the full path of the file to check
+#' @param output_type str to specify file name in prompt description
 #'
 #' @return a boolean indicating wether a file was found 
 #'             and the user wants to load or not
@@ -121,11 +119,12 @@ load_data <- function(file) {
 #' \dontrun{
 #'   check_file("path/to/newfile.csv")
 #' }
-check_file <- function(file) {
+check_file <- function(file, output_type) {
   if (!is.null(file) && file.exists(file)) {
     date <- file.info(file)$mtime
     date <- strsplit(date, split = " ")[[1]][1]
-    if (tolower(readline(prompt = sprintf("Output file already exists and was last modified %s, would you like to load it? y/n: ", date)) == "y")) {
+    prompt = sprintf("%s file already exists and was last modified %s, would you like to load it? y/n: ", output_type, date)
+    if (tolower(readline(prompt = prompt) == "y")) {
       return(TRUE)
     }
   }

@@ -11,7 +11,7 @@ detect(
   resize_height,
   letterbox = TRUE,
   confidence_threshold = 0.1,
-  file_col = "frame",
+  file_col = "filepath",
   batch_size = 1,
   num_workers = 1,
   device = NULL,

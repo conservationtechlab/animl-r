@@ -4,10 +4,12 @@
 \alias{check_file}
 \title{Check for files existence and prompt user if they want to load}
 \usage{
-check_file(file)
+check_file(file, output_type)
 }
 \arguments{
 \item{file}{the full path of the file to check}
+
+\item{output_type}{str to specify file name in prompt description}
 }
 \value{
 a boolean indicating wether a file was found

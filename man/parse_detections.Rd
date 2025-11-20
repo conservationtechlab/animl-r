@@ -9,7 +9,7 @@ parse_detections(
   manifest = NULL,
   out_file = NULL,
   threshold = 0,
-  file_col = "frame"
+  file_col = "filepath"
 )
 }
 \arguments{
