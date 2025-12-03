@@ -13,7 +13,7 @@ use_condaenv("animl-gpu")
 animl_py <- load_animl_py()
 
 
-imagedir <- "C:\\Users\\Kyra\\animl\\examples\\Southwest"
+imagedir <- "\\examples\\Southwest"
 
 #create global variable file and directory namesfrom animl import file_management
 WorkingDirectory(imagedir, globalenv())
@@ -41,7 +41,7 @@ allframes <- extract_frames(files, out_dir = vidfdir, out_file=imageframes,
 # MD, specify detectObjectBatch with argument 'mdversion'.
 
 # PyTorch Via Animl-Py
-md_py <- load_detector("C:\\Users\\Kyra\\animl-py\\models\\md_v5a.0.0.pt", model_type = 'mdv5')
+md_py <- load_detector("~/models/md_v5a.0.0.pt", model_type = 'mdv5')
 
 mdraw <- detect(md_py, allframes, 1280, 1280, batch_size=4)
 mdresults <- parse_detections(mdraw, manifest = allframes, out_file = detections)
@@ -56,9 +56,9 @@ empty <- get_empty(mdresults)
 # Species Classifier
 #===============================================================================
 
-classes <- load_class_list('C:\\Users\\Kyra\\animl-py\\models\\sdzwa_southwest_v3_classes.csv')
+classes <- load_class_list('~/models/sdzwa_southwest_v3_classes.csv')
 class_list <- classes$class
-southwest <- load_classifier('C:\\Users\\Kyra\\animl-py\\models\\sdzwa_southwest_v3.pt', length(class_list))
+southwest <- load_classifier('~/models/sdzwa_southwest_v3.pt', length(class_list))
 
 # get likelihoods
 pred_raw <- classify(southwest, animals, resize_width=299, resize_height=299, out_file=predictions, batch_size=4)

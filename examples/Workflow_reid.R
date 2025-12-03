@@ -11,7 +11,7 @@ library(animl)
 library(reticulate)
 use_condaenv("animl-gpu")
 
-imagedir <- "/home/kyra/animl-py/examples/Southwest/"
+imagedir <- "/examples/Southwest/"
 
 #create global variable file and directory namesfrom animl import file_management
 WorkingDirectory(imagedir, globalenv())
@@ -38,7 +38,7 @@ allframes <- extract_frames(files, out_dir = vidfdir, out_file=imageframes,
 # MD, specify detectObjectBatch with argument 'mdversion'.
 
 # PyTorch Via Animl-Py
-md_py <- megadetector("/home/kyra/animl-py/models/md_v5a.0.0.pt")
+md_py <- megadetector("~/models/md_v5a.0.0.pt")
 
 mdraw <- detect_MD_batch(md_py, allframes)
 mdresults <- parse_MD(mdraw, manifest = allframes, out_file = detections)
@@ -55,7 +55,7 @@ empty <- get_empty(mdresults)
 
 classes <- read.csv('~/models/sdzwa_southwest_v3_classes.csv')
 class_list <- classes$Code
-southwest <- load_model('/home/kyra/models/sdzwa_southwest_v3.pt', length(class_list))
+southwest <- load_model('~/models/sdzwa_southwest_v3.pt', length(class_list))
 
 # get likelihoods
 pred_raw <- predict_species(animals, southwest, out_file=predictions)
@@ -82,6 +82,6 @@ sort_MD(manifest, linkdir)
 #===============================================================================
 # REID
 #===============================================================================
-miew = load_miewid("/home/kyra/models/miewid_v3.bin")
+miew = load_miewid("~/models/miewid_v3.bin")
 embeddings = extract_embeddings(files, miew)
 
