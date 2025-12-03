@@ -1,5 +1,5 @@
 # VARIABLE FOR VERSION
-ANIML_VERSION <- "3.0.1"
+ANIML_VERSION <- "3.1.0"
 animl_py <- NULL
 
 #' Create a miniconda environment for animl and install animl-py
@@ -42,6 +42,8 @@ animl_install <- function(py_env = "animl_env",
   }
   # conda env exists
   else{
+    # check animl version
+    update_animl_py()
     return(TRUE)
   }
 }
@@ -65,6 +67,38 @@ load_animl_py <- function() {
 }
 
 
+#' Update animl-py version
+#'
+#' @param py_env name of python environment
+#' @param animl_version version of animl to install
+#'
+#' @returns None
+#' @export
+#'
+#' @examples
+#' \dontrun{update_animl_py(py_env = "animl_env", animl_version = ANIML_VERSION)}
+update_animl_py <- function(py_env = "animl_env",
+                            animl_version = ANIML_VERSION) {
+  # load animl-py, check version
+  animl_py <- reticulate::import("animl", delay_load = TRUE)
+  version_error <- try(animl_py$'__version__')
+  if (inherits(version_error, "try-error")){
+    print("animl-py version: ", version_error)
+    reticulate::py_install(sprintf("animl==%s", animl_version), envname=py_env, pip=TRUE)
+  }
+  else{
+    r_version <- strsplit(animl_version, ".", fixed = TRUE)[[1]]
+    py_version <- strsplit(version_error, ".", fixed = TRUE)[[1]]
+
+    #r == py
+    if (!identical(r_version, py_version)){
+      packageStartupMessage("animl-py version mismatch, reinstalling...")
+      reticulate::py_install(sprintf("animl==%s", animl_version), envname=py_env, pip=TRUE)
+    }
+  }
+}
+
+
 
 
 #' Check that the python version is compatible with the current version of animl-py
@@ -84,8 +118,8 @@ check_python <- function(initialize = TRUE) {
               "Please install Python befor running animl_initiaialzer().",
               "For more details run reticulate::py_discover_config()")
   }
-  if (utils::compareVersion(as.character(py_version), "3.9") == -1) {
-    stop("animl needs Python >=3.9")
+  if (utils::compareVersion(as.character(py_version), "3.12") == -1) {
+    stop("animl needs Python >=3.12")
   }
   packageStartupMessage(sprintf("Python version %s compatible with animl.", py_version))
 }

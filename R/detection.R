@@ -37,7 +37,7 @@ load_detector <- function(model_path, model_type, device=NULL){
 #' @examples
 #' \dontrun{mdres <- detect(md_py, allframes$Frame, 1280, 960, device='cpu')}
 detect <- function(detector, image_file_names, resize_width, resize_height,
-                   letterbox=TRUE, confidence_threshold=0.1, file_col='frame',
+                   letterbox=TRUE, confidence_threshold=0.1, file_col='filepath',
                    batch_size=1, num_workers=1, device=NULL,
                    checkpoint_path=NULL, checkpoint_frequency=-1){
   animl_py <- get("animl_py", envir = parent.env(environment()))
@@ -66,7 +66,7 @@ detect <- function(detector, image_file_names, resize_width, resize_height,
 #' \dontrun{
 #' mdresults <- parseMD(mdres)
 #' }
-parse_detections <- function(results, manifest=NULL, out_file=NULL, threshold=0, file_col="frame") {
+parse_detections <- function(results, manifest=NULL, out_file=NULL, threshold=0, file_col="filepath") {
   animl_py <- get("animl_py", envir = parent.env(environment()))
   animl_py$parse_detections(results, manifest=manifest, out_file=out_file,
                             threshold=threshold, file_col=file_col)

@@ -1,7 +1,7 @@
 #' Load a Classifier Model with animl-py
 #'
 #' @param model_path path to model
-#' @param len_classes path to class list
+#' @param classes path to class list or loaded class list
 #' @param device send model to the specified device
 #' @param architecture model architecture
 #'
@@ -12,9 +12,9 @@
 #' \dontrun{
 #' classes <- load_class_list('sdzwa_andes_v1_classes.csv')
 #' andes <- load_classifier('andes_v1.pt', nrow(classes))}
-load_classifier <- function(model_path, len_classes, device=NULL, architecture="CTL"){
+load_classifier <- function(model_path, classes, device=NULL, architecture="CTL"){
   animl_py <- get("animl_py", envir = parent.env(environment()))
-  animl_py$load_classifier(model_path, as.integer(len_classes), device=device, architecture=architecture)
+  animl_py$load_classifier(model_path, classes, device=device, architecture=architecture)
 }
 
 
@@ -55,25 +55,27 @@ load_class_list <- function(classlist_file){
 #'
 #' @param model loaded classifier model
 #' @param detections manifest of animal detections
-#' @param device send model to the specified device
-#' @param out_file path to csv to save results to
+#' @param resize_width image width input size
+#' @param resize_height image height input size
 #' @param file_col column in manifest containing file paths
 #' @param crop use bbox to crop images before feeding into model
 #' @param normalize normalize the tensor before inference
-#' @param resize_width image width input size
-#' @param resize_height image height input size
 #' @param batch_size batch size for generator 
-#' @param num_workers number of processes 
+#' @param num_workers number of processes
+#' @param device send model to the specified device
+#' @param out_file path to csv to save results to
 #'
 #' @return detection manifest with added prediction and confidence columns
 #' @export
 #'
 #' @examples
 #' \dontrun{animals <- classify(classifier, animals, file_col='filepath')}
-  classify <- function(model, detections, device=NULL, out_file=NULL,
-                       file_col='frame', crop=TRUE, normalize=TRUE,
+  classify <- function(model, detections, 
                        resize_width=480, resize_height=480,
-                       batch_size=1, num_workers=1){
+                       file_col='filepath', crop=TRUE, normalize=TRUE,
+                       batch_size=1, num_workers=1,
+                       device=NULL, out_file=NULL){
+  
     animl_py <- get("animl_py", envir = parent.env(environment()))
     animl_py$classify(model, detections, device=device, out_file=out_file,
                       file_col=file_col, crop=crop, normalize=normalize, 

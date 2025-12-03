@@ -92,9 +92,8 @@ export_megadetector <- function(manifest, output_file=NULL, detector='MegaDetect
 
 #' Converts the Manifests to a csv file that contains columns needed for TimeLapse conversion in later step
 #'
-#' @param animals a DataFrame that has entries of anuimal classification
-#' @param empty a DataFrame that has detection of non-animal objects in images
-#' @param imagedir location of root directory where all images are stored (can contain subdirectories)
+#' @param results a DataFrame that has entries of anuimal classification
+#' @param image_dir location of root directory where all images are stored (can contain subdirectories)
 #' @param only_animal A bool that confirms whether we want only animal detctions or all
 #'
 #' @returns animals.csv, non-anim.csv, csv_loc
@@ -102,7 +101,7 @@ export_megadetector <- function(manifest, output_file=NULL, detector='MegaDetect
 #'
 #' @examples
 #' \dontrun{export_timelapse(animals, empty, '/path/to/images/')}
-export_timelapse <- function(animals, empty, imagedir, only_animal=TRUE){
+export_timelapse <- function(results, image_dir, only_animal=TRUE){
   animl_py <- get("animl_py", envir = parent.env(environment()))
-  animl_py$export_timelapse(animals, empty, imagedir, only_animal=only_animal)
+  animl_py$export_timelapse(results, image_dir, only_animal=only_animal)
 }
