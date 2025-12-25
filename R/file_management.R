@@ -132,6 +132,41 @@ check_file <- function(file, output_type) {
 }
 
 
+#' Save data to a JSON file.
+#'
+#' @param data the dictionary to be saved
+#' @param out_file full path to save file to
+#' @param prompt prompt user to confirm overwrite
+#'
+#' @returns None
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' save_json(mdresults, 'mdraw.json')
+#' }
+save_json <- function(data, out_file, prompt=TRUE){
+  animl_py <- get("animl_py", envir = parent.env(environment()))
+  animl_py$save_json(data, out_file, prompt=prompt)
+}
+
+
+#' Load data from a JSON file.
+#'
+#' @param file the full path of the file to load
+#'
+#' @returns loaded json file
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' mdraw <- load_json('mdraw.json')
+#' }
+load_json <- function(file){
+  animl_py <- get("animl_py", envir = parent.env(environment()))
+  animl_py$load_json(file)
+}
+
 
 #' Download specified model to the given directory.
 #'

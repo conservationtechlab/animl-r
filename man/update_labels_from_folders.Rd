@@ -4,12 +4,12 @@
 \alias{update_labels_from_folders}
 \title{Udate Results from File Browser}
 \usage{
-update_labels_from_folders(manifest, link_dir, unique_name = "uniquename")
+update_labels_from_folders(manifest, export_dir, unique_name = "uniquename")
 }
 \arguments{
 \item{manifest}{dataframe containing file data and predictions}
 
-\item{link_dir}{directory to sort files into}
+\item{export_dir}{directory to sort files into}
 
 \item{unique_name}{column name indicating a unique file name for each row}
 }
@@ -21,6 +21,6 @@ Udate Results from File Browser
 }
 \examples{
 \dontrun{
-results <- update_labels_from_folders(manifest, link_dir)
+results <- update_labels_from_folders(manifest, export_dir)
 }
 }

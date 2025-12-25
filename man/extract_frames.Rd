@@ -8,8 +8,8 @@ extract_frames(
   files,
   frames = 5,
   fps = NULL,
-  out_dir = NULL,
   out_file = NULL,
+  out_dir = NULL,
   file_col = "filepath",
   parallel = FALSE,
   num_workers = 1
@@ -22,9 +22,9 @@ extract_frames(
 
 \item{fps}{frames per second, otherwise determine mathematically}
 
-\item{out_dir}{directory to save frames to if not null}
-
 \item{out_file}{csv file to which results will be saved}
+
+\item{out_dir}{directory to save frames to if not null}
 
 \item{file_col}{string value indexing which column contains file paths}
 
