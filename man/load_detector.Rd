@@ -9,12 +9,12 @@ load_detector(model_path, model_type, device = NULL)
 \arguments{
 \item{model_path}{path to detector model file}
 
-\item{model_type}{type of model expected ie "MDV5", "MDV6", "YOLO"}
+\item{model_type}{type of model expected ie "MDV5", "MDV6", "YOLO", "ONNX"}
 
 \item{device}{specify to run on cpu or gpu}
 }
 \value{
-megadetector object
+detector object
 }
 \description{
 Load an Object Detector

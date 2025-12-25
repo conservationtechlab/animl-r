@@ -17,8 +17,8 @@
 #' test_image <- classify(classifier_model, test_image, file_col='filepath')
 #' plot_box(test_image, file_col='filepath', minconf = 0.5, prediction=TRUE)
 #' }
-plot_box <- function(rows, file_col='filepath', min_conf = 0, label_col=NULL,
-                     show_confidence=FALSE, colors = NULL, detector_labels = NULL,
+plot_box <- function(rows, file_col='filepath', min_conf=0, label_col=NULL,
+                     show_confidence=FALSE, colors=NULL, detector_labels=NULL,
                      return_img=FALSE) {
   animl_py <- get("animl_py", envir = parent.env(environment()))
   animl_py$plot_box(rows, file_col=file_col, min_conf=min_conf, label_col=label_col,
@@ -44,8 +44,8 @@ plot_box <- function(rows, file_col='filepath', min_conf = 0, label_col=NULL,
 #' @examples
 #' \dontrun{plot_all_bounding_boxes(manifest, 'Plots/''')}
 plot_all_bounding_boxes <- function(manifest, out_dir, file_col='filepath', min_conf=0.1, 
-                                    label_col=FALSE, show_confidence = FALSE,
-                                    colors = NULL, detector_labels = NULL){
+                                    label_col=FALSE, show_confidence=FALSE,
+                                    colors=NULL, detector_labels=NULL){
   animl_py <- get("animl_py", envir = parent.env(environment()))
   animl_py$plot_all_bounding_boxes(manifest, out_dir, file_col=file_col, min_conf=min_conf, 
                                    label_col=label_col, show_confidence=show_confidence,

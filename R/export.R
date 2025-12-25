@@ -48,7 +48,7 @@ remove_link <- function(manifest, link_col='link'){
 #' Udate Results from File Browser
 #'
 #' @param manifest dataframe containing file data and predictions
-#' @param link_dir directory to sort files into
+#' @param export_dir directory to sort files into
 #' @param unique_name column name indicating a unique file name for each row
 #'
 #' @return dataframe with new "Species" column that contains the verified species
@@ -56,13 +56,13 @@ remove_link <- function(manifest, link_col='link'){
 #'
 #' @examples
 #' \dontrun{
-#' results <- update_labels_from_folders(manifest, link_dir)
+#' results <- update_labels_from_folders(manifest, export_dir)
 #' }
-update_labels_from_folders <- function(manifest, link_dir, unique_name='uniquename'){
-  if (!dir.exists(link_dir)) {stop("The given directory does not exist.")}
+update_labels_from_folders <- function(manifest, export_dir, unique_name='uniquename'){
+  if (!dir.exists(export_dir)) {stop("The given directory does not exist.")}
   if (!unique_name %in% names(manifest)) {stop("Manifest does not have unique names, cannot match to sorted directories.")}
   
-  FilePath <- list.files(link_dir, recursive = TRUE, include.dirs = TRUE)
+  FilePath <- list.files(export_dir, recursive = TRUE, include.dirs = TRUE)
   files <- data.frame(FilePath)
   
   files[unique_name] <- sapply(files$FilePath,function(x)strsplit(x,"/")[[1]][2])
@@ -73,20 +73,41 @@ update_labels_from_folders <- function(manifest, link_dir, unique_name='uniquena
 }
 
 
+#' Export a manifest to COCO format.
+#'
+#' @param manifest dataframe containing images and associated predictions
+#' @param class_list dataframe containing class names and their corresponding IDs
+#' @param out_file path to save the COCO formatted file
+#' @param info optional info section of COCO file
+#' @param licenses optional licenses section of COCO file
+#'
+#' @returns coco formatted json file saved to out_file
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' export_coco(manifest, classes, "path/to/out.json")
+#' }
+export_coco <- function(manifest, class_list, out_file, info=NULL, licenses=NULL){
+  animl_py <- get("animl_py", envir = parent.env(environment()))
+  animl_py$export_coco(manifest, class_list, out_file, info=info, licenses=licenses)
+}
+
 #' Converts the .csv file to the MD-formatted .json file.
 #'
 #' @param manifest dataframe containing images and associated detections
 #' @param output_file path to save the MD formatted file
 #' @param detector name of the detector model used
+#' @param prompt whether to prompt before overwriting existing file
 #'
 #' @return None
 #' @export
 #'
 #' @examples
 #' \dontrun{export_megadetector(manifest, output_file= 'results.json', detector='MDv6')}
-export_megadetector <- function(manifest, output_file=NULL, detector='MegaDetector v5a'){
+export_megadetector <- function(manifest, output_file=NULL, detector='MegaDetector v5a', prompt=TRUE){
   animl_py <- get("animl_py", envir = parent.env(environment()))
-  animl_py$export_megadetector(manifest, output_file=output_file, detector=detector)
+  animl_py$export_megadetector(manifest, output_file=output_file, detector=detector, prompt=prompt)
 }
 
 

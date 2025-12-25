@@ -7,7 +7,8 @@
 export_megadetector(
   manifest,
   output_file = NULL,
-  detector = "MegaDetector v5a"
+  detector = "MegaDetector v5a",
+  prompt = TRUE
 )
 }
 \arguments{
@@ -16,6 +17,8 @@ export_megadetector(
 \item{output_file}{path to save the MD formatted file}
 
 \item{detector}{name of the detector model used}
+
+\item{prompt}{whether to prompt before overwriting existing file}
 }
 \value{
 None

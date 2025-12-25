@@ -2,7 +2,7 @@
 % Please edit documentation in R/classification.R
 \name{load_classifier}
 \alias{load_classifier}
-\title{Load a Classifier Model with animl-py}
+\title{Load a Classifier Model and Class_list}
 \usage{
 load_classifier(model_path, classes, device = NULL, architecture = "CTL")
 }
@@ -16,10 +16,10 @@ load_classifier(model_path, classes, device = NULL, architecture = "CTL")
 \item{architecture}{model architecture}
 }
 \value{
-classifier model
+classifier model, class list
 }
 \description{
-Load a Classifier Model with animl-py
+Load a Classifier Model and Class_list
 }
 \examples{
 \dontrun{

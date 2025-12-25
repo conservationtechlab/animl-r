@@ -1,11 +1,11 @@
-#' Load a Classifier Model with animl-py
+#' Load a Classifier Model and Class_list
 #'
 #' @param model_path path to model
 #' @param classes path to class list or loaded class list
 #' @param device send model to the specified device
 #' @param architecture model architecture
 #'
-#' @return classifier model
+#' @return classifier model, class list
 #' @export
 #'
 #' @examples
@@ -77,10 +77,13 @@ load_class_list <- function(classlist_file){
                        device=NULL, out_file=NULL){
   
     animl_py <- get("animl_py", envir = parent.env(environment()))
-    animl_py$classify(model, detections, device=device, out_file=out_file,
-                      file_col=file_col, crop=crop, normalize=normalize, 
-                      resize_width=as.integer(resize_width), resize_height=as.integer(resize_height),
-                      batch_size=as.integer(batch_size), num_workers=as.integer(num_workers))
+    animl_py$classify(model, detections,
+                      resize_width=as.integer(resize_width),
+                      resize_height=as.integer(resize_height), 
+                      file_col=file_col, crop=crop, normalize=normalize,
+                      batch_size=as.integer(batch_size),
+                      num_workers=as.integer(num_workers),
+                      device=device, out_file=out_file)
 }
 
 

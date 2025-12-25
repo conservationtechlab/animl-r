@@ -87,11 +87,8 @@ update_animl_py <- function(py_env = "animl_env",
     reticulate::py_install(sprintf("animl==%s", animl_version), envname=py_env, pip=TRUE)
   }
   else{
-    r_version <- strsplit(animl_version, ".", fixed = TRUE)[[1]]
-    py_version <- strsplit(version_error, ".", fixed = TRUE)[[1]]
-
     #r == py
-    if (!identical(r_version, py_version)){
+    if (!ANIML_VERSION == version_error){
       packageStartupMessage("animl-py version mismatch, reinstalling...")
       reticulate::py_install(sprintf("animl==%s", animl_version), envname=py_env, pip=TRUE)
     }
