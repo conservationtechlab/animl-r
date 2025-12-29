@@ -1,8 +1,8 @@
 #' Load MiewID model
 #'
 #' @param file_path path to model weights
-#' @param device toggle cpu or gpu
-#'
+#' @param device device to load model to
+
 #' @returns meiwid model
 #' @export
 #'

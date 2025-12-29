@@ -48,7 +48,7 @@ remove_link <- function(manifest, link_col='link'){
 #' Udate Results from File Browser
 #'
 #' @param manifest dataframe containing file data and predictions
-#' @param link_dir directory to sort files into
+#' @param export_dir directory to sort files into
 #' @param unique_name column name indicating a unique file name for each row
 #'
 #' @return dataframe with new "Species" column that contains the verified species
@@ -56,13 +56,13 @@ remove_link <- function(manifest, link_col='link'){
 #'
 #' @examples
 #' \dontrun{
-#' results <- update_labels_from_folders(manifest, link_dir)
+#' results <- update_labels_from_folders(manifest, export_dir)
 #' }
-update_labels_from_folders <- function(manifest, link_dir, unique_name='uniquename'){
-  if (!dir.exists(link_dir)) {stop("The given directory does not exist.")}
+update_labels_from_folders <- function(manifest, export_dir, unique_name='uniquename'){
+  if (!dir.exists(export_dir)) {stop("The given directory does not exist.")}
   if (!unique_name %in% names(manifest)) {stop("Manifest does not have unique names, cannot match to sorted directories.")}
   
-  FilePath <- list.files(link_dir, recursive = TRUE, include.dirs = TRUE)
+  FilePath <- list.files(export_dir, recursive = TRUE, include.dirs = TRUE)
   files <- data.frame(FilePath)
   
   files[unique_name] <- sapply(files$FilePath,function(x)strsplit(x,"/")[[1]][2])

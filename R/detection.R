@@ -1,10 +1,10 @@
 #' Load an Object Detector
 #'
 #' @param model_path path to detector model file
-#' @param model_type type of model expected ie "MDV5", "MDV6", "YOLO"
+#' @param model_type type of model expected ie "MDV5", "MDV6", "YOLO", "ONNX"
 #' @param device specify to run on cpu or gpu
 #'
-#' @return megadetector object
+#' @return detector object
 #' @export
 #'
 #' @examples
@@ -51,11 +51,11 @@ detect <- function(detector, image_file_names, resize_width, resize_height,
 }
 
 
-#' parse MD results into a simple dataframe
+#' Parse MD results into a simple dataframe
 #'
 #' @param results json output from megadetector
-#' @param manifest dataframe containing all frames
-#' @param out_file path to save dataframe
+#' @param manifest optional dataframe containing all frames
+#' @param out_file optional path to save dataframe
 #' @param threshold confidence threshold to include bbox
 #' @param file_col column in manifest that refers to file paths 
 #' 
