@@ -18,7 +18,7 @@ export_megadetector(
 
 \item{detector}{name of the detector model used}
 
-\item{prompt}{whether to prompt before overwriting existing file}
+\item{prompt}{ask user to overwrite existing file}
 }
 \value{
 None
