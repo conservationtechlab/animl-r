@@ -9,8 +9,8 @@
 #
 #' @param image_dir folder to search through and find media files
 #' @param exif returns date and time information from exif data, defaults to true
-#' @param offset add offset in hours for videos when using the File Modified date, defaults to 0
 #' @param out_file directory to save .csv of manifest to
+#' @param offset add offset in hours for videos when using the File Modified date, defaults to 0
 #' @param recursive Should directories be scanned recursively? Default TRUE
 #'
 #' @return files dataframe with or without file dates
@@ -56,12 +56,12 @@ WorkingDirectory <- function(workingdir, pkg.env) {
   dir.create(pkg.env$visdir, recursive = T, showWarnings = F)
   
   # Assign specific file paths
-  pkg.env$filemanifest <- paste0(pkg.env$basedir, "FileManifest.csv")
-  pkg.env$imageframes <- paste0(pkg.env$basedir, "ImageFrames.csv")
-  pkg.env$results <- paste0(pkg.env$basedir, "Results.csv")
-  pkg.env$predictions <- paste0(pkg.env$basedir, "Predictions.csv")
-  pkg.env$detections <- paste0(pkg.env$basedir, "Detections.csv")
-  pkg.env$mdraw <- paste0(pkg.env$basedir, "MD_Raw.json")
+  pkg.env$filemanifest_file <- paste0(pkg.env$basedir, "FileManifest.csv")
+  pkg.env$imageframes_file <- paste0(pkg.env$basedir, "ImageFrames.csv")
+  pkg.env$results_file <- paste0(pkg.env$basedir, "Results.csv")
+  pkg.env$predictions_file <- paste0(pkg.env$basedir, "Predictions.csv")
+  pkg.env$detections_file <- paste0(pkg.env$basedir, "Detections.csv")
+  pkg.env$mdraw_file <- paste0(pkg.env$basedir, "MD_Raw.json")
 }
 
 

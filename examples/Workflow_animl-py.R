@@ -8,18 +8,14 @@
 # Setup
 #-------------------------------------------------------------------------------
 library(animl)
-library(reticulate)
-use_condaenv("animl-gpu")
-animl_py <- load_animl_py()
 
-
-imagedir <- "\\examples\\Southwest"
+imagedir <- "C:\\Users\\Kyra\\animl\\examples\\Southwest"
 
 #create global variable file and directory namesfrom animl import file_management
 WorkingDirectory(imagedir, globalenv())
 
 # Build file manifest for all images and videos within base directory
-files <- build_file_manifest(imagedir, out_file=filemanifest, exif=TRUE)
+files <- build_file_manifest(imagedir, out_file=filemanifest_file, exif=TRUE)
 
 #===============================================================================
 # Add Project-Specific Info
@@ -30,8 +26,8 @@ files <- build_file_manifest(imagedir, out_file=filemanifest, exif=TRUE)
 #files$Station <- sapply(files$FilePath, function(x) strsplit(x,"/")[[1]][basedepth])
 
 # Process videos, extract frames for ID
-allframes <- extract_frames(files, out_dir = vidfdir, out_file=imageframes,
-                            frames=3, parallel=T, num_workers=parallel::detectCores())
+allframes <- extract_frames(files, frames=3, out_file=imageframes_file,
+                            parallel=T, num_workers=parallel::detectCores())
 
 
 #===============================================================================
@@ -41,7 +37,7 @@ allframes <- extract_frames(files, out_dir = vidfdir, out_file=imageframes,
 # MD, specify detectObjectBatch with argument 'mdversion'.
 
 # PyTorch Via Animl-Py
-md_py <- load_detector("~/models/md_v5a.0.0.pt", model_type = 'mdv5')
+md_py <- load_detector("C://Users//Kyra//animl-py//models//md_v5a.0.0.pt", model_type = 'mdv5')
 
 mdraw <- detect(md_py, allframes, 1280, 1280, batch_size=4)
 mdresults <- parse_detections(mdraw, manifest = allframes, out_file = detections)

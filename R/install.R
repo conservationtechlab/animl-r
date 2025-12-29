@@ -1,6 +1,5 @@
 # VARIABLE FOR VERSION
 ANIML_VERSION <- "3.1.0"
-animl_py <- NULL
 
 #' Create a miniconda environment for animl and install animl-py
 #'
@@ -24,7 +23,8 @@ animl_install <- function(py_env = "animl_env",
   
   # 2. Install if not exists
   if (inherits(try_error, "try-error")) {
-    packageStartupMessage(sprintf("%s not found \n", py_env))
+    packageStartupMessage(try_error)
+    #packageStartupMessage(sprintf("%s not found \n", py_env))
     # 2. Create new environment
     packageStartupMessage("\n", sprintf("2. Creating a Python Environment (%s)", py_env))
     animl_path <- tryCatch(expr = create_pyenv(python_version = python_version, py_env = py_env),
@@ -42,8 +42,21 @@ animl_install <- function(py_env = "animl_env",
   }
   # conda env exists
   else{
-    # check animl version
-    update_animl_py()
+    # check animl-py installed
+    packageStartupMessage("\n2. Checking animl-py version...")
+    if(reticulate::py_module_available("animl")){
+      animl_py <- reticulate::import("animl", delay_load = TRUE)
+      py_version <- animl_py$'__version__'
+      # check version match
+      if (!identical(animl_version, py_version)){update_animl_py()}
+    }
+    # animl-py not yet installed
+    else{
+      packageStartupMessage("\n3. Installing animl-py...")
+      package <- sprintf("animl==%s", animl_version)
+      reticulate::use_condaenv(py_env)
+      reticulate::py_install(package, pip=TRUE)
+    }
     return(TRUE)
   }
 }
@@ -59,11 +72,13 @@ animl_install <- function(py_env = "animl_env",
 load_animl_py <- function() {
   if(reticulate::py_module_available("animl")){
     animl_py <- reticulate::import("animl", delay_load = TRUE)
+    packageStartupMessage("animl-py loaded successfully.")
+    return(animl_py)
   }
-  else{ stop('animl_env environment must be loaded first via reticulate') }
-  
-  packageStartupMessage("animl-py loaded successfully.")
-  return(animl_py)
+  else{
+    packageStartupMessage('Animl load failed')
+    packageStartupMessage(reticulate::py_config())
+  }
 }
 
 
@@ -80,22 +95,9 @@ load_animl_py <- function() {
 update_animl_py <- function(py_env = "animl_env",
                             animl_version = ANIML_VERSION) {
   # load animl-py, check version
-  animl_py <- reticulate::import("animl", delay_load = TRUE)
-  version_error <- try(animl_py$'__version__')
-  if (inherits(version_error, "try-error")){
-    print("animl-py version: ", version_error)
-    reticulate::py_install(sprintf("animl==%s", animl_version), envname=py_env, pip=TRUE)
-  }
-  else{
-    r_version <- strsplit(animl_version, ".", fixed = TRUE)[[1]]
-    py_version <- strsplit(version_error, ".", fixed = TRUE)[[1]]
-
-    #r == py
-    if (!identical(r_version, py_version)){
-      packageStartupMessage("animl-py version mismatch, reinstalling...")
-      reticulate::py_install(sprintf("animl==%s", animl_version), envname=py_env, pip=TRUE)
-    }
-  }
+  packageStartupMessage("animl-py version mismatch, reinstalling...")
+  reticulate::use_condaenv(py_env)
+  reticulate::py_install(sprintf("animl==%s", animl_version), pip=TRUE)
 }
 
 

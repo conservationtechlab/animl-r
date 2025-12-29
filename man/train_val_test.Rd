@@ -6,28 +6,34 @@
 \usage{
 train_val_test(
   manifest,
-  out_dir = NULL,
   label_col = "class",
   file_col = "filepath",
-  percentage = c(0.7, 0.2, 0.1),
-  seed = NULL
+  conf_col = "confidence",
+  out_dir = NULL,
+  val_size = 0.1,
+  test_size = 0.1,
+  random_state = 42
 )
 }
 \arguments{
 \item{manifest}{list of files to split for training}
 
-\item{out_dir}{location to save split lists to}
-
 \item{label_col}{column name containing class labels}
 
 \item{file_col}{column containing file paths}
 
-\item{percentage}{fraction of data dedicated to train-val-test}
+\item{conf_col}{column containing prediction confidence}
 
-\item{seed}{RNG seed, if none will pick one at random}
+\item{out_dir}{location to save split lists to}
+
+\item{val_size}{fraction of data dedicated to validation}
+
+\item{test_size}{fraction of data dedicated to testing}
+
+\item{random_state}{RNG seed for reproducibility}
 }
 \value{
-train manifest, validate manifest, test manifest, stats file
+train manifest, validate manifest, test manifest
 }
 \description{
 Splits the manifest into training validation and test datasets for training
