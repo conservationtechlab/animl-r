@@ -38,7 +38,7 @@ build_file_manifest <- function(image_dir, exif=TRUE, out_file=NULL,
 #'
 #' @examples
 #' \dontrun{
-#' WorkingDirectory(/home/kyra/animl/examples)
+#' WorkingDirectory("/home/kyra/animl/examples")
 #' }
 WorkingDirectory <- function(workingdir, pkg.env) {
   
