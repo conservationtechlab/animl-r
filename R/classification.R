@@ -14,6 +14,8 @@
 #' andes <- load_classifier('andes_v1.pt', nrow(classes))}
 load_classifier <- function(model_path, classes, device=NULL, architecture="CTL"){
   animl_py <- get("animl_py", envir = parent.env(environment()))
+
+  if(is.numeric(classes)){ classes = as.integer(classes)}
   animl_py$load_classifier(model_path, classes, device=device, architecture=architecture)
 }
 
