@@ -24,16 +24,16 @@ get_empty <- function(manifest) {
 
   categories <- unique(manifest$category)
   if (0 %in% categories) {
-    empty[empty$category == 0, ]$prediction <- "empty"
-    empty$confidence[empty$category == 0] <- 1
+    empty[which(empty$category == 0), "prediction"] <- "empty"
+    empty[which(empty$category == 0), "confidence"] <- 1
   }
   if (2 %in% categories) {
-    empty[empty$category == 2, ]$prediction <- "human"
-    empty$confidence[empty$category == 2] <- empty$conf[empty$category == 2]
+    empty[which(empty$category == 2), "prediction"] <- "human"
+    empty[which(empty$category == 2), "confidence"] <- empty$conf[which(empty$category == 2)]
   }
   if (3 %in% categories) {
-    empty[empty$category == 3, ]$prediction <- "vehicle"
-    empty$confidence[empty$category == 3] <- empty$conf[empty$category == 3]
+    empty[which(empty$category == 3), "prediction"] <- "vehicle"
+    empty[which(empty$category == 3), "confidence"] <- empty$conf[which(empty$category == 3)]
   }
   return(empty)
 }
