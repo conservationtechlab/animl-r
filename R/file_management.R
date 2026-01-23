@@ -9,7 +9,7 @@
 #
 #' @param image_dir folder to search through and find media files
 #' @param exif returns date and time information from exif data, defaults to true
-#' @param out_file directory to save .csv of manifest to
+#' @param out_file .csv file to save manifest as
 #' @param offset add offset in hours for videos when using the File Modified date, defaults to 0
 #' @param recursive Should directories be scanned recursively? Default TRUE
 #'
@@ -38,7 +38,7 @@ build_file_manifest <- function(image_dir, exif=TRUE, out_file=NULL,
 #'
 #' @examples
 #' \dontrun{
-#' WorkingDirectory("/home/kyra/animl/examples")
+#' WorkingDirectory("/home/kyra/animl/examples",globalenv())
 #' }
 WorkingDirectory <- function(workingdir, pkg.env) {
   

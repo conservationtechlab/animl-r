@@ -38,7 +38,7 @@ allframes <- extract_frames(files, out_dir = vidfdir, out_file=imageframes,
 # MD, specify detectObjectBatch with argument 'mdversion'.
 
 # PyTorch Via Animl-Py
-md_py <- megadetector("~/models/md_v5a.0.0.pt")
+md_py <- megadetector("~/models/md_v5b.0.0.pt")
 
 mdraw <- detect_MD_batch(md_py, allframes)
 mdresults <- parse_MD(mdraw, manifest = allframes, out_file = detections)

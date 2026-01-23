@@ -44,7 +44,7 @@ More info on <br>
 
 ```R
 #Load the Megadetector model
-detector <- load_detector("/Models/md_v5a.0.0.pt", model_type = 'mdv5', device='cuda:0')
+detector <- load_detector("/Models/md_v5b.0.0.pt", model_type = 'mdv5', device='cuda:0')
 
 # Obtain crop information for each image
 mdraw <- detect(detector, allframes, resize_width=1280, resize_height=960, batch_size=4, device='cuda:0')

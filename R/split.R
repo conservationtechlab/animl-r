@@ -52,7 +52,7 @@ get_empty <- function(manifest) {
 #' }
 get_animals <- function(manifest){
   if (!is(manifest, "data.frame")) { stop("'manifest' must be Data Frame")}
-  return(manifest[manifest$category==1,])
+  return(manifest[which(manifest$category==1),])
 }
 
 
@@ -65,7 +65,7 @@ get_animals <- function(manifest){
 #' @param out_dir location to save split lists to
 #' @param val_size fraction of data dedicated to validation
 #' @param test_size fraction of data dedicated to testing
-#' @param random_state RNG seed for reproducibility
+#' @param seed RNG seed for reproducibility
 #'
 #' @return train manifest, validate manifest, test manifest
 #' @export
@@ -76,9 +76,9 @@ get_animals <- function(manifest){
 #' }
 train_val_test <- function(manifest, label_col="class", file_col='filepath', 
                            conf_col = 'confidence', out_dir=NULL,
-                           val_size= 0.1, test_size = 0.1, random_state=42){
+                           val_size= 0.1, test_size = 0.1, seed=42){
   animl_py <- get("animl_py", envir = parent.env(environment()))
   animl_py$train_val_test(manifest, label_col="class", file_col='filepath', 
                           conf_col = 'confidence', out_dir=NULL,
-                          val_size= 0.1, test_size = 0.1, random_state=42)
+                          val_size= 0.1, test_size = 0.1, seed=42)
 }

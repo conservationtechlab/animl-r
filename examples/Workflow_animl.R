@@ -38,7 +38,7 @@ allframes <- extract_frames(files, frames=3, out_file=imageframes_file,
 # MD, specify detectObjectBatch with argument 'mdversion'.
 
 # PyTorch Via Animl-Py
-md_py <- load_detector("/home/kyra/models/md_v5a.0.0.pt", model_type = 'mdv5')
+md_py <- load_detector("/home/kyra/models/md_v5b.0.0.pt", model_type = 'mdv5')
 
 mdraw <- detect(md_py, allframes, 1280, 1280, batch_size=4)
 mdresults <- parse_detections(mdraw, manifest = allframes, out_file = detections_file)
@@ -77,16 +77,3 @@ manifest <- sequence_classification(animals, empty=empty, pred_raw, classes=clas
 #symlink species predictions
 alldata <- export_folders(manifest, linkdir)
 write.csv(alldata, results)
-
-#===============================================================================
-# REID
-#===============================================================================
-miew = load_classifier("/home/kyra/models/miewid_v3.onnx", NULL)[[1]]
-miew <- load_miew("/home/kyra/models/miewid_v3.bin")
-
-emb <- classify(miew, animals, 440, 440)
-
-pred_raw <- classify(sw_model, animals, resize_width=299, resize_height=299, out_file=predictions_file, batch_size=4)
-
-embeddings = extract_miew_embeddings(miew, manifest)
-
