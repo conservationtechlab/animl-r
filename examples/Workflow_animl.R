@@ -38,7 +38,7 @@ allframes <- extract_frames(files, frames=3, out_file=imageframes_file,
 # MD, specify detectObjectBatch with argument 'mdversion'.
 
 # PyTorch Via Animl-Py
-md_py <- load_detector("/home/kyra/models/md_v5b.0.0.pt", model_type = 'mdv5')
+md_py <- load_detector("/home/kyra/models/md_v5b.0.1.pt", model_type = 'mdv5')
 
 mdraw <- detect(md_py, allframes, 1280, 1280, batch_size=4)
 mdresults <- parse_detections(mdraw, manifest = allframes, out_file = detections_file)
@@ -77,3 +77,12 @@ manifest <- sequence_classification(animals, empty=empty, pred_raw, classes=clas
 #symlink species predictions
 alldata <- export_folders(manifest, linkdir)
 write.csv(alldata, results)
+
+
+#===============================================================================
+# Visualization
+#===============================================================================
+
+plot_all_bounding_boxes(manifest, visdir, label_col = 'prediction', show_confidence = TRUE, 
+                        colors = list("1" = c(0, 255, 0),"2" = c(0, 0, 255),"3" = c(255, 0, 0)))
+

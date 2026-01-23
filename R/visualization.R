@@ -35,14 +35,16 @@ plot_box <- function(rows, file_col='filepath', min_conf=0, label_col=NULL,
 #' @param min_conf Confidence threshold to plot the box
 #' @param label_col Column name containing class to print above the box. If None, no label is printed.
 #' @param show_confidence If true, show confidence score above the box.
-#' @param colors Named list mapping class labels to BGR color tuples for the bounding boxes.
+#' @param colors Named list mapping class labels to BGR colors for the bounding boxes.
 #' @param detector_labels Named list mapping detector categories to human-readable labels.
 #' 
 #' @return None
 #' @export
 #'
 #' @examples
-#' \dontrun{plot_all_bounding_boxes(manifest, 'Plots/''')}
+#' \dontrun{plot_all_bounding_boxes(manifest, 'Plots/', label_col='prediction',
+#'                                  show_confidence=TRUE, 
+#'                                  colors=list("1" = c(0, 255, 0),"2" = c(0, 0, 255),"3" = c(255, 0, 0)))}
 plot_all_bounding_boxes <- function(manifest, out_dir, file_col='filepath', min_conf=0.1, 
                                     label_col=FALSE, show_confidence=FALSE,
                                     colors=NULL, detector_labels=NULL){
