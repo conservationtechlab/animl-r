@@ -72,7 +72,7 @@ load_class_list <- function(classlist_file){
 #'
 #' @examples
 #' \dontrun{animals <- classify(classifier, animals, file_col='filepath')}
-  classify <- function(model, detections, 
+classify <- function(model, detections, 
                        resize_width=480, resize_height=480,
                        file_col='filepath', crop=TRUE, normalize=TRUE,
                        batch_size=1, num_workers=1,

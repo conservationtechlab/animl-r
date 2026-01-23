@@ -12,7 +12,7 @@ train_val_test(
   out_dir = NULL,
   val_size = 0.1,
   test_size = 0.1,
-  random_state = 42
+  seed = 42
 )
 }
 \arguments{
@@ -30,7 +30,7 @@ train_val_test(
 
 \item{test_size}{fraction of data dedicated to testing}
 
-\item{random_state}{RNG seed for reproducibility}
+\item{seed}{RNG seed for reproducibility}
 }
 \value{
 train manifest, validate manifest, test manifest

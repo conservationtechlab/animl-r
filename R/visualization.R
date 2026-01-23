@@ -53,20 +53,3 @@ plot_all_bounding_boxes <- function(manifest, out_dir, file_col='filepath', min_
                                    label_col=label_col, show_confidence=show_confidence,
                                    colors=colors, detector_labels=detector_labels)
 }
-
-
-#' Read a CSV manifest file and perform box plotting on the images.
-#'
-#' @param csv_file Path to the CSV file.
-#' @param out_dir Saved location  of boxed images output dir.
-#' @param file_col Column name containing file paths.
-#'
-#' @return None
-#' @export
-#'
-#' @examples
-#' \dontrun{plot_from_file('manifest.csv', 'Plots/''')}
-plot_from_file <- function(csv_file, out_dir, file_col = 'filepath'){
-  animl_py <- get("animl_py", envir = parent.env(environment()))
-  animl_py$plot_from_file(csv_file, out_dir, file_col=file_col)
-}

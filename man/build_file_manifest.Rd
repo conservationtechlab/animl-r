@@ -17,7 +17,7 @@ build_file_manifest(
 
 \item{exif}{returns date and time information from exif data, defaults to true}
 
-\item{out_file}{directory to save .csv of manifest to}
+\item{out_file}{.csv file to save manifest as}
 
 \item{offset}{add offset in hours for videos when using the File Modified date, defaults to 0}
 

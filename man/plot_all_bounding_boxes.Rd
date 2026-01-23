@@ -28,7 +28,7 @@ plot_all_bounding_boxes(
 
 \item{show_confidence}{If true, show confidence score above the box.}
 
-\item{colors}{Named list mapping class labels to BGR color tuples for the bounding boxes.}
+\item{colors}{Named list mapping class labels to BGR colors for the bounding boxes.}
 
 \item{detector_labels}{Named list mapping detector categories to human-readable labels.}
 }
@@ -39,5 +39,7 @@ None
 Plot all bounding boxes in a manifest
 }
 \examples{
-\dontrun{plot_all_bounding_boxes(manifest, 'Plots/''')}
+\dontrun{plot_all_bounding_boxes(manifest, 'Plots/', label_col='prediction',
+                                 show_confidence=TRUE, 
+                                 colors=list("1" = c(0, 255, 0),"2" = c(0, 0, 255),"3" = c(255, 0, 0)))}
 }
