@@ -44,7 +44,9 @@ plot_box <- function(rows, file_col='filepath', min_conf=0, label_col=NULL,
 #' @examples
 #' \dontrun{plot_all_bounding_boxes(manifest, 'Plots/', label_col='prediction',
 #'                                  show_confidence=TRUE, 
-#'                                  colors=list("1" = c(0, 255, 0),"2" = c(0, 0, 255),"3" = c(255, 0, 0)))}
+#'                                  colors=list("1" = c(0, 255, 0),
+#'                                              "2" = c(0, 0, 255),
+#'                                              "3" = c(255, 0, 0)))}
 plot_all_bounding_boxes <- function(manifest, out_dir, file_col='filepath', min_conf=0.1, 
                                     label_col=FALSE, show_confidence=FALSE,
                                     colors=NULL, detector_labels=NULL){
