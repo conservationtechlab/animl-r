@@ -9,16 +9,17 @@ load_detector(model_path, model_type, device = NULL)
 \arguments{
 \item{model_path}{path to detector model file}
 
-\item{model_type}{type of model expected ie "MDV5", "MDV6", "YOLO"}
+\item{model_type}{type of model expected ie "MDV5", "MDV6", "YOLO", "ONNX"}
 
 \item{device}{specify to run on cpu or gpu}
 }
 \value{
-megadetector object
+detector object
 }
 \description{
 Load an Object Detector
 }
 \examples{
-\dontrun{md_py <- megadetector("/mnt/machinelearning/megaDetector/md_v5a.0.0.pt", model_type='mdv5', device = 'cuda:0')}
+\dontrun{md_py <- megadetector("/mnt/machinelearning/megaDetector/md_v5a.0.0.pt", 
+                               model_type='mdv5', device='cuda:0')}
 }

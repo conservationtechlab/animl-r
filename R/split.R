@@ -24,16 +24,16 @@ get_empty <- function(manifest) {
 
   categories <- unique(manifest$category)
   if (0 %in% categories) {
-    empty[empty$category == 0, ]$prediction <- "empty"
-    empty$confidence[empty$category == 0] <- 1
+    empty[which(empty$category == 0), "prediction"] <- "empty"
+    empty[which(empty$category == 0), "confidence"] <- 1
   }
   if (2 %in% categories) {
-    empty[empty$category == 2, ]$prediction <- "human"
-    empty$confidence[empty$category == 2] <- empty$conf[empty$category == 2]
+    empty[which(empty$category == 2), "prediction"] <- "human"
+    empty[which(empty$category == 2), "confidence"] <- empty$conf[which(empty$category == 2)]
   }
   if (3 %in% categories) {
-    empty[empty$category == 3, ]$prediction <- "vehicle"
-    empty$confidence[empty$category == 3] <- empty$conf[empty$category == 3]
+    empty[which(empty$category == 3), "prediction"] <- "vehicle"
+    empty[which(empty$category == 3), "confidence"] <- empty$conf[which(empty$category == 3)]
   }
   return(empty)
 }
@@ -52,30 +52,33 @@ get_empty <- function(manifest) {
 #' }
 get_animals <- function(manifest){
   if (!is(manifest, "data.frame")) { stop("'manifest' must be Data Frame")}
-  return(manifest[manifest$category==1,])
+  return(manifest[which(manifest$category==1),])
 }
 
 
 #' Splits the manifest into training validation and test datasets for training
 #'
 #' @param manifest list of files to split for training
-#' @param out_dir location to save split lists to
 #' @param label_col column name containing class labels
 #' @param file_col column containing file paths
-#' @param percentage fraction of data dedicated to train-val-test
-#' @param seed RNG seed, if none will pick one at random 
+#' @param conf_col column containing prediction confidence
+#' @param out_dir location to save split lists to
+#' @param val_size fraction of data dedicated to validation
+#' @param test_size fraction of data dedicated to testing
+#' @param seed RNG seed for reproducibility
 #'
-#' @return train manifest, validate manifest, test manifest, stats file
+#' @return train manifest, validate manifest, test manifest
 #' @export
 #'
 #' @examples
 #' \dontrun{
 #'   output <- train_val_test(manifest)
 #' }
-train_val_test <- function(manifest, out_dir=NULL, label_col="class",
-                           file_col='filepath', percentage=c(0.7, 0.2, 0.1),
-                           seed=NULL){
+train_val_test <- function(manifest, label_col="class", file_col='filepath', 
+                           conf_col = 'confidence', out_dir=NULL,
+                           val_size= 0.1, test_size = 0.1, seed=42){
   animl_py <- get("animl_py", envir = parent.env(environment()))
-  animl_py$train_val_test(manifest, out_dir=out_dir, label_col=label_col,
-                          file_col=file_col, percentage=percentage, seed=NULL)
+  animl_py$train_val_test(manifest, label_col="class", file_col='filepath', 
+                          conf_col = 'confidence', out_dir=NULL,
+                          val_size= 0.1, test_size = 0.1, seed=42)
 }

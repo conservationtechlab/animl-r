@@ -2,24 +2,24 @@
 % Please edit documentation in R/classification.R
 \name{load_classifier}
 \alias{load_classifier}
-\title{Load a Classifier Model with animl-py}
+\title{Load a Classifier Model and Class_list}
 \usage{
-load_classifier(model_path, len_classes, device = NULL, architecture = "CTL")
+load_classifier(model_path, classes, device = NULL, architecture = "CTL")
 }
 \arguments{
 \item{model_path}{path to model}
 
-\item{len_classes}{path to class list}
+\item{classes}{path to class list or loaded class list}
 
 \item{device}{send model to the specified device}
 
 \item{architecture}{model architecture}
 }
 \value{
-classifier model
+classifier model, class list
 }
 \description{
-Load a Classifier Model with animl-py
+Load a Classifier Model and Class_list
 }
 \examples{
 \dontrun{

@@ -1,4 +1,4 @@
-# animl v3.0.0
+# animl v3.1.1
 
 Animl comprises a variety of machine learning tools for analyzing ecological data. The package includes a set of functions to classify subjects within camera trap field data and can handle both images and videos. 
 
@@ -25,11 +25,11 @@ imagedir <- "examples/TestData"
 WorkingDirectory(imagedir, globalenv())
 
 # Read exif data for all images within base directory
-files <- build_file_manifest(imagedir, out_file=filemanifest, exif=TRUE)
+files <- build_file_manifest(imagedir, out_file=filemanifest_file, exif=TRUE)
 
 # Process videos, extract frames for ID
-allframes <- extract_frames(files, out_dir = vidfdir, out_file=imageframes,
-                            frames=3, parallel=T, num_workers=parallel::detectCores())
+allframes <- extract_frames(files, frames=3, out_file=imageframes_file,
+                            parallel=T, num_workers=parallel::detectCores())
 
 ```
 #### 2. Object Detection
@@ -42,13 +42,13 @@ More info on <br>
 
 ```R
 #Load the Megadetector model
-md_py <- load_detector("/Models/md_v5a.0.0.pt", model_type = 'mdv5', device='cuda:0')
+detector <- load_detector("/Models/md_v5b.0.0.pt", model_type = 'mdv5', device='cuda:0')
 
 # Obtain crop information for each image
-mdraw <- detect(md_py, allframes, resize_width=1280, resize_height=960, batch_size=4, device='cuda:0')
+mdraw <- detect(detector, allframes, resize_width=1280, resize_height=960, batch_size=4, device='cuda:0')
 
 # Add crop information to dataframe
-mdresults <- parse_detections(mdraw, manifest = allframes, out_file = detections)
+mdresults <- parse_detections(mdraw, manifest = allframes, out_file = detections_file)
 ```
 
 #### 3. Classification
@@ -68,13 +68,14 @@ class_list <- classes$class
 
 # load the model
 model_file <- "/Models/Southwest/v3/southwest_v3.pt"
-southwest <- load_classifier(model_file, len(class_list))
+southwest <- load_classifier(model_file, nrow(class_list))
 
 # obtain species predictions likelihoods
-pred_raw <- classify(southwest, animals, resize_width=480, resize_height=480, out_file=predictions, batch_size=16, num_workers=8)
+pred_raw <- classify(southwest, animals, resize_width=480, resize_height=480, 
+                     out_file=predictions_file, batch_size=16, num_workers=8)
 
 # apply class_list labels and combine with empty set
-manifest <- single_classification(animals, empty, pred_raw, class_list)
+manifest <- single_classification(animals, empty, pred_raw, class_list$class)
 ```
 
 If your data includes videos or sequences, we recommend using the sequence_classification algorithm.
@@ -82,8 +83,35 @@ This requires the raw output of the prediction algorithm.
 
 ```R
 # Sequence Classification
-manifest <- sequence_classification(animals, empty=empty, pred_raw, classes=class_list, station_col="station", empty_class="empty")
+manifest <- sequence_classification(animals, empty=empty, pred_raw, classes=class_list,
+                                    station_col="station", empty_class="empty")
 ```
+
+#### 4. Export
+
+You can export the data into folders sorted by prediction: 
+```
+manifest <- export_folders(manifest, out_dir=linkdir, out_file=results_file)
+```
+or into folders sorted by prediction and by station for export to camtrapR:
+```
+manifest <- export_camtrapR(manifest, out_dir=linkdir, out_file=results_file,
+                            label_col='prediction', file_col="filepath", station_col='station')
+```
+ 
+You can also export a .json file formatted for COCO
+```
+manifest <- export_coco(manifest, class_list=class_list, out_file='results.json')
+```
+Or a .csv file for Timelapse
+```
+manifest <- export_folders(manifest, out_dir=linkdir)
+```
+
+
+
+
+
 
 # Models
 
@@ -98,44 +126,32 @@ Detectors:
 ### Requirements
 * R >= 4.0
 * Reticulate
-* Python >= 3.9
-* [Animl-Py >= 3.0.0](https://github.com/conservationtechlab/animl-py)
+* Python >= 3.12
+* [Animl-Py >= 3.1.1](https://github.com/conservationtechlab/animl-py)
 
 We recommend running animl on a computer with a dedicated GPU.
 
 ### Python
-animl depends on python and will install python package dependencies if they are not available if installed via CRAN. <br> 
-However, we recommend setting up a conda environment using the provided config file. 
+animl depends on python and will install python package dependencies if they are not available if installed via miniconda. <br> 
 
-[Instructions to install conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html)
-
-The R version of animl depends on the python version to handle the machine learning:
+The R version of animl also depends on the python version to handle the machine learning:
 [animl-py](https://github.com/conservationtechlab/animl-py)
-
-Next, install animl-py in your preferred python environment (such as conda) using pip:
-```
-pip install animl
-```
 
 Animl-r can be installed through CRAN:
 ```R
 install.packages('animl')
 ```
+Animl will install animl-py and associated dependencies.
+
 Animl-r can also be installed by downloading this repo, opening the animl.Rproj file in RStudio and selecting Build -> Install Package.
 
 
 # Release Notes 
-## New for 3.0.0
- - compatible with animl-py v3.0.0
- - remove package dependencies
- - on load, also load animl-py
- - change function name "predict_species" to "classify"
- - add "load_detector" function that can handle MDv5, v6, v1000 and other YOLO models
- - change "sort" to "export"
- - add function to install animl-py and create conda env if does not exist
- - add distance calculation functions for re-id
- - fix bug in sequence_classification that mishandled overlap in classifier classes with megadetector classes
- - changed function naming conventions to follow animl-py
+## New for 3.1.1
+ - compatible with animl-py v3.1.1
+ - add export_camtrapR()
+ - handle on the fly video frame generation
+ - bug fixes
  - correct examples and documentation to reflect above changes
 
 

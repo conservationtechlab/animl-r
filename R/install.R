@@ -1,6 +1,5 @@
 # VARIABLE FOR VERSION
-ANIML_VERSION <- "3.0.0"
-animl_py <- NULL
+ANIML_VERSION <- "3.1.1"
 
 #' Create a miniconda environment for animl and install animl-py
 #'
@@ -19,29 +18,45 @@ animl_install <- function(py_env = "animl_env",
                           python_version = "3.12",
                           confirm=TRUE) {
   # 1. Load environment if exists
-  message(sprintf("1. Loading Python Environment (%s)...", py_env))
+  packageStartupMessage(sprintf("1. Loading Python Environment (%s)...", py_env))
   try_error <- try(reticulate::use_condaenv(py_env, required = TRUE), silent=TRUE)
   
   # 2. Install if not exists
   if (inherits(try_error, "try-error")) {
-    message(sprintf("%s not found \n", py_env))
+    packageStartupMessage(try_error)
+    #packageStartupMessage(sprintf("%s not found \n", py_env))
     # 2. Create new environment
-    message("\n", sprintf("2. Creating a Python Environment (%s)", py_env))
+    packageStartupMessage("\n", sprintf("2. Creating a Python Environment (%s)", py_env))
     animl_path <- tryCatch(expr = create_pyenv(python_version = python_version, py_env = py_env),
                            error = function(e) stop(e, "An error occur when animl_install was creating the Python Environment.",
                                                     "Check that you've accepted the conda TOS and restart the R session, before trying again."))
     #print(animl_path)
     # 3. Install animl-py
-    message("\n3. Installing animl-py...")
-    package = sprintf("animl==%s", animl_version)
+    packageStartupMessage("\n3. Installing animl-py...")
+    package <- sprintf("animl==%s", animl_version)
     reticulate::py_install(package, envname=py_env, pip=TRUE)
     
-    message("animl successfully installed. Restart R session to see changes.\n")
+    packageStartupMessage("animl successfully installed. Restart R session to see changes.\n")
     invisible(TRUE)
     return(FALSE)
   }
   # conda env exists
   else{
+    # check animl-py installed
+    packageStartupMessage("\n2. Checking animl-py version...")
+    if(reticulate::py_module_available("animl")){
+      animl_py <- reticulate::import("animl", delay_load = TRUE)
+      py_version <- animl_py$'__version__'
+      # check version match
+      if (!identical(animl_version, py_version)){update_animl_py()}
+    }
+    # animl-py not yet installed
+    else{
+      packageStartupMessage("\n3. Installing animl-py...")
+      package <- sprintf("animl==%s", animl_version)
+      reticulate::use_condaenv(py_env)
+      reticulate::py_install(package, pip=TRUE)
+    }
     return(TRUE)
   }
 }
@@ -57,19 +72,35 @@ animl_install <- function(py_env = "animl_env",
 load_animl_py <- function() {
   if(reticulate::py_module_available("animl")){
     animl_py <- reticulate::import("animl", delay_load = TRUE)
+    packageStartupMessage("animl-py loaded successfully.")
+    return(animl_py)
   }
-  else{ stop('animl_env environment must be loaded first via reticulate') }
-  
-  message("animl-py loaded successfully.")
-  return(animl_py)
+  else{
+    packageStartupMessage('Animl load failed')
+    packageStartupMessage(reticulate::py_config())
+  }
 }
 
 
-
-animl_update <- function(){
-  
-
+#' Update animl-py version
+#'
+#' @param py_env name of python environment
+#' @param animl_version version of animl to install
+#'
+#' @returns None
+#' @export
+#'
+#' @examples
+#' \dontrun{update_animl_py(py_env = "animl_env", animl_version = ANIML_VERSION)}
+update_animl_py <- function(py_env = "animl_env",
+                            animl_version = ANIML_VERSION) {
+  # load animl-py, check version
+  packageStartupMessage("animl-py version mismatch, reinstalling...")
+  reticulate::use_condaenv(py_env)
+  reticulate::py_install(sprintf("animl==%s", animl_version), pip=TRUE)
 }
+
+
 
 
 #' Check that the python version is compatible with the current version of animl-py
@@ -89,10 +120,10 @@ check_python <- function(initialize = TRUE) {
               "Please install Python befor running animl_initiaialzer().",
               "For more details run reticulate::py_discover_config()")
   }
-  if (utils::compareVersion(as.character(py_version), "3.9") == -1) {
-    stop("animl needs Python >=3.9")
+  if (utils::compareVersion(as.character(py_version), "3.12") == -1) {
+    stop("animl needs Python >=3.12")
   }
-  message(sprintf("Python version %s compatible with animl.", py_version))
+  packageStartupMessage(sprintf("Python version %s compatible with animl.", py_version))
 }
 
 

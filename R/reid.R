@@ -1,8 +1,8 @@
 #' Load MiewID model
 #'
 #' @param file_path path to model weights
-#' @param device toggle cpu or gpu
-#'
+#' @param device device to load model to
+
 #' @returns meiwid model
 #' @export
 #'
@@ -111,7 +111,9 @@ compute_distance_matrix <- function(input1, input2, metric='euclidean'){
 #' @export
 #'
 #' @examples
-#' \dontrun{dist_matrix <- compute_batched_distance_matrix(query_embeddings, database_embeddings, metric='cosine', batch_size=12)}
+#' \dontrun{
+#' dist_matrix <- compute_batched_distance_matrix(query_embeddings, database_embeddings, 
+#'                                                metric='cosine', batch_size=12)}
 compute_batched_distance_matrix <- function(input1, input2, metric='cosine', batch_size=10){
   animl_py <- get("animl_py", envir = parent.env(environment()))
   animl_py$compute_batched_distance_matrix(input1, input2, metric=metric, batch_size=batch_size)

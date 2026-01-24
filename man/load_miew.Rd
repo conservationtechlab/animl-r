@@ -9,7 +9,7 @@ load_miew(file_path, device = NULL)
 \arguments{
 \item{file_path}{path to model weights}
 
-\item{device}{toggle cpu or gpu}
+\item{device}{device to load model to}
 }
 \value{
 meiwid model

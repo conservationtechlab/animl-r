@@ -7,15 +7,15 @@
 classify(
   model,
   detections,
-  device = NULL,
-  out_file = NULL,
-  file_col = "frame",
-  crop = TRUE,
-  normalize = TRUE,
   resize_width = 480,
   resize_height = 480,
+  file_col = "filepath",
+  crop = TRUE,
+  normalize = TRUE,
   batch_size = 1,
-  workers = 1
+  num_workers = 1,
+  device = NULL,
+  out_file = NULL
 )
 }
 \arguments{
@@ -23,9 +23,9 @@ classify(
 
 \item{detections}{manifest of animal detections}
 
-\item{device}{send model to the specified device}
+\item{resize_width}{image width input size}
 
-\item{out_file}{path to csv to save results to}
+\item{resize_height}{image height input size}
 
 \item{file_col}{column in manifest containing file paths}
 
@@ -33,13 +33,13 @@ classify(
 
 \item{normalize}{normalize the tensor before inference}
 
-\item{resize_width}{image width input size}
-
-\item{resize_height}{image height input size}
-
 \item{batch_size}{batch size for generator}
 
 \item{num_workers}{number of processes}
+
+\item{device}{send model to the specified device}
+
+\item{out_file}{path to csv to save results to}
 }
 \value{
 detection manifest with added prediction and confidence columns

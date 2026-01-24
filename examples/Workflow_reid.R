@@ -10,10 +10,8 @@
 library(animl)
 library(reticulate)
 use_condaenv("animl-gpu")
-animl_py <- load_animl_py()
 
-
-imagedir <- "C:\\Users\\Kyra\\animl\\examples\\Southwest"
+imagedir <- "/examples/Southwest/"
 
 #create global variable file and directory namesfrom animl import file_management
 WorkingDirectory(imagedir, globalenv())
@@ -26,13 +24,12 @@ files <- build_file_manifest(imagedir, out_file=filemanifest, exif=TRUE)
 #====================================+==========================================
 
 # Get Station
-#basedepth=length(strsplit(imagedir,split="/")[[1]])
-#files$Station <- sapply(files$FilePath, function(x) strsplit(x,"/")[[1]][basedepth])
+basedepth=length(strsplit(imagedir,split="/")[[1]])
+files$Station <- sapply(files$FilePath, function(x) strsplit(x,"/")[[1]][basedepth])
 
 # Process videos, extract frames for ID
 allframes <- extract_frames(files, out_dir = vidfdir, out_file=imageframes,
-                            frames=3, parallel=T, num_workers=parallel::detectCores())
-
+                           frames=1, parallel=F, workers=parallel::detectCores())
 
 #===============================================================================
 # MegaDetector
@@ -41,10 +38,10 @@ allframes <- extract_frames(files, out_dir = vidfdir, out_file=imageframes,
 # MD, specify detectObjectBatch with argument 'mdversion'.
 
 # PyTorch Via Animl-Py
-md_py <- load_detector("C:\\Users\\Kyra\\animl-py\\models\\md_v5a.0.0.pt", model_type = 'mdv5')
+md_py <- megadetector("~/models/md_v5b.0.0.pt")
 
-mdraw <- detect(md_py, allframes, 1280, 1280, batch_size=4)
-mdresults <- parse_detections(mdraw, manifest = allframes, out_file = detections)
+mdraw <- detect_MD_batch(md_py, allframes)
+mdresults <- parse_MD(mdraw, manifest = allframes, out_file = detections)
 
 #mdresults <- read.csv(detections)
 #mdresults$Station <- sapply(mdresults$FilePath, function(x) strsplit(x,"/")[[1]][5])
@@ -56,20 +53,19 @@ empty <- get_empty(mdresults)
 # Species Classifier
 #===============================================================================
 
-classes <- load_class_list('C:\\Users\\Kyra\\animl-py\\models\\sdzwa_southwest_v3_classes.csv')
-class_list <- classes$class
-southwest <- load_classifier('C:\\Users\\Kyra\\animl-py\\models\\sdzwa_southwest_v3.pt', length(class_list))
+classes <- read.csv('~/models/sdzwa_southwest_v3_classes.csv')
+class_list <- classes$Code
+southwest <- load_model('~/models/sdzwa_southwest_v3.pt', length(class_list))
 
 # get likelihoods
-pred_raw <- classify(southwest, animals, resize_width=299, resize_height=299, out_file=predictions, batch_size=4)
+pred_raw <- predict_species(animals, southwest, out_file=predictions)
 
 # Single Classification
-manifest <- single_classification(animals, empty, pred_raw, class_list)
-animals$station <- 'test'
-empty$station <- 'test'
+animals <- single_classification(animals, pred_raw, class_list)
+manifest <- rbind(animals, empty)
 
 # Sequence Classification
-manifest <- sequence_classification(animals, empty=empty, pred_raw, classes=class_list, station_col="station", empty_class="empty")
+manifest <- sequence_classification(animals, empty=empty, pred_raw, classes=class_list, "Station", emptyclass="empty")
 
 
 #===============================================================================
@@ -77,12 +73,15 @@ manifest <- sequence_classification(animals, empty=empty, pred_raw, classes=clas
 #===============================================================================
 
 #symlink species predictions
-alldata <- export_folders(manifest, linkdir)
+alldata <- sort_species(manifest, linkdir)
 write.csv(alldata, results)
+
+#symlink MD detections only
+sort_MD(manifest, linkdir)
 
 #===============================================================================
 # REID
 #===============================================================================
-miew = load_miew("~/models/miewid_v3.bin")
-embeddings = extract_embeddings(miew, manifest)
+miew = load_miewid("~/models/miewid_v3.bin")
+embeddings = extract_embeddings(files, miew)
 

@@ -6,16 +6,19 @@
 \usage{
 export_megadetector(
   manifest,
-  output_file = NULL,
-  detector = "MegaDetector v5a"
+  out_file = NULL,
+  detector = "MegaDetector v5a",
+  prompt = TRUE
 )
 }
 \arguments{
 \item{manifest}{dataframe containing images and associated detections}
 
-\item{output_file}{path to save the MD formatted file}
+\item{out_file}{path to save the MD formatted file}
 
 \item{detector}{name of the detector model used}
+
+\item{prompt}{ask user to overwrite existing file}
 }
 \value{
 None

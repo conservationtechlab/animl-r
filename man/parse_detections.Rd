@@ -2,22 +2,22 @@
 % Please edit documentation in R/detection.R
 \name{parse_detections}
 \alias{parse_detections}
-\title{parse MD results into a simple dataframe}
+\title{Parse MD results into a simple dataframe}
 \usage{
 parse_detections(
   results,
   manifest = NULL,
   out_file = NULL,
   threshold = 0,
-  file_col = "frame"
+  file_col = "filepath"
 )
 }
 \arguments{
 \item{results}{json output from megadetector}
 
-\item{manifest}{dataframe containing all frames}
+\item{manifest}{optional dataframe containing all frames}
 
-\item{out_file}{path to save dataframe}
+\item{out_file}{optional path to save dataframe}
 
 \item{threshold}{confidence threshold to include bbox}
 
@@ -27,7 +27,7 @@ parse_detections(
 original dataframe including md results
 }
 \description{
-parse MD results into a simple dataframe
+Parse MD results into a simple dataframe
 }
 \examples{
 \dontrun{

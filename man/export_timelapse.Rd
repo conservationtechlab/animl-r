@@ -4,14 +4,12 @@
 \alias{export_timelapse}
 \title{Converts the Manifests to a csv file that contains columns needed for TimeLapse conversion in later step}
 \usage{
-export_timelapse(animals, empty, imagedir, only_animal = TRUE)
+export_timelapse(results, image_dir, only_animal = TRUE)
 }
 \arguments{
-\item{animals}{a DataFrame that has entries of anuimal classification}
+\item{results}{a DataFrame that has entries of anuimal classification}
 
-\item{empty}{a DataFrame that has detection of non-animal objects in images}
-
-\item{imagedir}{location of root directory where all images are stored (can contain subdirectories)}
+\item{image_dir}{location of root directory where all images are stored (can contain subdirectories)}
 
 \item{only_animal}{A bool that confirms whether we want only animal detctions or all}
 }

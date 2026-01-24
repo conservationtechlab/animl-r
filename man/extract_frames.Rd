@@ -6,40 +6,37 @@
 \usage{
 extract_frames(
   files,
-  out_dir = tempfile(),
-  out_file = NULL,
+  frames = 5,
   fps = NULL,
-  frames = NULL,
+  out_file = NULL,
+  out_dir = NULL,
   file_col = "filepath",
   parallel = FALSE,
-  num_workers = 1,
-  checkpoint = 1000
+  num_workers = 1
 )
 }
 \arguments{
 \item{files}{dataframe of videos}
 
-\item{out_dir}{directory to save frames to}
-
-\item{out_file}{file to which results will be saved}
+\item{frames}{number of frames to sample}
 
 \item{fps}{frames per second, otherwise determine mathematically}
 
-\item{frames}{number of frames to sample}
+\item{out_file}{csv file to which results will be saved}
+
+\item{out_dir}{directory to save frames to if not null}
 
 \item{file_col}{string value indexing which column contains file paths}
 
 \item{parallel}{Toggle for parallel processing, defaults to FALSE}
 
 \item{num_workers}{number of processors to use if parallel, defaults to 1}
-
-\item{checkpoint}{if not parallel, checkpoint ever n files, defaults to 1000}
 }
 \value{
 dataframe of still frames for each video
 }
 \description{
-This function can take
+Extract frames from video for classification
 }
 \examples{
 \dontrun{

@@ -19,6 +19,6 @@ Set Working Directory and Save File Global Variables
 }
 \examples{
 \dontrun{
-WorkingDirectory(/home/kyra/animl/examples)
+WorkingDirectory("/home/kyra/animl/examples",globalenv())
 }
 }
