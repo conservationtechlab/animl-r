@@ -41,5 +41,7 @@ Plot all bounding boxes in a manifest
 \examples{
 \dontrun{plot_all_bounding_boxes(manifest, 'Plots/', label_col='prediction',
                                  show_confidence=TRUE, 
-                                 colors=list("1" = c(0, 255, 0),"2" = c(0, 0, 255),"3" = c(255, 0, 0)))}
+                                 colors=list("1" = c(0, 255, 0),
+                                             "2" = c(0, 0, 255),
+                                             "3" = c(255, 0, 0)))}
 }
