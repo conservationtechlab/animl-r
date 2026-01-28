@@ -2,7 +2,7 @@
 % Please edit documentation in R/install.R
 \name{animl_install}
 \alias{animl_install}
-\title{Create a miniconda environment for animl and install animl-py}
+\title{Load animl-py if available}
 \usage{
 animl_install(
   py_env = "animl_env",
@@ -11,21 +11,12 @@ animl_install(
   confirm = TRUE
 )
 }
-\arguments{
-\item{py_env}{name of python environment}
-
-\item{animl_version}{version of animl to install}
-
-\item{python_version}{version of python to install}
-
-\item{confirm}{allow user input}
-}
 \value{
-none
+animl-py module
 }
 \description{
-Create a miniconda environment for animl and install animl-py
+Load animl-py if available
 }
 \examples{
-\dontrun{animl_install("animl_env", ANIML_VERSION, python_version="3.9", confirm=TRUE)}
+\dontrun{animl_py <- load_animl_py()}
 }

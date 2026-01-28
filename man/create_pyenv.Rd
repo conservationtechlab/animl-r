@@ -2,7 +2,7 @@
 % Please edit documentation in R/install.R
 \name{create_pyenv}
 \alias{create_pyenv}
-\title{Create the miniconda environment animl_env}
+\title{Create the environment animl_env}
 \usage{
 create_pyenv(python_version, py_env = "animl_env")
 }
@@ -15,7 +15,7 @@ create_pyenv(python_version, py_env = "animl_env")
 python path for new environment
 }
 \description{
-Create the miniconda environment animl_env
+Create the environment animl_env
 }
 \examples{
 \dontrun{create_env("3.12", py_env='animl_env')}
