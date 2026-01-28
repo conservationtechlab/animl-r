@@ -4,10 +4,10 @@
 \alias{delete_pyenv}
 \title{Delete the animl_env environment}
 \usage{
-delete_pyenv(py_env = "animl_env")
+delete_pyenv(envname = "animl_env")
 }
 \arguments{
-\item{py_env}{python environment to remove}
+\item{envname}{python environment to remove}
 }
 \value{
 none

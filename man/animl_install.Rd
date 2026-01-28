@@ -4,12 +4,12 @@
 \alias{animl_install}
 \title{Load animl-py if available}
 \usage{
-animl_install(
-  py_env = "animl_env",
-  animl_version = ANIML_VERSION,
-  python_version = "3.12",
-  confirm = TRUE
-)
+animl_install(envname = "animl_env", python_version = "3.12")
+}
+\arguments{
+\item{envname}{name of python environment}
+
+\item{python_version}{version of python to install}
 }
 \value{
 animl-py module

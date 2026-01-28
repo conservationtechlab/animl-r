@@ -2,21 +2,19 @@
 % Please edit documentation in R/install.R
 \name{update_animl_py}
 \alias{update_animl_py}
-\title{Update animl-py version}
+\title{Update animl-py version for the given environment}
 \usage{
-update_animl_py(py_env = "animl_env", animl_version = ANIML_VERSION)
+update_animl_py(envname = "animl_env")
 }
 \arguments{
-\item{py_env}{name of python environment}
-
-\item{animl_version}{version of animl to install}
+\item{envname}{name of python environment}
 }
 \value{
 None
 }
 \description{
-Update animl-py version
+Update animl-py version for the given environment
 }
 \examples{
-\dontrun{update_animl_py(py_env = "animl_env", animl_version = ANIML_VERSION)}
+\dontrun{update_animl_py(py_env = "animl_env")}
 }

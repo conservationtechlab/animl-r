@@ -1,5 +1,6 @@
 .onLoad <- function(libname, pkgname) {
-  load_animl_py()
+  animl_py <- load_animl_py()
+  assign("animl_py", animl_py, envir = parent.env(environment()))
   invisible()
 }
 
@@ -31,14 +32,10 @@
 animl_install_instructions <- function() {
   cat(
     "animl: instructions to prepare a Python environment for optional features\n\n",
-    "Recommended (conda):\n",
-    "  conda create -n animl-py python=3.10\n",
-    "  conda activate animl-py\n",
-    "  conda install -c conda-forge numpy pandas # add other required pkgs\n",
-    "  In R: reticulate::use_condaenv('animl-py', required = TRUE)\n\n",
-    "Virtualenv/pip alternative:\n",
-    "  python -m venv ~/venvs/animl-py\n",
-    "  source ~/venvs/animl-py/bin/activate\n",
+    "Run animl::animl_install() to set up Python 3.12 environment and install animl-py dependency.\n\n",
+    "Virtualenv/pip alternative (requires python 3.12 installed):\n",
+    "  python -m venv ~/venvs/animl_env\n",
+    "  source ~/venvs/animl_env/bin/activate\n",
     "  pip install --upgrade pip\n",
     "  pip install numpy pandas # add other required pkgs\n",
     "  In R: reticulate::use_python('~/venvs/animl-py/bin/python', required = TRUE)\n\n",
