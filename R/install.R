@@ -1,5 +1,5 @@
 # VARIABLE FOR VERSION
-ANIML_VERSION <- "3.1.1"
+ANIML_VERSION <- "3.2.0"
 
 #' Load animl-py if available
 #'
@@ -11,7 +11,7 @@ ANIML_VERSION <- "3.1.1"
 #'
 #' @examples
 #' \dontrun{animl_install("animl_env", ANIML_VERSION, python_version="3.12")}
-load_animl_py <- function(envname = "animl_env",
+load_animl <- function(envname = "animl_env",
                           python_version = "3.12") {
   # 1. Load environment if exists
   packageStartupMessage(sprintf("1. Loading Python Environment (%s)...", envname))
@@ -35,8 +35,8 @@ load_animl_py <- function(envname = "animl_env",
       # check version match
       if (!identical(ANIML_VERSION, current_version)){
         # tell user to update animl-py
-        packageStartupMessage(paste0("animl-py version conflicts with current version.\n
-                                     To update animl-py, run animl::update_animl_py()."))
+        packageStartupMessage(paste0("animl-py version conflicts with current version.\n",
+                                     "To update animl-py, run animl::update_animl_py()."))
         return(NULL)
       }
       # correct version

@@ -1,6 +1,9 @@
+.animl_internal <- new.env(parent = emptyenv())
+.animl_internal$animl_py <- NULL
+
 .onLoad <- function(libname, pkgname) {
-  animl_py <- load_animl_py()
-  assign("animl_py", animl_py, envir = parent.env(environment()))
+  animl_py <- load_animl()
+  assign("animl_py", animl_py, envir = .animl_internal)
   invisible()
 }
 
