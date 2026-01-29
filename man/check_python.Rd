@@ -4,9 +4,11 @@
 \alias{check_python}
 \title{Check that the python version is compatible with the current version of animl-py}
 \usage{
-check_python(initialize = TRUE)
+check_python(python_version = "3.12", initialize = TRUE)
 }
 \arguments{
+\item{python_version}{version of python to install}
+
 \item{initialize}{load reticulate library if true}
 }
 \value{

@@ -4,14 +4,19 @@
 \alias{load_animl_py}
 \title{Load animl-py if available}
 \usage{
-load_animl_py()
+load_animl_py(envname = "animl_env", python_version = "3.12")
+}
+\arguments{
+\item{envname}{name of python environment}
+
+\item{python_version}{version of python to install}
 }
 \value{
-animl-py module
+none
 }
 \description{
 Load animl-py if available
 }
 \examples{
-\dontrun{animl_py <- load_animl_py()}
+\dontrun{animl_install("animl_env", ANIML_VERSION, python_version="3.12")}
 }

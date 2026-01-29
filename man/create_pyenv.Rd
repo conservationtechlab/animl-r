@@ -2,21 +2,18 @@
 % Please edit documentation in R/install.R
 \name{create_pyenv}
 \alias{create_pyenv}
-\title{Create the miniconda environment animl_env}
+\title{Install python if necessary and create the environment animl_env}
 \usage{
-create_pyenv(python_version, py_env = "animl_env")
+create_pyenv(envname = "animl_env", python_version = "3.12")
 }
 \arguments{
-\item{python_version}{python version for new environment}
+\item{envname}{name of the conda environment to create / use (default "animl-py")}
 
-\item{py_env}{name of python environment}
+\item{python_version}{python version to add to environment}
 }
 \value{
-python path for new environment
+invisible TRUE on success, otherwise stops or returns FALSE invisibly on failure
 }
 \description{
-Create the miniconda environment animl_env
-}
-\examples{
-\dontrun{create_env("3.12", py_env='animl_env')}
+Install python if necessary and create the environment animl_env
 }
