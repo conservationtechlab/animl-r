@@ -1,9 +1,9 @@
 #' Create SymLink Directories and Sort Classified Images
 #'
 #' @param manifest DataFrame of classified images 
-#' @param out_dir Destination directory for symlinks
+#' @param out_dir Destination directory for species folders
 #' @param out_file if provided, save the manifest to this file
-#' @param label_col (str): specify 'prediction' for species or 'category' for megadetector class
+#' @param label_col specify 'prediction' for species or 'category' for megadetector class
 #' @param file_col Colun containing file paths
 #' @param unique_name Unique image name identifier 
 #' @param copy Toggle to determine copy or hard link, defaults to link
@@ -49,7 +49,7 @@ remove_link <- function(manifest, link_col='link'){
 #'
 #' @param manifest dataframe containing file data and predictions
 #' @param export_dir directory to sort files into
-#' @param unique_name column name indicating a unique file name for each row
+#' @param unique_name column containing unique file names
 #'
 #' @return dataframe with new "Species" column that contains the verified species
 #' @export
@@ -123,8 +123,8 @@ export_camtrapR <- function(manifest, out_dir, out_file=NULL, label_col='predict
 
 #' Converts the Manifests to a csv file that contains columns needed for TimeLapse conversion in later step
 #'
-#' @param results a DataFrame that has entries of anuimal classification
-#' @param image_dir location of root directory where all images are stored (can contain subdirectories)
+#' @param manifest a DataFrame that has entries of anuimal classification
+#' @param out_dir location of root directory where all images are stored (can contain subdirectories)
 #' @param only_animal A bool that confirms whether we want only animal detctions or all
 #'
 #' @returns animals.csv, non-anim.csv, csv_loc
@@ -132,9 +132,9 @@ export_camtrapR <- function(manifest, out_dir, out_file=NULL, label_col='predict
 #'
 #' @examples
 #' \dontrun{export_timelapse(animals, empty, '/path/to/images/')}
-export_timelapse <- function(results, image_dir, only_animal=TRUE){
+export_timelapse <- function(manifest, out_dir, only_animal=TRUE){
   animl_py <- get("animl_py", envir = parent.env(environment()))
-  animl_py$export_timelapse(results, image_dir, only_animal=only_animal)
+  animl_py$export_timelapse(manifest, out_dir, only_animal=only_animal)
 }
 
 
@@ -151,7 +151,7 @@ export_timelapse <- function(results, image_dir, only_animal=TRUE){
 #' @examples
 #' \dontrun{export_megadetector(manifest, output_file= 'results.json', detector='MDv6')}
 export_megadetector <- function(manifest, out_file=NULL, 
-                                detector='MegaDetector v5a', prompt=TRUE){
+                                detector='MegaDetector v5b', prompt=TRUE){
   animl_py <- get("animl_py", envir = parent.env(environment()))
   animl_py$export_megadetector(manifest, out_file=out_file, 
                                detector=detector, prompt=prompt)
