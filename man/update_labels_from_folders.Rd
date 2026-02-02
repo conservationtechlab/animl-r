@@ -11,7 +11,7 @@ update_labels_from_folders(manifest, export_dir, unique_name = "uniquename")
 
 \item{export_dir}{directory to sort files into}
 
-\item{unique_name}{column name indicating a unique file name for each row}
+\item{unique_name}{column containing unique file names}
 }
 \value{
 dataframe with new "Species" column that contains the verified species

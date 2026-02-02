@@ -20,7 +20,7 @@
 plot_box <- function(rows, file_col='filepath', min_conf=0, label_col=NULL,
                      show_confidence=FALSE, colors=NULL, detector_labels=NULL,
                      return_img=FALSE) {
-  animl_py <- get("animl_py", envir = parent.env(environment()))
+  animl_py <- .animl_internal$animl_py
   animl_py$plot_box(rows, file_col=file_col, min_conf=min_conf, label_col=label_col,
                     show_confidence=show_confidence, colors=colors, detector_labels=detector_labels,
                     return_img=return_img)
@@ -50,7 +50,7 @@ plot_box <- function(rows, file_col='filepath', min_conf=0, label_col=NULL,
 plot_all_bounding_boxes <- function(manifest, out_dir, file_col='filepath', min_conf=0.1, 
                                     label_col=FALSE, show_confidence=FALSE,
                                     colors=NULL, detector_labels=NULL){
-  animl_py <- get("animl_py", envir = parent.env(environment()))
+  animl_py <- .animl_internal$animl_py
   animl_py$plot_all_bounding_boxes(manifest, out_dir, file_col=file_col, min_conf=min_conf, 
                                    label_col=label_col, show_confidence=show_confidence,
                                    colors=colors, detector_labels=detector_labels)

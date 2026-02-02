@@ -1,5 +1,5 @@
 # VARIABLE FOR VERSION
-ANIML_VERSION <- "3.1.1"
+ANIML_VERSION <- "3.2.0"
 
 #' Load animl-py if available
 #'
@@ -11,7 +11,7 @@ ANIML_VERSION <- "3.1.1"
 #'
 #' @examples
 #' \dontrun{animl_install("animl_env", ANIML_VERSION, python_version="3.12")}
-load_animl_py <- function(envname = "animl_env",
+load_animl <- function(envname = "animl_env",
                           python_version = "3.12") {
   # 1. Load environment if exists
   packageStartupMessage(sprintf("1. Loading Python Environment (%s)...", envname))
@@ -23,7 +23,6 @@ load_animl_py <- function(envname = "animl_env",
     msg <- sprintf(paste0("%s python environment not found. Run animl::animl_install().\n", 
                           "See `?animl::animl_install_instructions` for more detail."), envname)
     packageStartupMessage(msg)
-    return(NULL)
   }
   # env exists
   else{
@@ -35,23 +34,23 @@ load_animl_py <- function(envname = "animl_env",
       # check version match
       if (!identical(ANIML_VERSION, current_version)){
         # tell user to update animl-py
-        packageStartupMessage(paste0("animl-py version conflicts with current version.\n
-                                     To update animl-py, run animl::update_animl_py()."))
-        return(NULL)
+        packageStartupMessage(paste0("animl-py version conflicts with current version.\n",
+                                     "To update animl-py, run animl::update_animl_py()."))
       }
       # correct version
       else{
         packageStartupMessage(paste0("animl successfully loaded."))
-        return(animl_py)
+        # assign to internal variable
+        assign("animl_py", animl_py, envir = .animl_internal)
       }
     }
     # animl_env exists but animl-py not installed
     else{
       packageStartupMessage(paste0("Python environment found but animl-py not installed.\n",
                                    "See `?animl::animl_install_instructions`."))
-      return(NULL)
     }
   }
+  invisible()
 }
 
 
@@ -210,7 +209,6 @@ check_python <- function(python_version = "3.12", initialize = TRUE) {
 }
 
 
-
 #' Delete the animl_env environment
 #'
 #' @param envname python environment to remove
@@ -231,4 +229,24 @@ delete_pyenv <- function(envname = "animl_env") {
   }
   
   try(reticulate::virtualenv_remove(envname), silent = TRUE)
+}
+
+
+#' Installation Instructions for animl-r Python dependencies
+#' 
+#' 
+#' @export
+animl_install_instructions <- function() {
+  cat(
+    "animl: instructions to prepare a Python environment for optional features\n\n",
+    "Run animl::animl_install() to set up Python 3.12 environment and install animl-py dependency.\n\n",
+    "Virtualenv/pip alternative (requires python 3.12 installed):\n",
+    "  python -m venv ~/venvs/animl_env\n",
+    "  source ~/venvs/animl_env/bin/activate\n",
+    "  pip install --upgrade pip\n",
+    "  pip install animl\n\n",
+    "Restart R session and reload animl library.",
+    sep = ""
+  )
+  invisible(NULL)
 }

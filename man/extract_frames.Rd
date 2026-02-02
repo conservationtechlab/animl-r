@@ -11,7 +11,7 @@ extract_frames(
   out_file = NULL,
   out_dir = NULL,
   file_col = "filepath",
-  parallel = FALSE,
+  parallel = TRUE,
   num_workers = 1
 )
 }

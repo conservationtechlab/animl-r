@@ -17,10 +17,10 @@
 #' frames <- extract_frames(manifest, out_dir = "C:\\Users\\usr\\Videos\\", frames = 5)
 #' }
 extract_frames <- function(files, frames=5, fps=NULL, out_file=NULL, out_dir=NULL,
-                           file_col="filepath", parallel=FALSE, num_workers=1){
+                           file_col="filepath", parallel=TRUE, num_workers=1){
   if (!is.null(fps)){ fps <- as.integer(fps) }
   if (!is.null(frames)){ frames <- as.integer(frames) }
-  animl_py <- get("animl_py", envir = parent.env(environment()))
+  animl_py <- .animl_internal$animl_py
   animl_py$extract_frames(files, frames=frames, fps=fps, out_file=out_file, out_dir=out_dir,
                           file_col=file_col, parallel=parallel, num_workers=as.integer(num_workers))
 }
@@ -38,6 +38,6 @@ extract_frames <- function(files, frames=5, fps=NULL, out_file=NULL, out_dir=NUL
 #' @examples
 #' \dontrun{get_frame_as_image('/example/path/to/video.mp4', frame=213)}
 get_frame_as_image <- function(video_path, frame=0){
-  animl_py <- get("animl_py", envir = parent.env(environment()))
-  animl_py$get_frame_as_image(video_path, frame=frame)
+  animl_py <- .animl_internal$animl_py
+  animl_py$get_frame_as_image(video_path, frame=as.integer(frame))
 }

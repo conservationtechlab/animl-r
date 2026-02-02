@@ -22,7 +22,7 @@
 #' }
 build_file_manifest <- function(image_dir, exif=TRUE, out_file=NULL, 
                                 offset=0, recursive=TRUE) {
-  animl_py <- get("animl_py", envir = parent.env(environment()))
+  animl_py <- .animl_internal$animl_py
   manifest <- animl_py$build_file_manifest(image_dir, exif=exif, out_file=out_file, offset=offset, recursive=recursive)
   return(manifest)
 }
@@ -145,7 +145,7 @@ check_file <- function(file, output_type) {
 #' save_json(mdresults, 'mdraw.json')
 #' }
 save_json <- function(data, out_file, prompt=TRUE){
-  animl_py <- get("animl_py", envir = parent.env(environment()))
+  animl_py <- .animl_internal$animl_py
   animl_py$save_json(data, out_file, prompt=prompt)
 }
 
@@ -162,7 +162,7 @@ save_json <- function(data, out_file, prompt=TRUE){
 #' mdraw <- load_json('mdraw.json')
 #' }
 load_json <- function(file){
-  animl_py <- get("animl_py", envir = parent.env(environment()))
+  animl_py <- .animl_internal$animl_py
   animl_py$load_json(file)
 }
 
@@ -181,7 +181,7 @@ load_json <- function(file){
 #'   download_model("https://models.com/path/to/model.pt", out_dir='models')
 #' }
 download_model <- function(model_url, out_dir='models'){
-  animl_py <- get("animl_py", envir = parent.env(environment()))
+  animl_py <- .animl_internal$animl_py
   animl_py$download_model(model_url, out_dir = out_dir)
 }
 
@@ -196,6 +196,6 @@ download_model <- function(model_url, out_dir='models'){
 #'   download_model("https://models.com/path/to/model.pt", out_dir='models')
 #' }
 list_models <- function(){
-  animl_py <- get("animl_py", envir = parent.env(environment()))
+  animl_py <- .animl_internal$animl_py
   animl_py$list_models()
 }

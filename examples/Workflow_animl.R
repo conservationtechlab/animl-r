@@ -8,6 +8,7 @@
 # Setup
 #-------------------------------------------------------------------------------
 library(animl)
+#load_animl()
 
 imagedir <- "C:\\Users\\Kyra\\animl\\examples\\Southwest"
 imagedir <- "examples/Southwest"
@@ -16,7 +17,7 @@ imagedir <- "examples/Southwest"
 WorkingDirectory(imagedir, globalenv())
 
 # Build file manifest for all images and videos within base directory
-files <- build_file_manifest(imagedir, exif=TRUE)
+files <- build_file_manifest(imagedir, out_file=filemanifest_file, exif=TRUE)
 
 #===============================================================================
 # Add Project-Specific Info
@@ -75,8 +76,7 @@ manifest <- sequence_classification(animals, empty=empty, pred_raw, classes=clas
 #===============================================================================
 
 #symlink species predictions
-alldata <- export_folders(manifest, linkdir)
-write.csv(alldata, results)
+alldata <- export_folders(manifest, linkdir, out_file = results_file)
 
 
 #===============================================================================

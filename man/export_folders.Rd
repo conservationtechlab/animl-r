@@ -17,11 +17,11 @@ export_folders(
 \arguments{
 \item{manifest}{DataFrame of classified images}
 
-\item{out_dir}{Destination directory for symlinks}
+\item{out_dir}{Destination directory for species folders}
 
 \item{out_file}{if provided, save the manifest to this file}
 
-\item{label_col}{(str): specify 'prediction' for species or 'category' for megadetector class}
+\item{label_col}{specify 'prediction' for species or 'category' for megadetector class}
 
 \item{file_col}{Colun containing file paths}
 
