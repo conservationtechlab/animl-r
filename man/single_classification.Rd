@@ -4,7 +4,13 @@
 \alias{single_classification}
 \title{Get Maximum likelihood label for each Detection}
 \usage{
-single_classification(animals, empty, predictions_raw, class_list)
+single_classification(
+  animals,
+  empty,
+  predictions_raw,
+  class_list,
+  best = FALSE
+)
 }
 \arguments{
 \item{animals}{manifest of animal detections}
@@ -14,6 +20,8 @@ single_classification(animals, empty, predictions_raw, class_list)
 \item{predictions_raw}{softmaxed likelihoods from predict_species}
 
 \item{class_list}{list of class labels}
+
+\item{best}{whether to return one prediction per file}
 }
 \value{
 dataframe with prediction and confidence columns

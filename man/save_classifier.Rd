@@ -12,6 +12,15 @@ save_classifier(
   optimizer = NULL,
   scheduler = NULL
 )
+
+save_classifier(
+  model,
+  out_dir,
+  epoch,
+  stats,
+  optimizer = NULL,
+  scheduler = NULL
+)
 }
 \arguments{
 \item{model}{pytorch model}
@@ -28,10 +37,15 @@ save_classifier(
 }
 \value{
 None
+
+None
 }
 \description{
 Save model state weights
+
+Save model state weights
 }
 \examples{
+\dontrun{save_classifier(model, 'models/', 10, list(acc = 0.85))}
 \dontrun{save_classifier(model, 'models/', 10, list(acc = 0.85))}
 }

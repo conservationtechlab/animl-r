@@ -209,7 +209,6 @@ check_python <- function(python_version = "3.12", initialize = TRUE) {
 }
 
 
-
 #' Delete the animl_env environment
 #'
 #' @param envname python environment to remove
@@ -230,4 +229,24 @@ delete_pyenv <- function(envname = "animl_env") {
   }
   
   try(reticulate::virtualenv_remove(envname), silent = TRUE)
+}
+
+
+#' Installation Instructions for animl-r Python dependencies
+#' 
+#' 
+#' @export
+animl_install_instructions <- function() {
+  cat(
+    "animl: instructions to prepare a Python environment for optional features\n\n",
+    "Run animl::animl_install() to set up Python 3.12 environment and install animl-py dependency.\n\n",
+    "Virtualenv/pip alternative (requires python 3.12 installed):\n",
+    "  python -m venv ~/venvs/animl_env\n",
+    "  source ~/venvs/animl_env/bin/activate\n",
+    "  pip install --upgrade pip\n",
+    "  pip install animl\n\n",
+    "Restart R session and reload animl library.",
+    sep = ""
+  )
+  invisible(NULL)
 }

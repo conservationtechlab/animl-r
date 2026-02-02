@@ -17,7 +17,7 @@ imagedir <- "examples/Southwest"
 WorkingDirectory(imagedir, globalenv())
 
 # Build file manifest for all images and videos within base directory
-files <- build_file_manifest(imagedir, out_file = filemanifest_file, exif=TRUE)
+files <- build_file_manifest(imagedir, out_file=filemanifest_file, exif=TRUE)
 
 #===============================================================================
 # Add Project-Specific Info
