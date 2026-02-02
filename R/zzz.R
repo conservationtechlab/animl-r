@@ -3,7 +3,6 @@
 
 .onLoad <- function(libname, pkgname) {
   animl_py <- load_animl()
-  assign("animl_py", animl_py, envir = .animl_internal)
   invisible()
 }
 

@@ -18,7 +18,7 @@
 export_folders <- function(manifest, out_dir, out_file=NULL, 
                            label_col="prediction", file_col="filepath",
                            unique_name='uniquename', copy=FALSE) {
-  animl_py <- get("animl_py", envir = parent.env(environment()))
+  animl_py <- .animl_internal$animl_py
   manifest <- animl_py$export_folders(manifest, out_dir, out_file,
                                       label_col=label_col, file_col=file_col,
                                       unique_name=unique_name, copy=copy)
@@ -87,7 +87,7 @@ update_labels_from_folders <- function(manifest, export_dir, unique_name='unique
 #' @examples
 #' \dontrun{export_megadetector(manifest, output_file= 'results.json', detector='MDv6')}
 export_coco <- function(manifest, class_list, out_file, info=NULL, licenses=NULL){
-  animl_py <- get("animl_py", envir = parent.env(environment()))
+  animl_py <- .animl_internal$animl_py
   animl_py$export_coco(manifest, class_list, out_file, info=info, licenses=licenses)
 }
 
@@ -114,7 +114,7 @@ export_coco <- function(manifest, class_list, out_file, info=NULL, licenses=NULL
 export_camtrapR <- function(manifest, out_dir, out_file=NULL, label_col='prediction',
                             file_col="filepath", station_col='station', 
                             unique_name='uniquename', copy=FALSE){
-  animl_py <- get("animl_py", envir = parent.env(environment()))
+  animl_py <- .animl_internal$animl_py
   animl_py$export_camtrapR(manifest, out_dir, out_file=out_file, label_col=label_col,
                            file_col=file_col, station_col=station_col,
                            unique_name=unique_name, copy=copy)
@@ -133,7 +133,7 @@ export_camtrapR <- function(manifest, out_dir, out_file=NULL, label_col='predict
 #' @examples
 #' \dontrun{export_timelapse(animals, empty, '/path/to/images/')}
 export_timelapse <- function(results, image_dir, only_animal=TRUE){
-  animl_py <- get("animl_py", envir = parent.env(environment()))
+  animl_py <- .animl_internal$animl_py
   animl_py$export_timelapse(results, image_dir, only_animal=only_animal)
 }
 
@@ -152,7 +152,7 @@ export_timelapse <- function(results, image_dir, only_animal=TRUE){
 #' \dontrun{export_megadetector(manifest, output_file= 'results.json', detector='MDv6')}
 export_megadetector <- function(manifest, out_file=NULL, 
                                 detector='MegaDetector v5a', prompt=TRUE){
-  animl_py <- get("animl_py", envir = parent.env(environment()))
+  animl_py <- .animl_internal$animl_py
   animl_py$export_megadetector(manifest, out_file=out_file, 
                                detector=detector, prompt=prompt)
 }

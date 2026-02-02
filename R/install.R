@@ -23,7 +23,6 @@ load_animl <- function(envname = "animl_env",
     msg <- sprintf(paste0("%s python environment not found. Run animl::animl_install().\n", 
                           "See `?animl::animl_install_instructions` for more detail."), envname)
     packageStartupMessage(msg)
-    return(NULL)
   }
   # env exists
   else{
@@ -37,21 +36,21 @@ load_animl <- function(envname = "animl_env",
         # tell user to update animl-py
         packageStartupMessage(paste0("animl-py version conflicts with current version.\n",
                                      "To update animl-py, run animl::update_animl_py()."))
-        return(NULL)
       }
       # correct version
       else{
         packageStartupMessage(paste0("animl successfully loaded."))
-        return(animl_py)
+        # assign to internal variable
+        assign("animl_py", animl_py, envir = .animl_internal)
       }
     }
     # animl_env exists but animl-py not installed
     else{
       packageStartupMessage(paste0("Python environment found but animl-py not installed.\n",
                                    "See `?animl::animl_install_instructions`."))
-      return(NULL)
     }
   }
+  invisible()
 }
 
 
