@@ -72,4 +72,3 @@ parse_detections <- function(results, manifest=NULL, out_file=NULL, threshold=0,
   animl_py$parse_detections(results, manifest=manifest, out_file=out_file,
                             threshold=threshold, file_col=file_col)
 }
-
