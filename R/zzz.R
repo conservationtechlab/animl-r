@@ -12,7 +12,7 @@
   if (interactive()) {
     if (requireNamespace("reticulate", quietly = TRUE)) {
       pkgmsg <- paste0(
-        "animl: requires Python 3.12 and animl-py 3.1.1. If animl fails to load, ",
+        "animl: requires Python 3.12 and animl-py 3.2.0. If animl fails to load, ",
         "see `?animl::animl_install_instructions`."
       )
     } else {
