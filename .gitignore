@@ -7,3 +7,4 @@ inst/doc
 .ipynb
 animl-py/src/animl/__pycache__/**
 animl-py/src/animl/.ipynb_checkpoints/**
+examples/**

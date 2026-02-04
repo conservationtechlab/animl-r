@@ -8,7 +8,6 @@
 # Setup
 #-------------------------------------------------------------------------------
 library(animl)
-#load_animl()
 
 imagedir <- "C:\\Users\\Kyra\\animl\\examples\\Southwest"
 imagedir <- "examples/Southwest"

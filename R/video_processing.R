@@ -7,7 +7,7 @@
 #' @param out_dir directory to save frames to if not null
 #' @param file_col string value indexing which column contains file paths
 #' @param parallel Toggle for parallel processing, defaults to FALSE
-#' @param num_workers number of processors to use if parallel, defaults to 1
+#' @param num_workers number of processors to use if parallel, defaults to 4
 #'
 #' @return dataframe of still frames for each video
 #' @export
@@ -17,7 +17,7 @@
 #' frames <- extract_frames(manifest, out_dir = "C:\\Users\\usr\\Videos\\", frames = 5)
 #' }
 extract_frames <- function(files, frames=5, fps=NULL, out_file=NULL, out_dir=NULL,
-                           file_col="filepath", parallel=TRUE, num_workers=1){
+                           file_col="filepath", parallel=TRUE, num_workers=4){
   if (!is.null(fps)){ fps <- as.integer(fps) }
   if (!is.null(frames)){ frames <- as.integer(frames) }
   animl_py <- .animl_internal$animl_py
