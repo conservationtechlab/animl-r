@@ -12,7 +12,7 @@ extract_frames(
   out_dir = NULL,
   file_col = "filepath",
   parallel = TRUE,
-  num_workers = 1
+  num_workers = 4
 )
 }
 \arguments{
@@ -30,7 +30,7 @@ extract_frames(
 
 \item{parallel}{Toggle for parallel processing, defaults to FALSE}
 
-\item{num_workers}{number of processors to use if parallel, defaults to 1}
+\item{num_workers}{number of processors to use if parallel, defaults to 4}
 }
 \value{
 dataframe of still frames for each video
