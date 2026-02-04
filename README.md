@@ -1,4 +1,4 @@
-# animl v3.1.1
+# animl v3.2.0
 
 Animl comprises a variety of machine learning tools for analyzing ecological data. The package includes a set of functions to classify subjects within camera trap field data and can handle both images and videos. 
 
@@ -29,7 +29,7 @@ files <- build_file_manifest(imagedir, out_file=filemanifest_file, exif=TRUE)
 
 # Process videos, extract frames for ID
 allframes <- extract_frames(files, frames=3, out_file=imageframes_file,
-                            parallel=T, num_workers=parallel::detectCores())
+                            parallel=T, num_workers=4)
 
 ```
 #### 2. Object Detection
@@ -127,7 +127,7 @@ Detectors:
 * R >= 4.0
 * Reticulate
 * Python >= 3.12
-* [Animl-Py >= 3.1.1](https://github.com/conservationtechlab/animl-py)
+* [Animl-Py >= 3.2.0](https://github.com/conservationtechlab/animl-py)
 
 We recommend running animl on a computer with a dedicated GPU.
 
@@ -141,18 +141,23 @@ Animl-r can be installed through CRAN:
 ```R
 install.packages('animl')
 ```
-Animl will install animl-py and associated dependencies.
+Once loaded, then install required pacakges with 
+```R
+library(animl)
+
+animl::animl_install()
+```
 
 Animl-r can also be installed by downloading this repo, opening the animl.Rproj file in RStudio and selecting Build -> Install Package.
 
 
 # Release Notes 
-## New for 3.1.1
- - compatible with animl-py v3.1.1
- - add export_camtrapR()
- - handle on the fly video frame generation
- - bug fixes
- - correct examples and documentation to reflect above changes
+## New for 3.2.0
+- update device handlers
+- add sequence_calculation()
+- add best arg to single_classification
+- update args in export_timelapse()
+- ensure pandas < 3.0.0
 
 
 ### Contributors
