@@ -1,3 +1,22 @@
+#' Save model state weights
+#'
+#' @param model pytorch model
+#' @param out_dir directory to save model to
+#' @param epoch  current training epoch
+#' @param stats performance metrics of current epoch
+#' @param optimizer pytorch optimizer (optional)
+#' @param scheduler pytorch scheduler (optional)
+#'
+#' @returns None
+#' @export
+#'
+#' @examples
+#' \dontrun{save_classifier(model, 'models/', 10, list(acc = 0.85))}
+save_classifier <- function(model, out_dir, epoch, stats, optimizer=NULL, scheduler=NULL){
+  animl_py <- get("animl_py", envir = parent.env(environment()))
+  animl_py$save_classifier(model, out_dir, epoch, reticulate::r_to_py(stats), optimizer=optimizer, scheduler=scheduler)
+}
+
 #' Load a Classifier Model and Class_list
 #'
 #' @param model_path path to model
@@ -13,8 +32,7 @@
 #' classes <- load_class_list('sdzwa_andes_v1_classes.csv')
 #' andes <- load_classifier('andes_v1.pt', nrow(classes))}
 load_classifier <- function(model_path, classes, device=NULL, architecture="CTL"){
-  animl_py <- get("animl_py", envir = parent.env(environment()))
-
+  animl_py <- .animl_internal$animl_py
   if(is.numeric(classes)){ classes = as.integer(classes)}
   animl_py$load_classifier(model_path, classes, device=device, architecture=architecture)
 }
@@ -35,7 +53,7 @@ load_classifier <- function(model_path, classes, device=NULL, architecture="CTL"
 #' @examples
 #' \dontrun{save_classifier(model, 'models/', 10, list(acc = 0.85))}
 save_classifier <- function(model, out_dir, epoch, stats, optimizer=NULL, scheduler=NULL){
-  animl_py <- get("animl_py", envir = parent.env(environment()))
+  animl_py <- .animl_internal$animl_py
   animl_py$save_classifier(model, out_dir, epoch, reticulate::r_to_py(stats), optimizer=optimizer, scheduler=scheduler)
 }
 
@@ -78,7 +96,7 @@ classify <- function(model, detections,
                        batch_size=1, num_workers=1,
                        device=NULL, out_file=NULL){
   
-    animl_py <- get("animl_py", envir = parent.env(environment()))
+    animl_py <- .animl_internal$animl_py
     animl_py$classify(model, detections,
                       resize_width=as.integer(resize_width),
                       resize_height=as.integer(resize_height), 
@@ -95,13 +113,14 @@ classify <- function(model, detections,
 #' @param empty manifest of md human, vehicle and empty images
 #' @param predictions_raw softmaxed likelihoods from predict_species
 #' @param class_list list of class labels
+#' @param best whether to return one prediction per file
 #'
 #' @returns dataframe with prediction and confidence columns
 #' @export
 #'
 #' @examples
 #' \dontrun{animals <- single_classification(animals, empty, pred_raw, class_list)}
-single_classification <- function(animals, empty, predictions_raw, class_list){
-  animl_py <- get("animl_py", envir = parent.env(environment()))
-  animl_py$single_classification(animals, empty, predictions_raw, class_list)
+single_classification <- function(animals, empty, predictions_raw, class_list, best=FALSE){
+  animl_py <- .animl_internal$animl_py
+  animl_py$single_classification(animals, empty, predictions_raw, class_list, best=best)
 }

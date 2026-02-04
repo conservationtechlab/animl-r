@@ -75,8 +75,7 @@ manifest <- sequence_classification(animals, empty=empty, pred_raw, classes=clas
 #===============================================================================
 
 #symlink species predictions
-alldata <- export_folders(manifest, linkdir)
-write.csv(alldata, results)
+alldata <- export_folders(manifest, linkdir, out_file = results_file)
 
 
 #===============================================================================
