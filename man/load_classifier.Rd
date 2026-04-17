@@ -16,7 +16,7 @@ load_classifier(model_path, classes, device = NULL, architecture = "CTL")
 \item{architecture}{model architecture}
 }
 \value{
-classifier model, class list
+list of: classifier model, class list
 }
 \description{
 Load a Classifier Model and Class_list

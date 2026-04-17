@@ -10,7 +10,9 @@
 #' @param image_dir folder to search through and find media files
 #' @param exif returns date and time information from exif data, defaults to true
 #' @param out_file .csv file to save manifest as
-#' @param offset add offset in hours for videos when using the File Modified date, defaults to 0
+#' @param data_timezone timezone in which data was collected
+#' @param station_depth integer value indicating folder depth from root image_dir that contains station name
+#' @param camera_depth integer value indicating folder depth from root image_dir that contains camera name
 #' @param recursive Should directories be scanned recursively? Default TRUE
 #'
 #' @return files dataframe with or without file dates
