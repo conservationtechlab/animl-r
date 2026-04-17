@@ -1,5 +1,5 @@
 # VARIABLE FOR VERSION
-ANIML_VERSION <- "3.2.0"
+ANIML_VERSION <- "3.2.1"
 
 #' Load animl-py if available
 #'
@@ -12,40 +12,47 @@ ANIML_VERSION <- "3.2.0"
 #' @examples
 #' \dontrun{animl_install("animl_env", ANIML_VERSION, python_version="3.12")}
 load_animl <- function(envname = "animl_env",
-                          python_version = "3.12") {
-  # 1. Load environment if exists
+                       python_version = "3.12") {
+  # 1. Load environment if exists — try venv first, then conda
   packageStartupMessage(sprintf("1. Loading Python Environment (%s)...", envname))
-  try_error <- try(reticulate::use_virtualenv(envname, required = TRUE), silent=TRUE)
   
-  # 2. Install if not exists
+  try_venv  <- try(reticulate::use_virtualenv(envname, required = TRUE), silent = TRUE)
+  
+  if (inherits(try_venv, "try-error")) {
+    packageStartupMessage("virtualenv not found, trying conda...")
+    try_conda <- try(reticulate::use_condaenv(envname, required = TRUE), silent = TRUE)
+    try_error <- try_conda
+  } 
+  else {
+    try_error <- try_venv
+  }
+  
+  # 2. Install if neither found
   if (inherits(try_error, "try-error")) {
-    #packageStartupMessage(try_error)
-    msg <- sprintf(paste0("%s python environment not found. Run animl::animl_install().\n", 
+    msg <- sprintf(paste0("%s python environment not found. Run animl::animl_install().\n",
                           "See `?animl::animl_install_instructions` for more detail."), envname)
     packageStartupMessage(msg)
   }
   # env exists
-  else{
+  else {
     # check animl-py installed
     packageStartupMessage("\n2. Checking animl-py version...")
-    if(reticulate::py_module_available("animl")){
+    if (reticulate::py_module_available("animl")) {
       animl_py <- reticulate::import("animl", delay_load = TRUE)
       current_version <- animl_py$'__version__'
       # check version match
-      if (!identical(ANIML_VERSION, current_version)){
-        # tell user to update animl-py
+      if (!identical(ANIML_VERSION, current_version)) {
         packageStartupMessage(paste0("animl-py version conflicts with current version.\n",
                                      "To update animl-py, run animl::update_animl_py()."))
       }
       # correct version
-      else{
-        packageStartupMessage(paste0("animl successfully loaded."))
-        # assign to internal variable
+      else {
+        packageStartupMessage("animl successfully loaded.")
         assign("animl_py", animl_py, envir = .animl_internal)
       }
     }
     # animl_env exists but animl-py not installed
-    else{
+    else {
       packageStartupMessage(paste0("Python environment found but animl-py not installed.\n",
                                    "See `?animl::animl_install_instructions`."))
     }
@@ -130,9 +137,26 @@ update_animl_py <- function(envname = "animl_env") {
   
   # load animl-py, check version
   packageStartupMessage("animl-py version mismatch, reinstalling...")
-  reticulate::use_virtualenv(envname)
-  reticulate::py_install(sprintf("animl==%s", ANIML_VERSION), pip=TRUE)
-  packageStartupMessage("animl successfully installed. Restart R session to see changes.\n")
+  
+  # get env
+  try_venv  <- try(reticulate::use_virtualenv(envname, required = TRUE), silent = TRUE)
+  if (inherits(try_venv, "try-error")) {
+    try_conda <- try(reticulate::use_condaenv(envname, required = TRUE), silent = TRUE)
+    try_error <- try_conda
+  } 
+  else {try_error <- try_venv}
+  # env not found
+  if (inherits(try_error, "try-error")) {
+    msg <- sprintf(paste0("%s python environment not found. Run animl::animl_install().\n",
+                          "See `?animl::animl_install_instructions` for more detail."), envname)
+    packageStartupMessage(msg)
+  }
+  # reinstall animl
+  else{
+    reticulate::py_install(sprintf("animl==%s", ANIML_VERSION), pip=TRUE)
+    packageStartupMessage("animl successfully installed. Restart R session to see changes.\n")
+    
+  }
 }
 
 
@@ -240,9 +264,10 @@ animl_install_instructions <- function() {
   cat(
     "animl: instructions to prepare a Python environment for optional features\n\n",
     "Run animl::animl_install() to set up Python 3.12 environment and install animl-py dependency.\n\n",
-    "Virtualenv/pip alternative (requires python 3.12 installed):\n",
+    "Manual virtualenv/pip alternative (requires python 3.12 installed):\n",
     "  python -m venv ~/venvs/animl_env\n",
-    "  source ~/venvs/animl_env/bin/activate\n",
+    "  WIN: source ~/venvs/animl_env/bin/activate\n",
+    "  LIN: source ~/.virtualenvs/animl_env/bin/activate\n",
     "  pip install --upgrade pip\n",
     "  pip install animl\n\n",
     "Restart R session and reload animl library.",

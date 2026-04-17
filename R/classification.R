@@ -24,7 +24,7 @@ save_classifier <- function(model, out_dir, epoch, stats, optimizer=NULL, schedu
 #' @param device send model to the specified device
 #' @param architecture model architecture
 #'
-#' @return classifier model, class list
+#' @return list of: classifier model, class list
 #' @export
 #'
 #' @examples
@@ -91,10 +91,10 @@ load_class_list <- function(classlist_file){
 #' @examples
 #' \dontrun{animals <- classify(classifier, animals, file_col='filepath')}
 classify <- function(model, detections, 
-                       resize_width=480, resize_height=480,
-                       file_col='filepath', crop=TRUE, normalize=TRUE,
-                       batch_size=1, num_workers=1,
-                       device=NULL, out_file=NULL){
+                     resize_width=480, resize_height=480,
+                     file_col='filepath', crop=TRUE, normalize=TRUE,
+                     batch_size=1, num_workers=1,
+                     device=NULL, out_file=NULL){
   
     animl_py <- .animl_internal$animl_py
     animl_py$classify(model, detections,
