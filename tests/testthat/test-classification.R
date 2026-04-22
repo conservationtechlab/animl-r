@@ -1,14 +1,37 @@
+library(testthat)
+
+# load_class_list --------------------------------------------------------
+
 test_that("load_class_list reads a CSV and returns a data frame", {
-  tmp <- withr::local_tempdir()
-  csv_file <- file.path(tmp, "classes.csv")
-  writeLines(c("id,class", "1,deer", "2,fox"), csv_file)
-  result <- animl::load_class_list(csv_file)
+  tmp <- tempfile(fileext = ".csv")
+  on.exit(unlink(tmp))
+
+  df <- data.frame(id = 1:3, class = c("cat", "dog", "bird"), stringsAsFactors = FALSE)
+  write.csv(df, tmp, row.names = FALSE)
+
+  result <- load_class_list(tmp)
   expect_s3_class(result, "data.frame")
-  expect_equal(nrow(result), 2)
-  expect_true("class" %in% names(result))
+  expect_named(result, c("id", "class"))
+  expect_equal(nrow(result), 3)
+})
+
+test_that("load_class_list column names match the CSV header", {
+  tmp <- tempfile(fileext = ".csv")
+  on.exit(unlink(tmp))
+
+  df <- data.frame(species_id = 1:2, species_name = c("lion", "cheetah"), stringsAsFactors = FALSE)
+  write.csv(df, tmp, row.names = FALSE)
+
+  result <- load_class_list(tmp)
+  expect_named(result, c("species_id", "species_name"))
 })
 
 # animl_py-dependent tests ------------------------------------------------
+
+test_that("load_classifier requires animl_py", {
+  skip_if(!animl_py_available(), "animl_py not available")
+  skip("load_classifier requires a real classifier model file — test manually with a local model")
+})
 
 test_that("classify requires a loaded model file", {
   skip_if(!animl_py_available(), "animl_py not available")
@@ -33,7 +56,7 @@ test_that("single_classification returns a data frame with prediction and confid
   )
   predictions_raw <- matrix(c(0.8, 0.2, 0.3, 0.7), nrow = 2, ncol = 2)
   class_list <- c("deer", "fox")
-  result <- animl::single_classification(animals, empty, predictions_raw, class_list)
+  result <- single_classification(animals, empty, predictions_raw, class_list)
   expect_s3_class(result, "data.frame")
   expect_true("prediction" %in% names(result))
   expect_true("confidence" %in% names(result))

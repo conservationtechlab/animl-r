@@ -50,6 +50,8 @@ load_animl <- function(envname = "animl_env",
         packageStartupMessage("animl successfully loaded.")
         assign("animl_py", animl_py, envir = .animl_internal)
       }
+      # 4) Check external dependencies
+      check_animl_py()
     }
     # animl_env exists but animl-py not installed
     else {
@@ -111,6 +113,7 @@ animl_install <- function(envname = "animl_env", python_version = "3.12") {
       reticulate::py_install(package, pip=TRUE)
       packageStartupMessage("animl successfully installed. Restart R session to see changes.\n")
     }
+    check_animl_py()
   }
   invisible()
 }
@@ -188,6 +191,9 @@ create_pyenv <- function(envname = "animl_env", python_version = "3.12") {
   packageStartupMessage("\n3. Installing animl-py...")
   package <- sprintf("animl==%s", ANIML_VERSION)
   reticulate::py_install(package, envname=envname, pip=TRUE)
+  
+  # 4) Check external dependencies
+  check_animl_py()
 }
 
 
@@ -275,3 +281,26 @@ animl_install_instructions <- function() {
   )
   invisible(NULL)
 }
+
+
+#' Check if animl-py can connect to exiftool and CUDA
+#'
+#' @export
+check_animl_py <- function(){
+  if(reticulate::py_module_available("animl")){
+    animl_py <- reticulate::import("animl", delay_load = TRUE)
+  
+    exif <- animl_py$check_exiftool()
+    packageStartupMessage(sprintf("Exiftool installed and available: %s", as.character(exif)))
+    
+    torch_cuda <- animl_py$check_torch_cuda()
+    packageStartupMessage(sprintf("CUDA available to PyTorch: %s", as.character(torch_cuda)))
+    
+    torch_onnx <- animl_py$check_onnx_cuda()
+    packageStartupMessage(sprintf("CUDA available to Onnx: %s", as.character(torch_onnx)))
+  }
+  else{
+    packageStartupMessage("Error: animl-py is not installed.")
+  }
+}
+
