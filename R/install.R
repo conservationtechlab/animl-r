@@ -20,7 +20,7 @@ load_animl <- function(envname = "animl_env",
   
   if (inherits(try_venv, "try-error")) {
     packageStartupMessage("virtualenv not found, trying conda...")
-    try_conda <- try(reticulate::use_condaenv(envname, required = TRUE), silent = TRUE)
+    try_conda <- try(reticulate::use_condaenv(envname, required = TRUE))
     try_error <- try_conda
   } 
   else {

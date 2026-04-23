@@ -16,15 +16,9 @@ imagedir <- "examples/Southwest"
 WorkingDirectory(imagedir, globalenv())
 
 # Build file manifest for all images and videos within base directory
-files <- build_file_manifest(imagedir, out_file=filemanifest_file, exif=TRUE)
+files <- build_file_manifest(imagedir, out_file=filemanifest_file, exif=TRUE, station_depth = 0, camera_depth = 0)
 
-#===============================================================================
-# Add Project-Specific Info
-#====================================+==========================================
-
-# Get Station
-#basedepth=length(strsplit(imagedir,split="/")[[1]])
-#files$Station <- sapply(files$FilePath, function(x) strsplit(x,"/")[[1]][basedepth])
+files <- sequence_calculation(files, 'station')
 
 # Process videos, extract frames for ID
 allframes <- extract_frames(files, frames=3, out_file=imageframes_file,
@@ -43,8 +37,6 @@ md_py <- load_detector("/home/kyra/models/md_v5b.0.1.pt", model_type = 'mdv5')
 mdraw <- detect(md_py, allframes, 1280, 1280, batch_size=4)
 mdresults <- parse_detections(mdraw, manifest = allframes, out_file = detections_file)
 
-mdresults <- read.csv(detections_file)
-#mdresults$Station <- sapply(mdresults$FilePath, function(x) strsplit(x,"/")[[1]][5])
 #select animal crops for classification
 animals <- get_animals(mdresults)
 empty <- get_empty(mdresults)
@@ -55,16 +47,12 @@ empty <- get_empty(mdresults)
 #===============================================================================
 
 southwest <- load_classifier('/home/kyra/models/sdzwa_southwest_v3.pt', '/home/kyra/models/sdzwa_southwest_v3_classes.csv')
-sw_model <- southwest[[1]]
-classes <- southwest[[2]]
 
 # get likelihoods
-pred_raw <- classify(sw_model, animals, resize_width=299, resize_height=299, out_file=predictions_file, batch_size=4)
+pred_raw <- classify(southwest, animals, resize_width=299, resize_height=299, out_file=predictions_file, batch_size=4)
 
 # Single Classification
-manifest <- single_classification(animals, empty, pred_raw, classes$class)
-animals$station <- 'test'
-empty$station <- 'test'
+manifest <- single_classification(animals, empty, pred_raw, southwest[[2]]$class, best = TRUE)
 
 # Sequence Classification
 manifest <- sequence_classification(animals, empty=empty, pred_raw, classes=class_list, station_col="station", empty_class="empty")
@@ -82,6 +70,5 @@ alldata <- export_folders(manifest, linkdir, out_file = results_file)
 # Visualization
 #===============================================================================
 
-plot_all_bounding_boxes(manifest, visdir, label_col = 'prediction', show_confidence = TRUE, 
-                        colors = list("1" = c(0, 255, 0),"2" = c(0, 0, 255),"3" = c(255, 0, 0)))
+plot_all_bounding_boxes(manifest, visdir, classifier_label_col='prediction', show_confidence = TRUE)
 

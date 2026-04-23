@@ -7,7 +7,9 @@
 sequence_calculation(
   manifest,
   station_col,
-  datetime_col = "datetime",
+  sort_columms = NULL,
+  file_col = "filepath",
+  timestamp_col = "datetime",
   maxdiff = 60
 )
 }
@@ -16,9 +18,13 @@ sequence_calculation(
 
 \item{station_col}{a column in the animals and empty data frame that indicates the camera or camera station}
 
-\item{datetime_col}{a column containing timestamp}
+\item{file_col}{column name representing the file path. Defaults to "filepath".}
+
+\item{timestamp_col}{column name representing the timestamp in format "\%Y-\%m-\%d \%H:\%M:\%S". Defaults to "datetime".}
 
 \item{maxdiff}{max time difference in seconds between sequences, default = 60}
+
+\item{sort_columns}{list of columns to sort by before calculating sequences. Defaults to None, which sorts by station_col and timestamp_col.}
 }
 \value{
 manifest with sequence column, with a unique number associated with each sequence

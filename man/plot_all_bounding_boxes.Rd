@@ -9,7 +9,8 @@ plot_all_bounding_boxes(
   out_dir,
   file_col = "filepath",
   min_conf = 0.1,
-  label_col = FALSE,
+  classifier_label_col = NULL,
+  detector_category_col = "category",
   show_confidence = FALSE,
   colors = NULL,
   detector_labels = NULL
@@ -24,7 +25,9 @@ plot_all_bounding_boxes(
 
 \item{min_conf}{Confidence threshold to plot the box}
 
-\item{label_col}{Column name containing class to print above the box. If None, no label is printed.}
+\item{classifier_label_col}{Column name containing class to print above the box. If None, no label is printed.}
+
+\item{detector_category_col}{Column name containing the detector category to determine box color and label.}
 
 \item{show_confidence}{If true, show confidence score above the box.}
 
