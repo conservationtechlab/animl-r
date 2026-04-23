@@ -157,24 +157,47 @@ test_that("sequence_calculation errors when datetime_col is not present in manif
   expect_error(sequence_calculation(df, station_col = "station", datetime_col = "datetime"))
 })
 
-# Skipped stubs for Python-dependent functions ---------------------------
+# animl_py-dependent tests ------------------------------------------------
 
-test_that("build_file_manifest requires animl_py", {
-  skip("requires animl_py")
+test_that("build_file_manifest returns a data frame for a temp dir with images", {
+  skip_if(!animl_py_available(), "animl_py not available")
+  tmp <- tempfile(); dir.create(tmp)
+  on.exit(unlink(tmp, recursive = TRUE))
+  file.create(file.path(tmp, "img1.jpg"))
+  file.create(file.path(tmp, "img2.jpg"))
+  result <- build_file_manifest(tmp, exif = FALSE)
+  expect_s3_class(result, "data.frame")
+  expect_true(nrow(result) >= 2)
+  expect_true("filepath" %in% names(result))
 })
 
-test_that("save_json requires animl_py", {
-  skip("requires animl_py")
+test_that("build_file_manifest saves to out_file when provided", {
+  skip_if(!animl_py_available(), "animl_py not available")
+  tmp <- tempfile(); dir.create(tmp)
+  out <- tempfile(fileext = ".csv")
+  on.exit({ unlink(tmp, recursive = TRUE); unlink(out) })
+  file.create(file.path(tmp, "img1.jpg"))
+  build_file_manifest(tmp, exif = FALSE, out_file = out)
+  expect_true(file.exists(out))
 })
 
-test_that("load_json requires animl_py", {
-  skip("requires animl_py")
+test_that("save_json writes a file and load_json reads it back", {
+  skip_if(!animl_py_available(), "animl_py not available")
+  data <- list(key = "value", number = 42)
+  out <- tempfile(fileext = ".json")
+  on.exit(unlink(out))
+  save_json(data, out, prompt = FALSE)
+  expect_true(file.exists(out))
+  loaded <- load_json(out)
+  expect_equal(loaded$key, "value")
 })
 
 test_that("download_model requires animl_py", {
-  skip("requires animl_py")
+  skip_if(!animl_py_available(), "animl_py not available")
+  skip("download_model requires network access — test manually")
 })
 
 test_that("list_models requires animl_py", {
-  skip("requires animl_py")
+  skip_if(!animl_py_available(), "animl_py not available")
+  skip("list_models requires network access — test manually")
 })

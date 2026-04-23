@@ -72,8 +72,9 @@ test_that("get_animals returns 0-row data frame when no animals", {
   expect_equal(nrow(result), 0)
 })
 
-# Skipped stubs for Python-dependent functions ---------------------------
+# animl_py-dependent tests ------------------------------------------------
 
 test_that("train_val_test requires animl_py", {
-  skip("requires animl_py")
+  skip_if(!animl_py_available(), "animl_py not available")
+  skip("train_val_test requires a real dataset — test manually")
 })

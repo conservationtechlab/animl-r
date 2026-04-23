@@ -65,12 +65,12 @@ test_that("sequence_classification returns data frame with prediction and confid
   classes <- c("cat", "dog")
 
   result <- sequence_classification(
-    animals        = df,
-    empty          = NULL,
+    animals         = df,
+    empty           = NULL,
     predictions_raw = mat,
-    classes        = classes,
-    station_col    = "station",
-    maxdiff        = 60
+    classes         = classes,
+    station_col     = "station",
+    maxdiff         = 60
   )
 
   expect_s3_class(result, "data.frame")
@@ -78,24 +78,46 @@ test_that("sequence_classification returns data frame with prediction and confid
   expect_true("confidence" %in% names(result))
 })
 
-# Skipped stubs for Python-dependent functions ---------------------------
+# animl_py-dependent tests ------------------------------------------------
 
 test_that("load_detector requires animl_py", {
-  skip("requires animl_py")
+  skip_if(!animl_py_available(), "animl_py not available")
+  skip("load_detector requires a real model file — test manually with a local model")
 })
 
 test_that("detect requires animl_py", {
-  skip("requires animl_py")
+  skip_if(!animl_py_available(), "animl_py not available")
+  skip("detect requires a real detector model — test manually with a local model")
 })
 
-test_that("parse_detections requires animl_py", {
-  skip("requires animl_py")
+test_that("parse_detections returns a data frame from synthetic MD results", {
+  skip_if(!animl_py_available(), "animl_py not available")
+  results <- list(
+    list(
+      file = "img1.jpg",
+      detections = list(
+        list(category = "1", conf = 0.95, bbox = list(0.1, 0.2, 0.3, 0.4))
+      ),
+      max_detection_conf = 0.95
+    ),
+    list(
+      file = "img2.jpg",
+      detections = list(),
+      max_detection_conf = 0.0
+    )
+  )
+  result <- parse_detections(results)
+  expect_s3_class(result, "data.frame")
+  expect_true("category" %in% names(result))
+  expect_true("conf" %in% names(result))
 })
 
 test_that("plot_box requires animl_py", {
-  skip("requires animl_py")
+  skip_if(!animl_py_available(), "animl_py not available")
+  skip("plot_box requires a real image file — test manually")
 })
 
 test_that("plot_all_bounding_boxes requires animl_py", {
-  skip("requires animl_py")
+  skip_if(!animl_py_available(), "animl_py not available")
+  skip("plot_all_bounding_boxes requires a real image file — test manually")
 })
