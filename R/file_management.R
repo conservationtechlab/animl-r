@@ -253,7 +253,7 @@ active_times <- function(manifest_dir, camera_depth=0, file_col='filepath', time
 #' }
 sequence_calculation <- function(manifest,
                                  station_col,
-                                 sort_columms = NULL,
+                                 sort_columns = NULL,
                                  file_col = 'filepath',
                                  timestamp_col = "datetime",
                                  maxdiff = 60) {
@@ -271,7 +271,7 @@ sequence_calculation <- function(manifest,
   manifest[[timestamp_col]] <- as.POSIXct(manifest[[timestamp_col]], format = "%Y-%m-%d %H:%M:%S")
   
   # sort
-  if (is.null(sort_columms)){
+  if (is.null(sort_columns)){
     sort_columns <- c(station_col, timestamp_col)
   }
   

@@ -15,6 +15,7 @@ test_that("remove_link deletes files and removes link column", {
   df <- data.frame(
     name = c("img1", "img2"),
     link = c(tmp1, tmp2),
+    ext = c(".jpg", ".jpg"),
     stringsAsFactors = FALSE
   )
 

@@ -20,14 +20,17 @@ test_that("parse_detections returns a data frame from synthetic MD results", {
   skip_if(!animl_py_available(), "animl_py not available")
   results <- list(
     list(
-      file = "img1.jpg",
+      filepath = "img1.jpg",
+      frame = 0,
       detections = list(
-        list(category = "1", conf = 0.95, bbox = list(0.1, 0.2, 0.3, 0.4))
+        list(category = "1", conf = 0.95, 
+             bbox_x = 0.1, bbox_y = 0.2, bbox_w = 0.3, bbox_h = 0.4)
       ),
       max_detection_conf = 0.95
     ),
     list(
-      file = "img2.jpg",
+      filepath = "img2.jpg",
+      frame = 0,
       detections = list(),
       max_detection_conf = 0.0
     )
@@ -42,9 +45,11 @@ test_that("parse_detections filters by threshold", {
   skip_if(!animl_py_available(), "animl_py not available")
   results <- list(
     list(
-      file = "img1.jpg",
+      filepath = "img1.jpg",
+      frame = 0,
       detections = list(
-        list(category = "1", conf = 0.05, bbox = list(0.1, 0.2, 0.3, 0.4))
+        list(category = "1", conf = 0.05, 
+             bbox_x = 0.1, bbox_y = 0.2, bbox_w = 0.3, bbox_h = 0.4)
       ),
       max_detection_conf = 0.05
     )

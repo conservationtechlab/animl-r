@@ -54,8 +54,7 @@ get_empty <- function(manifest) {
 #' }
 get_animals <- function(manifest){
   if (!is(manifest, "data.frame")) { stop("'manifest' must be Data Frame")}
-  manifest$category[is.na(manifest$category)] <- 0
-  return(manifest[which(manifest$category==1),])
+  return(manifest[which(manifest$category == 1), , drop = FALSE])
 }
 
 

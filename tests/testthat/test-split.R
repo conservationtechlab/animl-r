@@ -69,6 +69,7 @@ test_that("get_animals returns 0-row data frame when no animals", {
   df <- data.frame(category = c(0, 2, 3))
   result <- get_animals(df)
   expect_s3_class(result, "data.frame")
+  print(result)
   expect_equal(nrow(result), 0)
 })
 

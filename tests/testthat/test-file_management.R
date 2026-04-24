@@ -99,7 +99,7 @@ test_that("sequence_calculation returns a data frame with a sequence column", {
     datetime = c("2023-01-01 10:00:00", "2023-01-01 10:00:30"),
     stringsAsFactors = FALSE
   )
-  result <- sequence_calculation(df, station_col = "station", datetime_col = "datetime", maxdiff = 60)
+  result <- sequence_calculation(df, station_col = "station", timestamp_col = "datetime", maxdiff = 60)
   expect_s3_class(result, "data.frame")
   expect_true("sequence" %in% names(result))
 })
@@ -110,7 +110,7 @@ test_that("sequence_calculation groups consecutive rows within maxdiff into same
     datetime = c("2023-01-01 10:00:00", "2023-01-01 10:00:30", "2023-01-01 10:01:00"),
     stringsAsFactors = FALSE
   )
-  result <- sequence_calculation(df, station_col = "station", datetime_col = "datetime", maxdiff = 60)
+  result <- sequence_calculation(df, station_col = "station", timestamp_col = "datetime", maxdiff = 60)
   expect_equal(length(unique(result$sequence)), 1)
 })
 
@@ -120,7 +120,7 @@ test_that("sequence_calculation assigns different sequences to rows > maxdiff ap
     datetime = c("2023-01-01 10:00:00", "2023-01-01 11:00:00"),
     stringsAsFactors = FALSE
   )
-  result <- sequence_calculation(df, station_col = "station", datetime_col = "datetime", maxdiff = 60)
+  result <- sequence_calculation(df, station_col = "station", timestamp_col = "datetime", maxdiff = 60)
   expect_equal(length(unique(result$sequence)), 2)
 })
 
@@ -130,7 +130,7 @@ test_that("sequence_calculation assigns different sequences to different station
     datetime = c("2023-01-01 10:00:00", "2023-01-01 10:00:05"),
     stringsAsFactors = FALSE
   )
-  result <- sequence_calculation(df, station_col = "station", datetime_col = "datetime", maxdiff = 60)
+  result <- sequence_calculation(df, station_col = "station", timestamp_col = "datetime", maxdiff = 60)
   expect_equal(length(unique(result$sequence)), 2)
 })
 
@@ -140,7 +140,7 @@ test_that("sequence_calculation errors when station_col is empty string", {
     datetime = "2023-01-01 10:00:00",
     stringsAsFactors = FALSE
   )
-  expect_error(sequence_calculation(df, station_col = "", datetime_col = "datetime"))
+  expect_error(sequence_calculation(df, station_col = "", timestamp_col = "datetime"))
 })
 
 test_that("sequence_calculation errors when maxdiff is negative", {
@@ -149,12 +149,12 @@ test_that("sequence_calculation errors when maxdiff is negative", {
     datetime = "2023-01-01 10:00:00",
     stringsAsFactors = FALSE
   )
-  expect_error(sequence_calculation(df, station_col = "station", datetime_col = "datetime", maxdiff = -1))
+  expect_error(sequence_calculation(df, station_col = "station", timestamp_col = "datetime", maxdiff = -1))
 })
 
-test_that("sequence_calculation errors when datetime_col is not present in manifest", {
+test_that("sequence_calculation errors when timestamp_col is not present in manifest", {
   df <- data.frame(station = "A", stringsAsFactors = FALSE)
-  expect_error(sequence_calculation(df, station_col = "station", datetime_col = "datetime"))
+  expect_error(sequence_calculation(df, station_col = "station", timestamp_col = "datetime"))
 })
 
 # animl_py-dependent tests ------------------------------------------------
