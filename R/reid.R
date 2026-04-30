@@ -50,12 +50,11 @@ extract_miew_embeddings <- function(miew_model, manifest, file_col="filepath",
 remove_diagonal <- function(A) {
   if (nrow(A) != ncol(A)) stop("Input must be a square matrix")
   n <- nrow(A)
-  A[!diag(n)]  # logical index, drops diagonal
-  matrix(A[!diag(TRUE, n)], nrow = n, ncol = n - 1, byrow = TRUE)
+  matrix(A[!diag(TRUE, n)], nrow = n-1, ncol = n, byrow = F)
 }
 
 
-#' Computes euclidean squared distance of two sets of vectors
+#' Computes euclidean squared distance of two sets of matrices
 #'
 #' @param input1 2-D feature matrix
 #' @param input2 2-D feature matrix
@@ -73,7 +72,7 @@ euclidean_squared_distance <- function(input1, input2) {
 }
 
 
-#' Computes cosine distance of two sets of vectors
+#' Computes cosine distance of two sets of matrices
 #'
 #' @param input1 2-D feature matrix
 #' @param input2 2-D feature matrix 
