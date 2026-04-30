@@ -266,7 +266,7 @@ animl_install_instructions <- function() {
     "Run animl::animl_install() to set up Python 3.12 environment and install animl-py dependency.\n\n",
     "Manual virtualenv/pip alternative (requires python 3.12 installed):\n",
     "  python -m venv ~/venvs/animl_env\n",
-    "  WIN: source ~/venvs/animl_env/bin/activate\n",
+    "  WIN: ~\\.virtualenvs\\animl_env\\Scripts\\activate\n",
     "  LIN: source ~/.virtualenvs/animl_env/bin/activate\n",
     "  pip install --upgrade pip\n",
     "  pip install animl\n\n",
