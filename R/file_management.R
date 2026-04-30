@@ -10,7 +10,9 @@
 #' @param image_dir folder to search through and find media files
 #' @param exif returns date and time information from exif data, defaults to true
 #' @param out_file .csv file to save manifest as
-#' @param offset add offset in hours for videos when using the File Modified date, defaults to 0
+#' @param data_timezone timezone in which data was collected
+#' @param station_depth integer value indicating folder depth from root image_dir that contains station name
+#' @param camera_depth integer value indicating folder depth from root image_dir that contains camera name
 #' @param recursive Should directories be scanned recursively? Default TRUE
 #'
 #' @return files dataframe with or without file dates
@@ -209,11 +211,37 @@ list_models <- function(){
 }
 
 
+#' Get start and stop dates for each camera folder.
+#'
+#' @param manifest_dir either file manifest or directory of files to analyze
+#' @param camera_depth directory depth from which to split cameras
+#' @param file_col column in manifest to use for file paths, defaults to "filepath"
+#' @param timestamp_col column in manifest to use for datetime information, defaults to "datetime"
+#' @param recursive recursively search through all child directories
+#' @param data_timezone add timezone code to adjust times if building manifest from scratch
+#'
+#' @returns times dataframe with min and max timestamp per camera
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' active_times('path/to/data', recursive=TRUE, camera_depth=2)
+#' }
+active_times <- function(manifest_dir, camera_depth=0, file_col='filepath', timestamp_col = "datetime", 
+                         recursive=TRUE, data_timezone=NULL){
+  animl_py <- .animl_internal$animl_py
+  animl_py$active_times(manifest_dir=manifest_dir,camera_depth=camera_depth, file_col=file_col, 
+                        timestamp_col=timestamp_col, recursive=recursive, data_timezone=data_timezone)
+}
+
+
 #' Calculate sequence from timestamps
 #'
 #' @param manifest dataframe of images with station and timestamp columns
 #' @param station_col a column in the animals and empty data frame that indicates the camera or camera station
-#' @param datetime_col a column containing timestamp
+#' @param sort_columns list of columns to sort by before calculating sequences. Defaults to None, which sorts by station_col and timestamp_col.
+#' @param file_col column name representing the file path. Defaults to "filepath".
+#' @param timestamp_col column name representing the timestamp in format "%Y-%m-%d %H:%M:%S". Defaults to "datetime".
 #' @param maxdiff max time difference in seconds between sequences, default = 60
 #'
 #' @returns manifest with sequence column, with a unique number associated with each sequence
@@ -225,7 +253,9 @@ list_models <- function(){
 #' }
 sequence_calculation <- function(manifest,
                                  station_col,
-                                 datetime_col = "datetime",
+                                 sort_columns = NULL,
+                                 file_col = 'filepath',
+                                 timestamp_col = "datetime",
                                  maxdiff = 60) {
   # input validation
   if (!is.character(station_col) || nchar(station_col) == 0) {
@@ -234,14 +264,17 @@ sequence_calculation <- function(manifest,
   if (!is.numeric(maxdiff) || maxdiff < 0) {
     stop("'maxdiff' must be a number >= 0")
   }
-  if (!datetime_col %in% colnames(manifest)) {
-    stop(paste0("DataFrame must contain '", datetime_col, "' column."))
+  if (!timestamp_col %in% colnames(manifest)) {
+    stop(paste0("DataFrame must contain '", timestamp_col, "' column."))
   }
   # parse datetime
-  manifest[[datetime_col]] <- as.POSIXct(manifest[[datetime_col]], format = "%Y-%m-%d %H:%M:%S")
+  manifest[[timestamp_col]] <- as.POSIXct(manifest[[timestamp_col]], format = "%Y-%m-%d %H:%M:%S")
   
   # sort
-  sort_columns <- c(station_col, datetime_col)
+  if (is.null(sort_columns)){
+    sort_columns <- c(station_col, timestamp_col)
+  }
+  
   manifest_sort <- manifest[do.call(order, manifest[, sort_columns, drop = FALSE]), ]
   manifest_sort <- manifest_sort[, , drop = FALSE]
   rownames(manifest_sort) <- NULL
@@ -256,11 +289,11 @@ sequence_calculation <- function(manifest,
     last_index <- i + 1
     
     while (last_index <= n &&
-           !is.na(manifest_sort$datetime[i]) &&
-           !is.na(manifest_sort$datetime[last_index]) &&
+           !is.na(manifest_sort[i, timestamp_col]) &&
+           !is.na(manifest_sort[last_index, timestamp_col]) &&
            manifest_sort[[station_col]][last_index] == manifest_sort[[station_col]][i] &&
-           as.numeric(difftime(manifest_sort$datetime[last_index],
-                               manifest_sort$datetime[i],
+           as.numeric(difftime(manifest_sort[last_index, timestamp_col],
+                               manifest_sort[i, timestamp_col],
                                units = "secs")) <= maxdiff) {
       rows <- c(rows, last_index)
       last_index <- last_index + 1

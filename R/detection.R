@@ -1,7 +1,10 @@
 #' Load an Object Detector
 #'
 #' @param model_path path to detector model file
-#' @param model_type type of model expected ie "MDV5", "MDV6", "YOLO", "ONNX"
+#' @param model_type type of model expected:  "mdv5", "mdv6", "mdv1000-cedar", "mdv1000-larch", "mdv1000-sorrel",
+#'                   "mdv1000-redwood", "mdv1000-spruce", "yolov5", "yolo", "onnx" 
+#'                   for yolo models v6+, use "yolo", for v5, use "yolov5". 
+#'                   for mdv1000 models, specify the version: cedar, larch, sorrel, redwood, spruce
 #' @param device specify to run on cpu or gpu
 #'
 #' @return detector object

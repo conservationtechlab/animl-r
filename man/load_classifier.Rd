@@ -4,7 +4,12 @@
 \alias{load_classifier}
 \title{Load a Classifier Model and Class_list}
 \usage{
-load_classifier(model_path, classes, device = NULL, architecture = "CTL")
+load_classifier(
+  model_path,
+  classes,
+  device = NULL,
+  architecture = "efficientnet_v2_m"
+)
 }
 \arguments{
 \item{model_path}{path to model}
@@ -16,7 +21,7 @@ load_classifier(model_path, classes, device = NULL, architecture = "CTL")
 \item{architecture}{model architecture}
 }
 \value{
-classifier model, class list
+list of: classifier model, class list
 }
 \description{
 Load a Classifier Model and Class_list

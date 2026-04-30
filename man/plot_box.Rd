@@ -8,7 +8,8 @@ plot_box(
   rows,
   file_col = "filepath",
   min_conf = 0,
-  label_col = NULL,
+  classifier_label_col = NULL,
+  detector_category_col = "category",
   show_confidence = FALSE,
   colors = NULL,
   detector_labels = NULL,
@@ -22,7 +23,9 @@ plot_box(
 
 \item{min_conf}{minimum confidence to plot box}
 
-\item{label_col}{Column name containing class to print above the box. If None, no label is printed.}
+\item{classifier_label_col}{Column name containing class to print above the box. If None, no label is printed.}
+
+\item{detector_category_col}{Column name containing the detector category to determine box color and label.}
 
 \item{show_confidence}{If true, show confidence score above the box.}
 
