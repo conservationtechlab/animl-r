@@ -21,7 +21,7 @@ load_classifier(
 \item{architecture}{model architecture}
 }
 \value{
-list of: classifier model, class list
+list of: classifier model, class list, and optionally epoch if resuming training
 }
 \description{
 Load a Classifier Model and Class_list

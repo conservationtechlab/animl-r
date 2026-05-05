@@ -6,11 +6,9 @@
 \usage{
 active_times(
   manifest_dir,
+  filepath = "filepath",
   camera_depth = 0,
-  file_col = "filepath",
-  timestamp_col = "datetime",
-  recursive = TRUE,
-  data_timezone = NULL
+  timestamp_col = "datetime"
 )
 }
 \arguments{
@@ -18,13 +16,9 @@ active_times(
 
 \item{camera_depth}{directory depth from which to split cameras}
 
-\item{file_col}{column in manifest to use for file paths, defaults to "filepath"}
-
 \item{timestamp_col}{column in manifest to use for datetime information, defaults to "datetime"}
 
-\item{recursive}{recursively search through all child directories}
-
-\item{data_timezone}{add timezone code to adjust times if building manifest from scratch}
+\item{file_col}{column in manifest to use for file paths, defaults to "filepath"}
 }
 \value{
 times dataframe with min and max timestamp per camera

@@ -14,10 +14,10 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{train_main('training_cfg.yml')}
-train_main <- function(cfg){
+#' \dontrun{train_classifier('training_cfg.yml')}
+train_classifier <- function(cfg){
   animl_py <- .animl_internal$animl_py
-  animl_py$train_main(cfg)
+  animl_py$train_classifier(cfg)
 }
 
 
@@ -29,8 +29,8 @@ train_main <- function(cfg){
 #' @export
 #'
 #' @examples
-#' \dontrun{test_main('training_cfg.yml')}
-test_main <- function(cfg){
+#' \dontrun{test_classifier('training_cfg.yml')}
+test_classifier <- function(cfg){
   animl_py <- .animl_internal$animl_py
-  animl_py$test_main(cfg)
+  animl_py$test_classifier(cfg)
 }

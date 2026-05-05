@@ -14,7 +14,8 @@
 #' \dontrun{save_classifier(model, 'models/', 10, list(acc = 0.85))}
 save_classifier <- function(model, out_dir, epoch, stats, optimizer=NULL, scheduler=NULL){
   animl_py <- get("animl_py", envir = parent.env(environment()))
-  animl_py$save_classifier(model, out_dir, epoch, reticulate::r_to_py(stats), optimizer=optimizer, scheduler=scheduler)
+  animl_py$save_classifier(model, out_dir, epoch, reticulate::r_to_py(stats), 
+                           optimizer=optimizer, scheduler=scheduler)
 }
 
 #' Load a Classifier Model and Class_list
@@ -24,7 +25,7 @@ save_classifier <- function(model, out_dir, epoch, stats, optimizer=NULL, schedu
 #' @param device send model to the specified device
 #' @param architecture model architecture
 #'
-#' @return list of: classifier model, class list
+#' @return list of: classifier model, class list, and optionally epoch if resuming training
 #' @export
 #'
 #' @examples
@@ -37,25 +38,6 @@ load_classifier <- function(model_path, classes, device=NULL, architecture="effi
   animl_py$load_classifier(model_path, classes, device=device, architecture=architecture)
 }
 
-
-#' Save model state weights
-#'
-#' @param model pytorch model
-#' @param out_dir directory to save model to
-#' @param epoch  current training epoch
-#' @param stats performance metrics of current epoch
-#' @param optimizer pytorch optimizer (optional)
-#' @param scheduler pytorch scheduler (optional)
-#'
-#' @returns None
-#' @export
-#'
-#' @examples
-#' \dontrun{save_classifier(model, 'models/', 10, list(acc = 0.85))}
-save_classifier <- function(model, out_dir, epoch, stats, optimizer=NULL, scheduler=NULL){
-  animl_py <- .animl_internal$animl_py
-  animl_py$save_classifier(model, out_dir, epoch, reticulate::r_to_py(stats), optimizer=optimizer, scheduler=scheduler)
-}
 
 #' Load class list .csv file
 #'
@@ -90,23 +72,34 @@ load_class_list <- function(classlist_file){
 #'
 #' @examples
 #' \dontrun{animals <- classify(classifier, animals, file_col='filepath')}
-classify <- function(model, detections, 
-                     resize_width=480, resize_height=480,
-                     file_col='filepath', crop=TRUE, normalize=TRUE,
-                     batch_size=1, num_workers=1,
-                     device=NULL, out_file=NULL){
+classify <- function(model,
+                     detections, 
+                     resize_width=480,
+                     resize_height=480,
+                     file_col='filepath',
+                     crop=TRUE,
+                     normalize=TRUE,
+                     batch_size=1,
+                     num_workers=1,
+                     device=NULL,
+                     out_file=NULL){ 
+  
     animl_py <- .animl_internal$animl_py
     
     #unpack if necessary
     if (is.list(model)){ model <- model[[1]] }
     
-    animl_py$classify(model, detections,
+    animl_py$classify(model,
+                      detections,
                       resize_width=as.integer(resize_width),
                       resize_height=as.integer(resize_height), 
-                      file_col=file_col, crop=crop, normalize=normalize,
+                      file_col=file_col,
+                      crop=crop,
+                      normalize=normalize,
                       batch_size=as.integer(batch_size),
                       num_workers=as.integer(num_workers),
-                      device=device, out_file=out_file)
+                      device=device,
+                      out_file=out_file)
 }
 
 
@@ -125,9 +118,20 @@ classify <- function(model, detections,
 #'
 #' @examples
 #' \dontrun{animals <- single_classification(animals, empty, pred_raw, class_list)}
-single_classification <- function(animals, empty, predictions_output, class_list, best=FALSE, 
-                                  file_col='filepath', failed_files=NULL){
+single_classification <- function(animals,
+                                  empty,
+                                  predictions_output,
+                                  class_list,
+                                  best=FALSE, 
+                                  file_col='filepath',
+                                  failed_files=NULL){
+  
   animl_py <- .animl_internal$animl_py
-  animl_py$single_classification(animals, empty, predictions_output, class_list, best=best,
-                                 file_col = file_col, failed_files = failed_files)
+  animl_py$single_classification(animals,
+                                 empty,
+                                 predictions_output,
+                                 class_list,
+                                 best=best,
+                                 file_col = file_col,
+                                 failed_files = failed_files)
 }

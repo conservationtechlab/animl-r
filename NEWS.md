@@ -1,4 +1,4 @@
-# animl 3.2.1
+# animl 3.3.0
 
 ## New Functions
 

@@ -23,7 +23,7 @@ export_folders(
 
 \item{out_file}{if provided, save the manifest to this file}
 
-\item{label_col}{specify 'prediction' for species or 'category' for megadetector class}
+\item{label_col}{specify 'prediction' for species or 'category_label' for megadetector class}
 
 \item{file_col}{Colun containing file paths}
 

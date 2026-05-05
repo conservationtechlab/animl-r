@@ -1,5 +1,5 @@
 # VARIABLE FOR VERSION
-ANIML_VERSION <- "3.2.1"
+ANIML_VERSION <- "3.3.0"
 
 #' Load animl-py if available
 #'
@@ -90,7 +90,7 @@ animl_install <- function(envname = "animl_env", python_version = "3.12") {
     packageStartupMessage(try_error)
     # 2. Create new environment
     packageStartupMessage("\n", sprintf("2. Creating a Python Environment (%s)", envname))
-    animl_path <- tryCatch(expr = create_pyenv(python_version = python_version, envname = envname),
+    animl_path <- tryCatch(expr = create_pyenv(envname = envname, python_version = python_version),
                            error = function(e) stop(e, "An error occur when animl_install was creating the Python Environment."))
     packageStartupMessage("animl successfully installed. Restart R session to see changes.\n")
   }
