@@ -18,15 +18,25 @@
 #' test_image <- classify(classifier_model, test_image, file_col='filepath')
 #' plot_box(test_image, file_col='filepath', minconf = 0.5, prediction=TRUE)
 #' }
-plot_box <- function(rows, file_col='filepath', min_conf=0, 
-                     classifier_label_col=NULL, detector_category_col='category',
-                     show_confidence=FALSE, colors=NULL, detector_labels=NULL,
+plot_box <- function(rows,
+                     file_col='filepath',
+                     min_conf=0,
+                     classifier_label_col=NULL,
+                     detector_category_col='category',
+                     show_confidence=FALSE,
+                     colors=NULL,
+                     detector_labels=NULL,
                      return_img=FALSE) {
+  
   animl_py <- .animl_internal$animl_py
-  animl_py$plot_box(rows, file_col=file_col, min_conf=min_conf, 
+  animl_py$plot_box(rows,
+                    file_col=file_col,
+                    min_conf=min_conf, 
                     classifier_label_col=classifier_label_col,
                     detector_category_col=detector_category_col,
-                    show_confidence=show_confidence, colors=colors, detector_labels=detector_labels,
+                    show_confidence=show_confidence,
+                    colors=colors,
+                    detector_labels=detector_labels,
                     return_img=return_img)
   }
 
@@ -52,13 +62,24 @@ plot_box <- function(rows, file_col='filepath', min_conf=0,
 #'                                  colors=list("1" = c(0, 255, 0),
 #'                                              "2" = c(0, 0, 255),
 #'                                              "3" = c(255, 0, 0)))}
-plot_all_bounding_boxes <- function(manifest, out_dir, file_col='filepath', min_conf=0.1, 
-                                    classifier_label_col=NULL, detector_category_col='category',
-                                    show_confidence=FALSE, colors=NULL, detector_labels=NULL){
+plot_all_bounding_boxes <- function(manifest,
+                                    out_dir,
+                                    file_col='filepath',
+                                    min_conf=0.1, 
+                                    classifier_label_col=NULL,
+                                    detector_category_col='category',
+                                    show_confidence=FALSE,
+                                    colors=NULL,
+                                    detector_labels=NULL){
+  
   animl_py <- .animl_internal$animl_py
-  animl_py$plot_all_bounding_boxes(manifest, out_dir, file_col=file_col, min_conf=min_conf, 
+  animl_py$plot_all_bounding_boxes(manifest,
+                                   out_dir,
+                                   file_col=file_col,
+                                   min_conf=min_conf, 
                                    classifier_label_col=classifier_label_col,
                                    detector_category_col=detector_category_col,
                                    show_confidence=show_confidence,
-                                   colors=colors, detector_labels=detector_labels)
+                                   colors=colors,
+                                   detector_labels=detector_labels)
 }

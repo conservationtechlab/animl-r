@@ -12,10 +12,20 @@
 #'
 #' @examples
 #' \dontrun{save_classifier(model, 'models/', 10, list(acc = 0.85))}
-save_classifier <- function(model, out_dir, epoch, stats, optimizer=NULL, scheduler=NULL){
-  animl_py <- get("animl_py", envir = parent.env(environment()))
-  animl_py$save_classifier(model, out_dir, epoch, reticulate::r_to_py(stats), 
-                           optimizer=optimizer, scheduler=scheduler)
+save_classifier <- function(model,
+                            out_dir,
+                            epoch,
+                            stats,
+                            optimizer=NULL,
+                            scheduler=NULL){
+  
+  animl_py <- .animl_internal$animl_py
+  animl_py$save_classifier(model,
+                           out_dir,
+                           epoch,
+                           reticulate::r_to_py(stats), 
+                           optimizer=optimizer,
+                           scheduler=scheduler)
 }
 
 #' Load a Classifier Model and Class_list
@@ -32,10 +42,17 @@ save_classifier <- function(model, out_dir, epoch, stats, optimizer=NULL, schedu
 #' \dontrun{
 #' classes <- load_class_list('sdzwa_andes_v1_classes.csv')
 #' andes <- load_classifier('andes_v1.pt', nrow(classes))}
-load_classifier <- function(model_path, classes, device=NULL, architecture="efficientnet_v2_m"){
+load_classifier <- function(model_path,
+                            classes,
+                            device=NULL,
+                            architecture="efficientnet_v2_m"){
+  
   animl_py <- .animl_internal$animl_py
   if(is.numeric(classes)){ classes = as.integer(classes)}
-  animl_py$load_classifier(model_path, classes, device=device, architecture=architecture)
+  animl_py$load_classifier(model_path,
+                           classes,
+                           device=device,
+                           architecture=architecture)
 }
 
 

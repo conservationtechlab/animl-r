@@ -36,7 +36,10 @@
 #'                                    sort_columns = c("StationID", "DateTime"),
 #'                                    maxdiff=60)
 #' }
-sequence_classification<-function(animals, empty, predictions_raw, classes,
+sequence_classification<-function(animals,
+                                  empty,
+                                  predictions_raw,
+                                  classes,
                                   station_col="station",
                                   empty_class="",
                                   human_class="",

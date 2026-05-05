@@ -244,14 +244,17 @@ export_timelapse <- function(manifest, out_dir, only_animal=TRUE){
 #'
 #' @examples
 #' \dontrun{export_megadetector(manifest, output_file= 'results.json', detector='MDv6')}
-export_megadetector <- function(manifest, out_file=NULL, 
-                                detector='MegaDetector v5a', prompt=TRUE){
+export_megadetector <- function(manifest,
+                                out_file=NULL, 
+                                detector='MegaDetector v5a',
+                                prompt=TRUE){
+  
   animl_py <- .animl_internal$animl_py
-  animl_py$export_megadetector(manifest, out_file=out_file, 
-                               detector=detector, prompt=prompt)
+  animl_py$export_megadetector(manifest,
+                               out_file=out_file, 
+                               detector=detector,
+                               prompt=prompt)
 }
-
-
 
 
 #' Splits the manifest into training validation and test datasets for training
