@@ -1,0 +1,20 @@
+title: AniML Documentation
+email: tswanson@sdzwa.org
+description: Modular toolkit for ML-assisted camera trap data processing
+domain: conservationtechlab.github.io/matchypatchy
+url: "https://conservationtechlab.github.io"
+baseurl: "/animl-r"
+github_username:  conservationtechlab
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  syntax_highlighter: rouge
+
+# Exclude from processing
+exclude:
+  - README.md
+  - .gitignore
+  - Gemfile
+  - Gemfile.lock
