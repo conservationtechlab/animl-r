@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if page.title %}{{ page.title }} - {% endif %}{{ site.title }}</title>
+    <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
+    <link rel="stylesheet" href="{{ site.baseurl }}/assets/css/style.css">
+    <link rel="stylesheet" href="{{ site.baseurl }}/assets/css/syntax.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 class="site-heading"><img src="{{ site.baseurl }}/assets/images/owl_icon.png" alt="CTL Owl Icon" class="site-heading__img">
+                SDZWA Conservation Technology Lab
+            </h1>
+            <p>Developing open-source technology and machine learning tools for wildlife conservation</p>
+        </div>
+    </header>
+    <nav class="main-nav">
+        <div class="container">
+            <ul class="nav-menu">
+                <li><a href="https://conservationtechlab.github.io">CTL Home</a></li>
+                <li><a href="https://conservationtechlab.github.io/animl-py">About AniML (Python)</a></li>
+                <li><a href="https://conservationtechlab.github.io/animl-r">About AniML (R)</a></li>
+                <li><a href="https://conservationtechlab.github.io/animl-py/models">Models</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-inner">
+                <h2>Navigation</h2>
+                <nav>
+                    <details open>
+                        <summary>Getting Started</summary>
+                        <nav>
+                            <a href="#about">About AniML</a>
+                            <a href="#installation">Installation</a>
+                            <a href="#requirements">Requirements</a>
+                            <a href="#dependencies">Dependencies</a>
+                        </nav>
+                    </details>
+                    <details>
+                        <summary>Examples and Usage</summary>
+                        <nav>
+                            <a href="#full-pipeline">Full Pipeline</a>
+                            <a href="#data-ingestion">Data Ingestion</a>
+                            <a href="#detection">Detection</a>
+                            <a href="#classification">Classification</a>
+                            <a href="#re-id">Re-ID</a>
+                            <a href="#training">Training</a>
+                            <a href="#visualization">Visualization</a>
+                            <a href="#export">Export</a>
+                        </nav>
+                    </details>
+                    <details>
+                        <summary>Reference</summary>
+                        <nav>
+                            <a href="#getting-started">class WorkingDirectory</a>
+                            <a href="#build_file_manifest">build_file_manifest()</a>
+                            <a href="#usage">extract_frames()</a>
+                            <a href="#usage">load_detector()</a>
+                            <a href="#usage">detect()</a>
+                            <a href="#usage">parse_detections()</a>
+                            <a href="#usage">load_classifier()</a>
+                            <a href="#usage">load_class_list()</a>
+                            <a href="#getting-started">classify()</a>
+                            <a href="#getting-started">single_classification()</a>
+                            <a href="#getting-started">sequence_classification()</a>
+                            <a href="#usage">Re-ID</a>
+                            <a href="#usage">Training</a>
+                            <a href="#export">Export</a>
+                        </nav>
+                    </details>
+                    <details>
+                        <summary>Troubleshooting</summary>
+                        <nav>
+                            <a href="#troubleshooting">Common Issues</a>
+                        </nav>
+                    </details>
+                </nav>
+            </div>
+        </aside>
+        <main class="page-content" aria-label="Content">
+            {{ content }}
+        </main>
+    </div>
+    <footer>
+        <div class="container">
+            <p><strong>Conservation Technology Lab</strong></p>
+            <p style="margin-top: 1rem;">
+                <a href="https://github.com/conservationtechlab" target="_blank" rel="noopener">GitHub</a> | 
+                All projects are open-source and available under their respective licenses. <br>
+                <a href="https://sandiegozoowildlifealliance.org" target="_blank" rel="noopener">SDZWA</a> | 
+                Create a world where all life thrives.
+            </p>
+            <p style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.8;">
+                &copy; 2026 Conservation Technology Lab. San Diego Zoo Wildlife Alliance.
+            </p>
+        </div>
+    </footer>
+</body>
+</html>

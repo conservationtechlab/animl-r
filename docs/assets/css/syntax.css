@@ -1,0 +1,82 @@
+.highlight table td { padding: 5px; }
+.highlight table pre { margin: 0; }
+
+.highlight .c { color: #6e7781; font-style: italic; } /* Comment */
+.highlight .err { color: #f6f8fa; background-color: #cf222e; } /* Error */
+.highlight .k { color: #cf222e; } /* Keyword */
+.highlight .o { color: #0550ae; } /* Operator */
+.highlight .cm { color: #6e7781; font-style: italic; } /* Comment.Multiline */
+.highlight .cp { color: #0550ae; } /* Comment.Preproc */
+.highlight .c1 { color: #6e7781; font-style: italic; } /* Comment.Single */
+.highlight .cs { color: #6e7781; font-style: italic; } /* Comment.Special */
+.highlight .gd { color: #82071e; background-color: #ffebe9; } /* Generic.Deleted */
+.highlight .ge { font-style: italic; } /* Generic.Emph */
+.highlight .gh { color: #0550ae; font-weight: bold; } /* Generic.Heading */
+.highlight .gi { color: #116329; background-color: #dafbe1; } /* Generic.Inserted */
+.highlight .gp { color: #6e7781; font-weight: bold; } /* Generic.Prompt */
+.highlight .gs { font-weight: bold; } /* Generic.Strong */
+.highlight .gu { color: #0550ae; font-weight: bold; } /* Generic.Subheading */
+.highlight .kc { color: #cf222e; } /* Keyword.Constant */
+.highlight .kd { color: #cf222e; } /* Keyword.Declaration */
+.highlight .kn { color: #cf222e; } /* Keyword.Namespace */
+.highlight .kp { color: #cf222e; } /* Keyword.Pseudo */
+.highlight .kr { color: #cf222e; } /* Keyword.Reserved */
+.highlight .kt { color: #953800; } /* Keyword.Type */
+.highlight .m { color: #0550ae; } /* Literal.Number */
+.highlight .s { color: #0a3069; } /* Literal.String */
+.highlight .na { color: #6639ba; } /* Name.Attribute */
+.highlight .nb { color: #953800; } /* Name.Builtin */
+.highlight .nc { color: #953800; } /* Name.Class */
+.highlight .no { color: #0550ae; } /* Name.Constant */
+.highlight .nd { color: #8250df; } /* Name.Decorator */
+.highlight .ni { color: #24292f; } /* Name.Entity */
+.highlight .ne { color: #cf222e; } /* Name.Exception */
+.highlight .nf { color: #8250df; } /* Name.Function */
+.highlight .nl { color: #24292f; } /* Name.Label */
+.highlight .nn { color: #953800; } /* Name.Namespace */
+.highlight .nt { color: #116329; } /* Name.Tag */
+.highlight .nv { color: #24292f; } /* Name.Variable */
+.highlight .ow { color: #0550ae; } /* Operator.Word */
+.highlight .w { color: #f6f8fa; } /* Text.Whitespace */
+.highlight .mb { color: #0550ae; } /* Literal.Number.Bin */
+.highlight .mf { color: #0550ae; } /* Literal.Number.Float */
+.highlight .mh { color: #0550ae; } /* Literal.Number.Hex */
+.highlight .mi { color: #0550ae; } /* Literal.Number.Integer */
+.highlight .mo { color: #0550ae; } /* Literal.Number.Oct */
+.highlight .sa { color: #0a3069; } /* Literal.String.Affix */
+.highlight .sb { color: #0a3069; } /* Literal.String.Backtick */
+.highlight .sc { color: #0a3069; } /* Literal.String.Char */
+.highlight .dl { color: #0a3069; } /* Literal.String.Delimiter */
+.highlight .sd { color: #0a3069; } /* Literal.String.Doc */
+.highlight .s2 { color: #0a3069; } /* Literal.String.Double */
+.highlight .se { color: #0550ae; } /* Literal.String.Escape */
+.highlight .sh { color: #0a3069; } /* Literal.String.Heredoc */
+.highlight .si { color: #0a3069; } /* Literal.String.Interpol */
+.highlight .sx { color: #0a3069; } /* Literal.String.Other */
+.highlight .sr { color: #116329; } /* Literal.String.Regex */
+.highlight .s1 { color: #0a3069; } /* Literal.String.Single */
+.highlight .ss { color: #0a3069; } /* Literal.String.Symbol */
+.highlight .bp { color: #953800; } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #8250df; } /* Name.Function.Magic */
+.highlight .vc { color: #24292f; } /* Name.Variable.Class */
+.highlight .vg { color: #24292f; } /* Name.Variable.Global */
+.highlight .vi { color: #24292f; } /* Name.Variable.Instance */
+.highlight .vm { color: #24292f; } /* Name.Variable.Magic */
+
+.highlight {
+  background: #f6f8fa;
+  color: #24292f;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+}
+
+.highlight pre {
+  margin: 0;
+  padding: 16px;
+  overflow-x: auto;
+  line-height: 1.45;
+}
+
+code {  
+  font-family: ui-monospace, SFMono-Regular, SF Mono, Consolas, "Liberation Mono", Menlo;
+}
