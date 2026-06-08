@@ -1,39 +1,10 @@
-#' Save model state weights
-#'
-#' @param model pytorch model
-#' @param out_dir directory to save model to
-#' @param epoch  current training epoch
-#' @param stats performance metrics of current epoch
-#' @param optimizer pytorch optimizer (optional)
-#' @param scheduler pytorch scheduler (optional)
-#'
-#' @returns None
-#' @export
-#'
-#' @examples
-#' \dontrun{save_classifier(model, 'models/', 10, list(acc = 0.85))}
-save_classifier <- function(model,
-                            out_dir,
-                            epoch,
-                            stats,
-                            optimizer=NULL,
-                            scheduler=NULL){
-  
-  animl_py <- .animl_internal$animl_py
-  animl_py$save_classifier(model,
-                           out_dir,
-                           epoch,
-                           reticulate::r_to_py(stats), 
-                           optimizer=optimizer,
-                           scheduler=scheduler)
-}
-
 #' Load a Classifier Model and Class_list
 #'
 #' @param model_path path to model
 #' @param classes path to class list or loaded class list
 #' @param device send model to the specified device
 #' @param architecture model architecture
+#' @param quiet bool, provide device information to user
 #'
 #' @return list of: classifier model, class list, and optionally epoch if resuming training
 #' @export
@@ -45,14 +16,16 @@ save_classifier <- function(model,
 load_classifier <- function(model_path,
                             classes,
                             device=NULL,
-                            architecture="efficientnet_v2_m"){
+                            architecture="efficientnet_v2_m",
+                            quiet=TRUE){
   
   animl_py <- .animl_internal$animl_py
   if(is.numeric(classes)){ classes = as.integer(classes)}
   animl_py$load_classifier(model_path,
                            classes,
                            device=device,
-                           architecture=architecture)
+                           architecture=architecture,
+                           quiet=quiet)
 }
 
 
@@ -127,6 +100,7 @@ classify <- function(model,
 #' @param predictions_output softmaxed likelihoods from predict_species
 #' @param class_list list of class labels
 #' @param best whether to return one prediction per file
+#' @param count whether to add a count column with number of detections of each species per file
 #' @param file_col column name for file paths in the dataframe
 #' @param failed_files optional list of files that failed to load during classification 
 #'
@@ -139,7 +113,8 @@ single_classification <- function(animals,
                                   empty,
                                   predictions_output,
                                   class_list,
-                                  best=FALSE, 
+                                  best=FALSE,
+                                  count=FALSE,
                                   file_col='filepath',
                                   failed_files=NULL){
   
@@ -149,6 +124,7 @@ single_classification <- function(animals,
                                  predictions_output,
                                  class_list,
                                  best=best,
+                                 count=count,
                                  file_col = file_col,
                                  failed_files = failed_files)
 }
