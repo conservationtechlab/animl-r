@@ -8,7 +8,9 @@ build_file_manifest(
   image_dir,
   exif = TRUE,
   out_file = NULL,
-  offset = 0,
+  data_timezone = NULL,
+  station_depth = NULL,
+  camera_depth = NULL,
   recursive = TRUE
 )
 }
@@ -19,7 +21,11 @@ build_file_manifest(
 
 \item{out_file}{.csv file to save manifest as}
 
-\item{offset}{add offset in hours for videos when using the File Modified date, defaults to 0}
+\item{data_timezone}{timezone in which data was collected}
+
+\item{station_depth}{integer value indicating folder depth from root image_dir that contains station name}
+
+\item{camera_depth}{integer value indicating folder depth from root image_dir that contains camera name}
 
 \item{recursive}{Should directories be scanned recursively? Default TRUE}
 }

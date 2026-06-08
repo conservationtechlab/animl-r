@@ -24,14 +24,14 @@ save_classifier <- function(model, out_dir, epoch, stats, optimizer=NULL, schedu
 #' @param device send model to the specified device
 #' @param architecture model architecture
 #'
-#' @return classifier model, class list
+#' @return list of: classifier model, class list
 #' @export
 #'
 #' @examples
 #' \dontrun{
 #' classes <- load_class_list('sdzwa_andes_v1_classes.csv')
 #' andes <- load_classifier('andes_v1.pt', nrow(classes))}
-load_classifier <- function(model_path, classes, device=NULL, architecture="CTL"){
+load_classifier <- function(model_path, classes, device=NULL, architecture="efficientnet_v2_m"){
   animl_py <- .animl_internal$animl_py
   if(is.numeric(classes)){ classes = as.integer(classes)}
   animl_py$load_classifier(model_path, classes, device=device, architecture=architecture)
@@ -91,12 +91,15 @@ load_class_list <- function(classlist_file){
 #' @examples
 #' \dontrun{animals <- classify(classifier, animals, file_col='filepath')}
 classify <- function(model, detections, 
-                       resize_width=480, resize_height=480,
-                       file_col='filepath', crop=TRUE, normalize=TRUE,
-                       batch_size=1, num_workers=1,
-                       device=NULL, out_file=NULL){
-  
+                     resize_width=480, resize_height=480,
+                     file_col='filepath', crop=TRUE, normalize=TRUE,
+                     batch_size=1, num_workers=1,
+                     device=NULL, out_file=NULL){
     animl_py <- .animl_internal$animl_py
+    
+    #unpack if necessary
+    if (is.list(model)){ model <- model[[1]] }
+    
     animl_py$classify(model, detections,
                       resize_width=as.integer(resize_width),
                       resize_height=as.integer(resize_height), 
@@ -111,16 +114,20 @@ classify <- function(model, detections,
 #'
 #' @param animals manifest of animal detections 
 #' @param empty manifest of md human, vehicle and empty images
-#' @param predictions_raw softmaxed likelihoods from predict_species
+#' @param predictions_output softmaxed likelihoods from predict_species
 #' @param class_list list of class labels
 #' @param best whether to return one prediction per file
+#' @param file_col column name for file paths in the dataframe
+#' @param failed_files optional list of files that failed to load during classification 
 #'
 #' @returns dataframe with prediction and confidence columns
 #' @export
 #'
 #' @examples
 #' \dontrun{animals <- single_classification(animals, empty, pred_raw, class_list)}
-single_classification <- function(animals, empty, predictions_raw, class_list, best=FALSE){
+single_classification <- function(animals, empty, predictions_output, class_list, best=FALSE, 
+                                  file_col='filepath', failed_files=NULL){
   animl_py <- .animl_internal$animl_py
-  animl_py$single_classification(animals, empty, predictions_raw, class_list, best=best)
+  animl_py$single_classification(animals, empty, predictions_output, class_list, best=best,
+                                 file_col = file_col, failed_files = failed_files)
 }

@@ -12,6 +12,8 @@
 get_empty <- function(manifest) {
   if (!is(manifest, "data.frame")) { stop("'manifest' must be Data Frame")}
   
+  # fill md empties with 0
+  manifest$category[is.na(manifest$category)] <- 0
   empty <- manifest[manifest$category != 1, ]
 
   if (nrow(empty) == 0) {
@@ -52,7 +54,7 @@ get_empty <- function(manifest) {
 #' }
 get_animals <- function(manifest){
   if (!is(manifest, "data.frame")) { stop("'manifest' must be Data Frame")}
-  return(manifest[which(manifest$category==1),])
+  return(manifest[which(manifest$category == 1), , drop = FALSE])
 }
 
 
@@ -78,7 +80,7 @@ train_val_test <- function(manifest, label_col="class", file_col='filepath',
                            conf_col = 'confidence', out_dir=NULL,
                            val_size= 0.1, test_size = 0.1, seed=42){
   animl_py <- .animl_internal$animl_py
-  animl_py$train_val_test(manifest, label_col="class", file_col='filepath', 
-                          conf_col = 'confidence', out_dir=NULL,
-                          val_size= 0.1, test_size = 0.1, seed=42)
+  animl_py$train_val_test(manifest, label_col=label_col, file_col=file_col, 
+                          conf_col=conf_col, out_dir=out_dir,
+                          val_size=val_size, test_size=test_size, seed=seed)
 }

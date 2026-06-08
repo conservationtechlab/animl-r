@@ -10,6 +10,7 @@ export_camtrapR(
   out_file = NULL,
   label_col = "prediction",
   file_col = "filepath",
+  timestamp_col = "datetime",
   station_col = "station",
   unique_name = "uniquename",
   copy = FALSE
@@ -25,6 +26,8 @@ export_camtrapR(
 \item{label_col}{column containing species labels}
 
 \item{file_col}{column containing source paths}
+
+\item{timestamp_col}{column containing timestamps in format "\%Y-\%m-\%d \%H:\%M:\%S"}
 
 \item{station_col}{column containing station names}
 

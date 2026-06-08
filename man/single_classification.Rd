@@ -7,9 +7,11 @@
 single_classification(
   animals,
   empty,
-  predictions_raw,
+  predictions_output,
   class_list,
-  best = FALSE
+  best = FALSE,
+  file_col = "filepath",
+  failed_files = NULL
 )
 }
 \arguments{
@@ -17,11 +19,15 @@ single_classification(
 
 \item{empty}{manifest of md human, vehicle and empty images}
 
-\item{predictions_raw}{softmaxed likelihoods from predict_species}
+\item{predictions_output}{softmaxed likelihoods from predict_species}
 
 \item{class_list}{list of class labels}
 
 \item{best}{whether to return one prediction per file}
+
+\item{file_col}{column name for file paths in the dataframe}
+
+\item{failed_files}{optional list of files that failed to load during classification}
 }
 \value{
 dataframe with prediction and confidence columns
