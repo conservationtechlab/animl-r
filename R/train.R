@@ -5,7 +5,6 @@
 #' Kyra Swanson 2025
 
 
-
 #' Train a model with a Config file
 #'
 #' @param cfg config .yml file containing training settings
@@ -33,4 +32,35 @@ train_classifier <- function(cfg){
 test_classifier <- function(cfg){
   animl_py <- .animl_internal$animl_py
   animl_py$test_classifier(cfg)
+}
+
+
+#' Save model state weights
+#'
+#' @param model pytorch model
+#' @param out_dir directory to save model to
+#' @param epoch  current training epoch
+#' @param stats performance metrics of current epoch
+#' @param optimizer pytorch optimizer (optional)
+#' @param scheduler pytorch scheduler (optional)
+#'
+#' @returns None
+#' @export
+#'
+#' @examples
+#' \dontrun{save_classifier(model, 'models/', 10, list(acc = 0.85))}
+save_classifier <- function(model,
+                            out_dir,
+                            epoch,
+                            stats,
+                            optimizer=NULL,
+                            scheduler=NULL){
+  
+  animl_py <- .animl_internal$animl_py
+  animl_py$save_classifier(model,
+                           out_dir,
+                           epoch,
+                           reticulate::r_to_py(stats), 
+                           optimizer=optimizer,
+                           scheduler=scheduler)
 }
