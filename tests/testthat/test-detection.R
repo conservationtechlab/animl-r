@@ -1,5 +1,26 @@
 library(testthat)
 
+# MD_LABELS ---------------------------------------------------------------
+# Detection categories used by MegaDetector and related functions:
+#   0 = empty  (no detection / background)
+#   1 = animal
+#   2 = human
+#   3 = vehicle
+
+test_that("MD_LABELS maps the correct detection categories", {
+  labels <- animl:::MD_LABELS
+  expect_equal(labels[["0"]], "empty")
+  expect_equal(labels[["1"]], "animal")
+  expect_equal(labels[["2"]], "human")
+  expect_equal(labels[["3"]], "vehicle")
+})
+
+test_that("MD_LABELS contains exactly four categories (0–3)", {
+  labels <- animl:::MD_LABELS
+  expect_equal(length(labels), 4)
+  expect_true(all(c("0", "1", "2", "3") %in% names(labels)))
+})
+
 # load_detector ----------------------------------------------------------
 
 test_that("load_detector requires a model file", {
