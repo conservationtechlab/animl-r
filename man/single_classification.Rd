@@ -10,6 +10,7 @@ single_classification(
   predictions_output,
   class_list,
   best = FALSE,
+  count = FALSE,
   file_col = "filepath",
   failed_files = NULL
 )
@@ -24,6 +25,8 @@ single_classification(
 \item{class_list}{list of class labels}
 
 \item{best}{whether to return one prediction per file}
+
+\item{count}{whether to add a count column with number of detections of each species per file}
 
 \item{file_col}{column name for file paths in the dataframe}
 

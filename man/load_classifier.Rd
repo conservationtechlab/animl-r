@@ -8,7 +8,8 @@ load_classifier(
   model_path,
   classes,
   device = NULL,
-  architecture = "efficientnet_v2_m"
+  architecture = "efficientnet_v2_m",
+  quiet = TRUE
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ load_classifier(
 \item{device}{send model to the specified device}
 
 \item{architecture}{model architecture}
+
+\item{quiet}{bool, provide device information to user}
 }
 \value{
 list of: classifier model, class list, and optionally epoch if resuming training
