@@ -6,7 +6,7 @@
 \usage{
 active_times(
   manifest_dir,
-  filepath = "filepath",
+  file_col = "filepath",
   camera_depth = 0,
   timestamp_col = "datetime"
 )
@@ -14,11 +14,11 @@ active_times(
 \arguments{
 \item{manifest_dir}{either file manifest or directory of files to analyze}
 
+\item{file_col}{column in manifest to use for file paths, defaults to "filepath"}
+
 \item{camera_depth}{directory depth from which to split cameras}
 
 \item{timestamp_col}{column in manifest to use for datetime information, defaults to "datetime"}
-
-\item{file_col}{column in manifest to use for file paths, defaults to "filepath"}
 }
 \value{
 times dataframe with min and max timestamp per camera

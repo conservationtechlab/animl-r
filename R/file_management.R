@@ -269,7 +269,7 @@ list_models <- function(){
 #' active_times('path/to/data', recursive=TRUE, camera_depth=2)
 #' }
 active_times <- function(manifest_dir,
-                         filepath='filepath',
+                         file_col='filepath',
                          camera_depth=0,
                          timestamp_col="datetime"){
 
