@@ -80,11 +80,50 @@ update_labels_from_folders <- function(manifest, export_dir, unique_name='unique
   filepath <- list.files(export_dir, recursive = TRUE, include.dirs = TRUE)
   files <- data.frame(filepath)
   
-  files[unique_name] <- sapply(files$filepath,function(x)strsplit(x,"/")[[1]][2])
-  files$label <- sapply(files$filepath,function(x)strsplit(x,"/")[[1]][1])
+  files[unique_name] <- sapply(files$filepath, function(x) strsplit(x, "/")[[1]][2])
+  files$label <- sapply(files$filepath, function(x) strsplit(x, "/")[[1]][1])
   
   corrected <- merge(manifest, files, by=unique_name)
   return(corrected)
+}
+
+
+#' Splits the manifest into training validation and test datasets for training
+#'
+#' @param manifest list of files to split for training
+#' @param label_col column name containing class labels
+#' @param file_col column containing file paths
+#' @param conf_col column containing prediction confidence
+#' @param out_dir location to save split lists to
+#' @param val_size fraction of data dedicated to validation
+#' @param test_size fraction of data dedicated to testing
+#' @param seed RNG seed for reproducibility
+#'
+#' @return train manifest, validate manifest, test manifest
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#'   output <- train_val_test(manifest)
+#' }
+export_train_val_test <- function(manifest,
+                                  label_col="class",
+                                  file_col='filepath',
+                                  conf_col = 'confidence',
+                                  out_dir=NULL,
+                                  val_size= 0.1,
+                                  test_size = 0.1,
+                                  seed=42){
+  
+  animl_py <- .animl_internal$animl_py
+  animl_py$export_train_val_test(manifest,
+                                 label_col=label_col,
+                                 file_col=file_col,
+                                 conf_col=conf_col,
+                                 out_dir=out_dir,
+                                 val_size=val_size,
+                                 test_size=test_size,
+                                 seed=seed)
 }
 
 
@@ -101,9 +140,18 @@ update_labels_from_folders <- function(manifest, export_dir, unique_name='unique
 #'
 #' @examples
 #' \dontrun{export_megadetector(manifest, output_file= 'results.json', detector='MDv6')}
-export_coco <- function(manifest, class_dict, out_file, info=NULL, licenses=NULL){
+export_coco <- function(manifest,
+                        class_dict,
+                        out_file,
+                        info=NULL,
+                        licenses=NULL){
+  
   animl_py <- .animl_internal$animl_py
-  animl_py$export_coco(manifest, class_dict, out_file, info=info, licenses=licenses)
+  animl_py$export_coco(manifest,
+                       class_dict,
+                       out_file,
+                       info=info,
+                       licenses=licenses)
 }
 
 
@@ -226,9 +274,14 @@ export_camtrapR <- function(manifest,
 #'
 #' @examples
 #' \dontrun{export_timelapse(animals, empty, '/path/to/images/')}
-export_timelapse <- function(manifest, out_dir, only_animal=TRUE){
+export_timelapse <- function(manifest,
+                             out_dir,
+                             only_animal=TRUE){
+  
   animl_py <- .animl_internal$animl_py
-  animl_py$export_timelapse(manifest, out_dir, only_animal=only_animal)
+  animl_py$export_timelapse(manifest,
+                            out_dir,
+                            only_animal=only_animal)
 }
 
 
@@ -257,40 +310,3 @@ export_megadetector <- function(manifest,
 }
 
 
-#' Splits the manifest into training validation and test datasets for training
-#'
-#' @param manifest list of files to split for training
-#' @param label_col column name containing class labels
-#' @param file_col column containing file paths
-#' @param conf_col column containing prediction confidence
-#' @param out_dir location to save split lists to
-#' @param val_size fraction of data dedicated to validation
-#' @param test_size fraction of data dedicated to testing
-#' @param seed RNG seed for reproducibility
-#'
-#' @return train manifest, validate manifest, test manifest
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#'   output <- train_val_test(manifest)
-#' }
-export_train_val_test <- function(manifest,
-                                  label_col="class",
-                                  file_col='filepath',
-                                  conf_col = 'confidence',
-                                  out_dir=NULL,
-                                  val_size= 0.1,
-                                  test_size = 0.1,
-                                  seed=42){
-  
-  animl_py <- .animl_internal$animl_py
-  animl_py$export_train_val_test(manifest,
-                                 label_col=label_col,
-                                 file_col=file_col,
-                                 conf_col=conf_col,
-                                 out_dir=out_dir,
-                                 val_size=val_size,
-                                 test_size=test_size,
-                                 seed=seed)
-}
