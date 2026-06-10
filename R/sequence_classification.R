@@ -64,7 +64,7 @@ sequence_classification<-function(animals,
   if (!is(predictions_raw, "matrix")) { stop("'predictions_raw' must be a matrix") }
   
   # remove failed_files
-  if (failed_files){
+  if (!is.null(failed_files) && length(failed_files) > 0){
     animals <- animals[!(animals[[file_col]] %in% failed_files), ]
     rownames(animals) <- NULL
   }

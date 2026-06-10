@@ -16,7 +16,8 @@ imagedir <- "examples/Southwest"
 WorkingDirectory(imagedir, globalenv())
 
 # Build file manifest for all images and videos within base directory
-files <- build_file_manifest(imagedir, out_file=filemanifest_file, exif=TRUE, station_depth = 0, camera_depth = 0)
+files <- build_file_manifest(imagedir, out_file=filemanifest_file, exif=TRUE, 
+                             station_depth = 0, camera_depth = 0, data_timezone = 'America/Los_Angeles')
 
 files <- sequence_calculation(files, 'station')
 
@@ -55,7 +56,7 @@ pred_raw <- classify(southwest, animals, resize_width=299, resize_height=299, ou
 manifest <- single_classification(animals, empty, pred_raw, southwest[[2]]$class, best = TRUE)
 
 # Sequence Classification
-manifest <- sequence_classification(animals, empty=empty, pred_raw, classes=class_list, station_col="station", empty_class="empty")
+manifest2 <- sequence_classification(animals, empty=empty, pred_raw, classes= southwest[[2]]$class, station_col="station", empty_class="empty")
 
 
 #===============================================================================
