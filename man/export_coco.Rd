@@ -9,7 +9,7 @@ export_coco(manifest, class_dict, out_file, info = NULL, licenses = NULL)
 \arguments{
 \item{manifest}{dataframe containing images and associated detections}
 
-\item{class_dict}{named list (dictionary) containing class names and their corresponding IDs}
+\item{class_dict}{named list containing class names and their corresponding IDs}
 
 \item{out_file}{path to save the formatted file}
 

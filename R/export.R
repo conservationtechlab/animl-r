@@ -130,7 +130,7 @@ export_train_val_test <- function(manifest,
 #' Converts the .csv file to a COCO-formatted .json file.
 #'
 #' @param manifest dataframe containing images and associated detections
-#' @param class_dict named list (dictionary) containing class names and their corresponding IDs
+#' @param class_dict named list containing class names and their corresponding IDs
 #' @param out_file path to save the formatted file
 #' @param info info section of COCO file, named list
 #' @param licenses licenses section of COCO file, array
