@@ -1,3 +1,6 @@
+
+MD_LABELS = list('0'='empty', '1'='animal', '2'='human', '3'='vehicle')
+
 #' Load an Object Detector
 #'
 #' @param model_path path to detector model file
@@ -26,6 +29,7 @@ load_detector <- function(model_path, model_type, device=NULL){
 #' @param resize_width  width to resize images to
 #' @param resize_height height to resize images to
 #' @param letterbox if True, resize and pad image to keep aspect ratio, else resize without padding
+#' @param category_map mapping of category IDs to human-readable labels
 #' @param confidence_threshold only detections above this threshold are returned
 #' @param file_col select which column if image_file_names is a manifest
 #' @param batch_size size of each batch
@@ -39,17 +43,32 @@ load_detector <- function(model_path, model_type, device=NULL){
 #'
 #' @examples
 #' \dontrun{mdres <- detect(md_py, allframes$Frame, 1280, 960, device='cpu')}
-detect <- function(detector, image_file_names, resize_width, resize_height,
-                   letterbox=TRUE, confidence_threshold=0.1, file_col='filepath',
-                   batch_size=1, num_workers=1, device=NULL,
-                   checkpoint_path=NULL, checkpoint_frequency=-1){
+detect <- function(detector,
+                   image_file_names,
+                   resize_width,
+                   resize_height,
+                   letterbox=TRUE,
+                   category_map=MD_LABELS,
+                   confidence_threshold=0.1,
+                   file_col='filepath',
+                   batch_size=1,
+                   num_workers=1,
+                   device=NULL,
+                   checkpoint_path=NULL,
+                   checkpoint_frequency=-1){
   
   animl_py <- .animl_internal$animl_py
-  animl_py$detect(detector, image_file_names, 
-                  as.integer(resize_width), as.integer(resize_height),
-                  letterbox=letterbox, confidence_threshold=confidence_threshold,
-                  file_col=file_col, batch_size=as.integer(batch_size),
-                  num_workers=as.integer(num_workers), device=device,
+  animl_py$detect(detector,
+                  image_file_names, 
+                  as.integer(resize_width), 
+                  as.integer(resize_height),
+                  letterbox=letterbox,
+                  category_map=category_map,
+                  confidence_threshold=confidence_threshold,
+                  file_col=file_col,
+                  batch_size=as.integer(batch_size),
+                  num_workers=as.integer(num_workers),
+                  device=device,
                   checkpoint_path=checkpoint_path,
                   checkpoint_frequency=as.integer(checkpoint_frequency))
 }
@@ -70,8 +89,76 @@ detect <- function(detector, image_file_names, resize_width, resize_height,
 #' \dontrun{
 #' mdresults <- parseMD(mdres)
 #' }
-parse_detections <- function(results, manifest=NULL, out_file=NULL, threshold=0, file_col="filepath") {
+parse_detections <- function(results,
+                             manifest=NULL,
+                             out_file=NULL,
+                             threshold=0,
+                             file_col="filepath") {
+  
   animl_py <- .animl_internal$animl_py
-  animl_py$parse_detections(results, manifest=manifest, out_file=out_file,
-                            threshold=threshold, file_col=file_col)
+  animl_py$parse_detections(results,
+                            manifest=manifest,
+                            out_file=out_file,
+                            threshold=threshold,
+                            file_col=file_col)
+}
+
+
+#' Return MD empty, vehicle and human images in a dataframe
+#'
+#' @param manifest all megadetector frames
+#'
+#' @return list of empty/human/vehicle allframes with md classification
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' empty <- get_empty(imagesall)
+#' }
+get_empty <- function(manifest) {
+  if (!is(manifest, "data.frame")) { stop("'manifest' must be Data Frame")}
+  
+  # fill md empties with 0
+  manifest$category[is.na(manifest$category)] <- 0
+  empty <- manifest[manifest$category != 1, ]
+  
+  if (nrow(empty) == 0) {
+    empty <- data.frame(matrix(ncol = ncol(manifest), nrow = 0))
+    colnames(empty) <- names(manifest)
+    return(empty)
+  }
+  empty$prediction <- NA
+  empty$confidence <- NA
+  
+  categories <- unique(manifest$category)
+  if (0 %in% categories) {
+    empty[which(empty$category == 0), "prediction"] <- "empty"
+    empty[which(empty$category == 0), "confidence"] <- 1
+  }
+  if (2 %in% categories) {
+    empty[which(empty$category == 2), "prediction"] <- "human"
+    empty[which(empty$category == 2), "confidence"] <- empty$conf[which(empty$category == 2)]
+  }
+  if (3 %in% categories) {
+    empty[which(empty$category == 3), "prediction"] <- "vehicle"
+    empty[which(empty$category == 3), "confidence"] <- empty$conf[which(empty$category == 3)]
+  }
+  return(empty)
+}
+
+
+#' Return a dataframe of only MD animals
+#'
+#' @param manifest all megadetector frames
+#'
+#' @return animal frames classified by MD
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' animals <- get_animals(imagesall)
+#' }
+get_animals <- function(manifest){
+  if (!is(manifest, "data.frame")) { stop("'manifest' must be Data Frame")}
+  return(manifest[which(manifest$category == 1), , drop = FALSE])
 }

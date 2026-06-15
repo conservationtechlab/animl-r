@@ -67,7 +67,7 @@ test_that("sequence_classification returns data frame with prediction and confid
   result <- sequence_classification(
     animals         = df,
     empty           = NULL,
-    predictions_raw = mat,
+    predictions = mat,
     classes         = classes,
     station_col     = "station",
     maxdiff         = 60

@@ -3,7 +3,7 @@
 #' @param manifest DataFrame of classified images 
 #' @param out_dir Destination directory for species folders
 #' @param out_file if provided, save the manifest to this file
-#' @param label_col specify 'prediction' for species or 'category' for megadetector class
+#' @param label_col specify 'prediction' for species or 'category_label' for megadetector class
 #' @param file_col Colun containing file paths
 #' @param timestamp_col  column containing timestamps in format "%Y-%m-%d %H:%M:%S"
 #' @param station_col column containing station names
@@ -17,15 +17,26 @@
 #' \dontrun{
 #' manifest <- export_folders(manifest, out_dir)
 #' }
-export_folders <- function(manifest, out_dir, out_file=NULL, 
-                           label_col="prediction", file_col="filepath",
-                           timestamp_col='datetime', station_col='station',
-                           unique_name='uniquename', copy=FALSE) {
+export_folders <- function(manifest,
+                           out_dir,
+                           out_file=NULL, 
+                           label_col="prediction",
+                           file_col="filepath",
+                           timestamp_col='datetime',
+                           station_col='station',
+                           unique_name='uniquename',
+                           copy=FALSE) {
+  
   animl_py <- .animl_internal$animl_py
-  animl_py$export_folders(manifest, out_dir, out_file,
-                                      label_col=label_col, file_col=file_col,
-                                      timestamp_col=timestamp_col, station_col=station_col,
-                                      unique_name=unique_name, copy=copy)
+  animl_py$export_folders(manifest,
+                          out_dir, 
+                          out_file,
+                          label_col=label_col,
+                          file_col=file_col,
+                          timestamp_col=timestamp_col,
+                          station_col=station_col,
+                          unique_name=unique_name,
+                          copy=copy)
 }
 
 
@@ -63,23 +74,63 @@ remove_link <- function(manifest, link_col='link'){
 #' }
 update_labels_from_folders <- function(manifest, export_dir, unique_name='uniquename'){
   if (!dir.exists(export_dir)) {stop("The given directory does not exist.")}
-  if (!unique_name %in% names(manifest)) {stop("Manifest does not have unique names, cannot match to sorted directories.")}
+  if (!unique_name %in% names(manifest)) {
+    stop("Manifest does not have unique names, cannot match to sorted directories.")}
   
   filepath <- list.files(export_dir, recursive = TRUE, include.dirs = TRUE)
   files <- data.frame(filepath)
   
-  files[unique_name] <- sapply(files$filepath,function(x)strsplit(x,"/")[[1]][2])
-  files$label <- sapply(files$filepath,function(x)strsplit(x,"/")[[1]][1])
+  files[unique_name] <- sapply(files$filepath, function(x) strsplit(x, "/")[[1]][2])
+  files$label <- sapply(files$filepath, function(x) strsplit(x, "/")[[1]][1])
   
   corrected <- merge(manifest, files, by=unique_name)
   return(corrected)
 }
 
 
+#' Splits the manifest into training validation and test datasets for training
+#'
+#' @param manifest list of files to split for training
+#' @param label_col column name containing class labels
+#' @param file_col column containing file paths
+#' @param conf_col column containing prediction confidence
+#' @param out_dir location to save split lists to
+#' @param val_size fraction of data dedicated to validation
+#' @param test_size fraction of data dedicated to testing
+#' @param seed RNG seed for reproducibility
+#'
+#' @return train manifest, validate manifest, test manifest
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#'   output <- train_val_test(manifest)
+#' }
+export_train_val_test <- function(manifest,
+                                  label_col="class",
+                                  file_col='filepath',
+                                  conf_col = 'confidence',
+                                  out_dir=NULL,
+                                  val_size= 0.1,
+                                  test_size = 0.1,
+                                  seed=42){
+  
+  animl_py <- .animl_internal$animl_py
+  animl_py$export_train_val_test(manifest,
+                                 label_col=label_col,
+                                 file_col=file_col,
+                                 conf_col=conf_col,
+                                 out_dir=out_dir,
+                                 val_size=val_size,
+                                 test_size=test_size,
+                                 seed=seed)
+}
+
+
 #' Converts the .csv file to a COCO-formatted .json file.
 #'
 #' @param manifest dataframe containing images and associated detections
-#' @param class_list  dataframe containing class names and their corresponding IDs
+#' @param class_dict named list containing class names and their corresponding IDs
 #' @param out_file path to save the formatted file
 #' @param info info section of COCO file, named list
 #' @param licenses licenses section of COCO file, array
@@ -89,9 +140,18 @@ update_labels_from_folders <- function(manifest, export_dir, unique_name='unique
 #'
 #' @examples
 #' \dontrun{export_megadetector(manifest, output_file= 'results.json', detector='MDv6')}
-export_coco <- function(manifest, class_list, out_file, info=NULL, licenses=NULL){
+export_coco <- function(manifest,
+                        class_dict,
+                        out_file,
+                        info=NULL,
+                        licenses=NULL){
+  
   animl_py <- .animl_internal$animl_py
-  animl_py$export_coco(manifest, class_list, out_file, info=info, licenses=licenses)
+  animl_py$export_coco(manifest,
+                       class_dict,
+                       out_file,
+                       info=info,
+                       licenses=licenses)
 }
 
 
@@ -114,11 +174,24 @@ export_coco <- function(manifest, class_list, out_file, info=NULL, licenses=NULL
 #' splits <- train_val_test(manifest)
 #' manifest <- export_yolo(splits[[1]], splits[[2]], splits[[3]], out_dir)
 #' }
-export_yolo <- function(train_manifest, val_manifest, test_manifest, class_list,
-                        out_dir, label_col='prediction', file_col='filepath', hard_copy=FALSE){
+export_yolo <- function(train_manifest,
+                        val_manifest,
+                        test_manifest,
+                        class_list,
+                        out_dir,
+                        label_col='prediction',
+                        file_col='filepath',
+                        hard_copy=FALSE){
+  
   animl_py <- .animl_internal$animl_py
-  animl_py$export_yolo(train_manifest, val_manifest, test_manifest, class_list,
-                       out_dir, label_col=label_col, file_col=file_col, hard_copy=hard_copy)
+  animl_py$export_yolo(train_manifest,
+                       val_manifest,
+                       test_manifest,
+                       class_list,
+                       out_dir,
+                       label_col=label_col,
+                       file_col=file_col,
+                       hard_copy=hard_copy)
 }
 
 
@@ -134,9 +207,16 @@ export_yolo <- function(train_manifest, val_manifest, test_manifest, class_list,
 #'
 #' @examples
 #' \dontrun{export_camptrapdp(manifest, '~/exports/')}
-export_camptrapdp <- function(manifest, out_dir, file_public=FALSE, classifier_name=NULL){
+export_camptrapdp <- function(manifest,
+                              out_dir,
+                              file_public=FALSE,
+                              classifier_name=NULL){
+  
   animl_py <- .animl_internal$animl_py
-  animl_py$export_camptrapdp(manifest, out_dir, file_public=file_public, classifier_name=classifier_name)
+  animl_py$export_camptrapdp(manifest,
+                             out_dir,
+                             file_public=file_public,
+                             classifier_name=classifier_name)
 }
 
 
@@ -160,13 +240,26 @@ export_camptrapdp <- function(manifest, out_dir, file_public=FALSE, classifier_n
 #' \dontrun{manifest <- export_camtrapR(manifest, out_dir, out_file=NULL, label_col='prediction',
 #'                                      file_col="filepath", station_col='station', 
 #'                                      unique_name='uniquename', copy=FALSE)}
-export_camtrapR <- function(manifest, out_dir, out_file=NULL, label_col='prediction',
-                            file_col="filepath", timestamp_col='datetime', station_col='station', 
-                            unique_name='uniquename', copy=FALSE){
+export_camtrapR <- function(manifest,
+                            out_dir,
+                            out_file=NULL,
+                            label_col='prediction',
+                            file_col="filepath",
+                            timestamp_col='datetime',
+                            station_col='station', 
+                            unique_name='uniquename',
+                            copy=FALSE){
+  
   animl_py <- .animl_internal$animl_py
-  animl_py$export_camtrapR(manifest, out_dir, out_file=out_file, label_col=label_col,
-                           file_col=file_col, timestamp_col=timestamp_col, station_col=station_col,
-                           unique_name=unique_name, copy=copy)
+  animl_py$export_camtrapR(manifest,
+                           out_dir,
+                           out_file=out_file,
+                           label_col=label_col,
+                           file_col=file_col,
+                           timestamp_col=timestamp_col,
+                           station_col=station_col,
+                           unique_name=unique_name,
+                           copy=copy)
 }
 
 
@@ -181,9 +274,14 @@ export_camtrapR <- function(manifest, out_dir, out_file=NULL, label_col='predict
 #'
 #' @examples
 #' \dontrun{export_timelapse(animals, empty, '/path/to/images/')}
-export_timelapse <- function(manifest, out_dir, only_animal=TRUE){
+export_timelapse <- function(manifest,
+                             out_dir,
+                             only_animal=TRUE){
+  
   animl_py <- .animl_internal$animl_py
-  animl_py$export_timelapse(manifest, out_dir, only_animal=only_animal)
+  animl_py$export_timelapse(manifest,
+                            out_dir,
+                            only_animal=only_animal)
 }
 
 
@@ -199,11 +297,16 @@ export_timelapse <- function(manifest, out_dir, only_animal=TRUE){
 #'
 #' @examples
 #' \dontrun{export_megadetector(manifest, output_file= 'results.json', detector='MDv6')}
-export_megadetector <- function(manifest, out_file=NULL, 
-                                detector='MegaDetector v5a', prompt=TRUE){
+export_megadetector <- function(manifest,
+                                out_file=NULL, 
+                                detector='MegaDetector v5a',
+                                prompt=TRUE){
+  
   animl_py <- .animl_internal$animl_py
-  animl_py$export_megadetector(manifest, out_file=out_file, 
-                               detector=detector, prompt=prompt)
+  animl_py$export_megadetector(manifest,
+                               out_file=out_file, 
+                               detector=detector,
+                               prompt=prompt)
 }
 
 

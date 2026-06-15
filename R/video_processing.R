@@ -16,13 +16,26 @@
 #' \dontrun{
 #' frames <- extract_frames(manifest, out_dir = "C:\\Users\\usr\\Videos\\", frames = 5)
 #' }
-extract_frames <- function(files, frames=5, fps=NULL, out_file=NULL, out_dir=NULL,
-                           file_col="filepath", parallel=TRUE, num_workers=4){
+extract_frames <- function(files,
+                           frames=5,
+                           fps=NULL,
+                           out_file=NULL,
+                           out_dir=NULL,
+                           file_col="filepath",
+                           parallel=TRUE,
+                           num_workers=4){
+  
   if (!is.null(fps)){ fps <- as.integer(fps) }
   if (!is.null(frames)){ frames <- as.integer(frames) }
   animl_py <- .animl_internal$animl_py
-  animl_py$extract_frames(files, frames=frames, fps=fps, out_file=out_file, out_dir=out_dir,
-                          file_col=file_col, parallel=parallel, num_workers=as.integer(num_workers))
+  animl_py$extract_frames(files,
+                          frames=frames,
+                          fps=fps,
+                          out_file=out_file,
+                          out_dir=out_dir,
+                          file_col=file_col,
+                          parallel=parallel,
+                          num_workers=as.integer(num_workers))
 }
 
 

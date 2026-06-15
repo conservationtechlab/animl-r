@@ -7,7 +7,7 @@
 sequence_classification(
   animals,
   empty,
-  predictions_raw,
+  predictions,
   classes,
   station_col = "station",
   empty_class = "",
@@ -15,6 +15,7 @@ sequence_classification(
   vehicle_class = "",
   sort_columns = NULL,
   file_col = "filepath",
+  timestamp_col = "datetime",
   maxdiff = 60
 )
 }
@@ -23,7 +24,7 @@ sequence_classification(
 
 \item{empty}{optional, data frame non-animal images (empty, human and vehicle) that will be merged back with animal imagages}
 
-\item{predictions_raw}{data frame of prediction probabilities from the classifySpecies function}
+\item{predictions}{data frame of prediction probabilities from the classifySpecies function}
 
 \item{classes}{class list associated with classifier model}
 
@@ -35,9 +36,11 @@ sequence_classification(
 
 \item{vehicle_class}{a string indicating the class that should be considered 'Vehicle'}
 
-\item{sort_columns}{optional sort order. The default is 'station_column' and datetime.}
+\item{sort_columns}{optional sort order. The default null becomes 'station_column' and 'timestamp_col'}
 
 \item{file_col}{a field indicating a single record. The default is FilePath for single images/videos.}
+
+\item{timestamp_col}{a column containing timestamp information. The default is 'datetime}
 
 \item{maxdiff}{maximum difference between images in seconds to be included in a sequence, defaults to 60}
 }
@@ -58,10 +61,10 @@ Classification confidence is weighted by MD confidence.
 }
 \examples{
 \dontrun{
-predictions_raw <-classify(classifier, images, resize_width=456, resize_height=456)
+predictions <-classify(classifier, images, resize_width=456, resize_height=456)
 animals <- get_animals(images)
 empty <- get_empty(images)
-animals <- sequence_classification(animals, empty, predictions_raw, classes,
+animals <- sequence_classification(animals, empty, predictions, classes,
                                    station_column="StationID",
                                    empty_class = "Empty",
                                    sort_columns = c("StationID", "DateTime"),

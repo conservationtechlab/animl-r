@@ -2,7 +2,7 @@
 % Please edit documentation in R/reid.R
 \name{cosine_distance}
 \alias{cosine_distance}
-\title{Computes cosine distance of two sets of vectors}
+\title{Computes cosine distance of two sets of matrices}
 \usage{
 cosine_distance(input1, input2)
 }
@@ -15,7 +15,7 @@ cosine_distance(input1, input2)
 distance matrix
 }
 \description{
-Computes cosine distance of two sets of vectors
+Computes cosine distance of two sets of matrices
 }
 \examples{
 \dontrun{dist_matrix <- cosine_distance(embeddings, embeddings)}

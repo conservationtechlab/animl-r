@@ -48,12 +48,14 @@ test_that("single_classification returns a data frame with prediction and confid
   animals <- data.frame(
     filepath = c("img1.jpg", "img2.jpg"),
     category = c(1L, 1L),
+    category_label = c('animal', 'animal'),
     conf     = c(0.9, 0.8),
     stringsAsFactors = FALSE
   )
   empty <- data.frame(
     filepath   = "img3.jpg",
     category   = 0L,
+    category_label = c('empty'),
     conf       = 0.1,
     prediction = "empty",
     confidence = 1.0,

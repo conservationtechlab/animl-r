@@ -8,7 +8,8 @@ load_classifier(
   model_path,
   classes,
   device = NULL,
-  architecture = "efficientnet_v2_m"
+  architecture = "efficientnet_v2_m",
+  quiet = TRUE
 )
 }
 \arguments{
@@ -19,9 +20,11 @@ load_classifier(
 \item{device}{send model to the specified device}
 
 \item{architecture}{model architecture}
+
+\item{quiet}{bool, provide device information to user}
 }
 \value{
-list of: classifier model, class list
+list of: classifier model, class list, and optionally epoch if resuming training
 }
 \description{
 Load a Classifier Model and Class_list
@@ -29,5 +32,6 @@ Load a Classifier Model and Class_list
 \examples{
 \dontrun{
 classes <- load_class_list('sdzwa_andes_v1_classes.csv')
-andes <- load_classifier('andes_v1.pt', nrow(classes))}
+andes <- load_classifier('andes_v1.pt', nrow(classes))
+}
 }

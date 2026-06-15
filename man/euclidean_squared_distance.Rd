@@ -2,7 +2,7 @@
 % Please edit documentation in R/reid.R
 \name{euclidean_squared_distance}
 \alias{euclidean_squared_distance}
-\title{Computes euclidean squared distance of two sets of vectors}
+\title{Computes euclidean squared distance of two sets of matrices}
 \usage{
 euclidean_squared_distance(input1, input2)
 }
@@ -15,7 +15,7 @@ euclidean_squared_distance(input1, input2)
 distance matrix
 }
 \description{
-Computes euclidean squared distance of two sets of vectors
+Computes euclidean squared distance of two sets of matrices
 }
 \examples{
 \dontrun{dist_matrix <- euclidean_squared_distance(embeddings, embeddings)}

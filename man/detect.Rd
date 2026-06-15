@@ -10,6 +10,7 @@ detect(
   resize_width,
   resize_height,
   letterbox = TRUE,
+  category_map = MD_LABELS,
   confidence_threshold = 0.1,
   file_col = "filepath",
   batch_size = 1,
@@ -29,6 +30,8 @@ detect(
 \item{resize_height}{height to resize images to}
 
 \item{letterbox}{if True, resize and pad image to keep aspect ratio, else resize without padding}
+
+\item{category_map}{mapping of category IDs to human-readable labels}
 
 \item{confidence_threshold}{only detections above this threshold are returned}
 
