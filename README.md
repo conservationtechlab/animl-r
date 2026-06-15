@@ -38,7 +38,7 @@ This produces a dataframe of images, including frames taken from any videos to b
 
 More info on <br>
 [MegaDetector v5/v1000](https://github.com/agentmorris/MegaDetector/tree/main) <br>
-[MegaDetector v6](https://microsoft.github.io/CameraTraps/megadetector/) 
+[MegaDetector v6](https://microsoft.github.io/MegaDetector/) 
 
 ```R
 #Load the Megadetector model

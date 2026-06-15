@@ -1,5 +1,5 @@
 # VARIABLE FOR VERSION
-ANIML_VERSION <- "3.2.1"
+ANIML_VERSION <- "3.3.0"
 
 #' Load animl-py if available
 #'
@@ -15,6 +15,9 @@ ANIML_VERSION <- "3.2.1"
 load_animl <- function(envname = "animl_env",
                        python_version = "3.12",
                        .silent = FALSE) {
+  
+  if (!interactive()) {return(invisible())}
+  
   msg <- function(text) {
     if (!.silent) {
       packageStartupMessage(text)
@@ -24,19 +27,31 @@ load_animl <- function(envname = "animl_env",
   # 1. Load environment if exists — try venv first, then conda
   msg(sprintf("1. Loading Python Environment (%s)...", envname))
   
-  try_venv  <- try(reticulate::use_virtualenv(envname, required = TRUE), silent = TRUE)
+  # Try venv first
+  try_venv <- tryCatch(
+    reticulate::use_virtualenv(envname, required = TRUE),
+    error = function(e) {
+      return(NULL)
+    }
+  )
   
-  if (inherits(try_venv, "try-error")) {
-    msg("virtualenv not found, trying conda...")
-    try_conda <- try(reticulate::use_condaenv(envname, required = TRUE))
+  # If venv fails, try conda
+  if (is.null(try_venv)) {
+    packageStartupMessage("virtualenv not found, trying conda...")
+    try_conda <- tryCatch(
+      reticulate::use_condaenv(envname, required = TRUE),
+      error = function(e) {
+        return(NULL)
+      }
+    )
     try_error <- try_conda
   } 
   else {
     try_error <- try_venv
   }
   
-  # 2. Install if neither found
-  if (inherits(try_error, "try-error")) {
+    # 2. Install if neither found
+  if (is.null(try_error)) {
     msg(sprintf(paste0("%s python environment not found. Run animl::animl_install().\n",
                        "See `?animl::animl_install_instructions` for more detail."), envname))
   }
