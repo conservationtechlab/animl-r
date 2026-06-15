@@ -27,8 +27,8 @@ load_classifier <- function(model_path,
                            device=device,
                            architecture=architecture,
                            quiet=quiet)
-  names(classififer) <- c('model','classes')
-  return(classsifier)
+  names(classifier) <- c('model','classes')
+  return(classifier)
 }
 
 
