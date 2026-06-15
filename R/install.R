@@ -1,5 +1,5 @@
 # VARIABLE FOR VERSION
-ANIML_VERSION <- "3.3.0"
+ANIML_VERSION <- "3.3.1_dev"
 
 #' Load animl-py if available
 #'
