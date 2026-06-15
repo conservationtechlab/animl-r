@@ -108,17 +108,12 @@ Or a .csv file for Timelapse
 manifest <- export_folders(manifest, out_dir=linkdir)
 ```
 
-
-
-
-
-
 # Models
 
 The Conservation Technology Lab has several [models](https://sandiegozoo.app.box.com/s/9f3xuqldvg9ysaix9c9ug8tdcrmc2eqx) available for use. <br><br>
 Detectors:
 [MegaDetector v5/v1000](https://github.com/agentmorris/MegaDetector/tree/main) <br>
-[MegaDetector v6](https://microsoft.github.io/CameraTraps/megadetector/) 
+[MegaDetector v6](https://microsoft.github.io/megadetector/) 
 
 
 # Installation
