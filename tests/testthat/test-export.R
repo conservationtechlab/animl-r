@@ -145,7 +145,7 @@ test_that("export_coco writes a valid COCO JSON file", {
     height             = 960L,
     stringsAsFactors   = FALSE
   )
-  class_list <- data.frame(id = 1L, class = "deer", stringsAsFactors = FALSE)
+  class_list <- list("1" = 'deer', '2'='fox')
   out <- tempfile(fileext = ".json")
   on.exit(unlink(out))
   export_coco(manifest, class_list, out)
@@ -170,6 +170,7 @@ test_that("export_timelapse writes animals.csv to out_dir", {
     frame              = c(0L, 0L),
     max_detection_conf = c(0.9, 0.1),
     category           = c(1L, 0L),
+    category_label     = c('animal', 'empty'),
     conf               = c(0.9, 0.1),
     bbox_x             = c(0.1, NA),
     bbox_y             = c(0.1, NA),

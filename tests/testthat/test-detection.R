@@ -23,7 +23,7 @@ test_that("parse_detections returns a data frame from synthetic MD results", {
       filepath = "img1.jpg",
       frame = 0,
       detections = list(
-        list(category = "1", conf = 0.95, 
+        list(category = "1", category_label = 'animal', conf = 0.95, 
              bbox_x = 0.1, bbox_y = 0.2, bbox_w = 0.3, bbox_h = 0.4)
       ),
       max_detection_conf = 0.95
@@ -48,7 +48,7 @@ test_that("parse_detections filters by threshold", {
       filepath = "img1.jpg",
       frame = 0,
       detections = list(
-        list(category = "1", conf = 0.05, 
+        list(category = "1", category_label = 'animal', conf = 0.05, 
              bbox_x = 0.1, bbox_y = 0.2, bbox_w = 0.3, bbox_h = 0.4)
       ),
       max_detection_conf = 0.05
