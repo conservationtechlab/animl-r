@@ -1,5 +1,5 @@
 Package: animl
-Title: A Collection of ML Tools for Species Detection and Classification in Camera Trap Images and Videos.
+Title: A Collection of ML Tools for Species Detection and Classification in Camera Trap Images and Videos
 Version: 3.3.0
 Authors@R: c(person(given="Kyra", family="Swanson",email="tswanson@sdzwa.org", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-1496-3217")), person(given="Mathias",family="Tobler",role = "aut"))
@@ -20,3 +20,4 @@ Suggests:
     withr
 Config/testthat/edition: 3
 Config/roxygen2/version: 8.0.0
+RoxygenNote: 7.3.3

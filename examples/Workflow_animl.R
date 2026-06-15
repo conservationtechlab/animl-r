@@ -48,15 +48,16 @@ empty <- get_empty(mdresults)
 #===============================================================================
 
 southwest <- load_classifier('/home/kyra/models/sdzwa_southwest_v3.pt', '/home/kyra/models/sdzwa_southwest_v3_classes.csv')
+names(southwest) <- c('model', 'classes')
 
 # get likelihoods
-pred_raw <- classify(southwest, animals, resize_width=299, resize_height=299, out_file=predictions_file, batch_size=4)
+pred_raw <- classify(southwest$model, animals, resize_width=299, resize_height=299, out_file=predictions_file, batch_size=4)
 
 # Single Classification
-manifest <- single_classification(animals, empty, pred_raw, southwest[[2]]$class, best = TRUE)
+manifest <- single_classification(animals, empty, pred_raw, southwest$classes, best = TRUE)
 
 # Sequence Classification
-manifest2 <- sequence_classification(animals, empty=empty, pred_raw, classes= southwest[[2]]$class, station_col="station", empty_class="empty")
+manifest2 <- sequence_classification(animals, empty=empty, pred_raw, classes=southwest$classes, station_col="station", empty_class="empty")
 
 
 #===============================================================================

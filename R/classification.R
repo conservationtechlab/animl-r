@@ -12,7 +12,8 @@
 #' @examples
 #' \dontrun{
 #' classes <- load_class_list('sdzwa_andes_v1_classes.csv')
-#' andes <- load_classifier('andes_v1.pt', nrow(classes))}
+#' andes <- load_classifier('andes_v1.pt', nrow(classes))
+#' names(andes) <- c('model','classes)}
 load_classifier <- function(model_path,
                             classes,
                             device=NULL,
