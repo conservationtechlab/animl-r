@@ -29,3 +29,9 @@ list of: classifier model, class list, and optionally epoch if resuming training
 \description{
 Load a Classifier Model and Class_list
 }
+\examples{
+\dontrun{
+classes <- load_class_list('sdzwa_andes_v1_classes.csv')
+andes <- load_classifier('andes_v1.pt', nrow(classes))
+}
+}

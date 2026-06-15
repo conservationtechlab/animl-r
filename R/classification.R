@@ -13,7 +13,7 @@
 #' \dontrun{
 #' classes <- load_class_list('sdzwa_andes_v1_classes.csv')
 #' andes <- load_classifier('andes_v1.pt', nrow(classes))
-#' names(andes) <- c('model','classes)}
+#' }
 load_classifier <- function(model_path,
                             classes,
                             device=NULL,
@@ -22,11 +22,13 @@ load_classifier <- function(model_path,
   
   animl_py <- .animl_internal$animl_py
   if(is.numeric(classes)){ classes = as.integer(classes)}
-  animl_py$load_classifier(model_path,
+  classifier <- animl_py$load_classifier(model_path,
                            classes,
                            device=device,
                            architecture=architecture,
                            quiet=quiet)
+  names(classififer) <- c('model','classes')
+  return(classsifier)
 }
 
 

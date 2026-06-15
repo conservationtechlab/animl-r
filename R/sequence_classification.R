@@ -74,6 +74,11 @@ sequence_classification<-function(animals,
     stop("not all sort columns are present in the 'animals' data.frame")
   }
   
+  if(!is.null(empty) && (!setequal(colnames(animals)[!colnames(animals) %in% c("prediction","confidence")],
+                                   colnames(empty)[!colnames(empty) %in% c("prediction","confidence")]))){
+    stop("column names for animals and empty must be the same")
+  }
+  
   if (length(empty_class) > 1) { stop("'empty_class' must be a vector of length 1") }
   if (length(human_class) > 1) { stop("'human_class' must be a vector of length 1") }
   if (length(vehicle_class) > 1) { stop("'vehicle_class' must be a vector of length 1") }
