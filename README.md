@@ -29,7 +29,7 @@ files <- build_file_manifest(imagedir, out_file=filemanifest_file, exif=TRUE, da
 
 # Process videos, extract frames for ID
 allframes <- extract_frames(files, frames=3, out_file=imageframes_file,
-                            parallel=T, num_workers=parallel::detectCores())
+                            parallel=T, num_workers=4)
 
 ```
 #### 2. Object Detection
