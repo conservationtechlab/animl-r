@@ -4,12 +4,12 @@
 \alias{export_coco}
 \title{Converts the .csv file to a COCO-formatted .json file.}
 \usage{
-export_coco(manifest, class_list, out_file, info = NULL, licenses = NULL)
+export_coco(manifest, class_dict, out_file, info = NULL, licenses = NULL)
 }
 \arguments{
 \item{manifest}{dataframe containing images and associated detections}
 
-\item{class_list}{dataframe containing class names and their corresponding IDs}
+\item{class_dict}{named list containing class names and their corresponding IDs}
 
 \item{out_file}{path to save the formatted file}
 

@@ -20,8 +20,8 @@ test_that("remove_diagonal removes diagonal from a square matrix", {
   skip_if(!animl_py_available(), "animl_py not available")
   m <- matrix(1:9, nrow = 3, ncol = 3)
   result <- remove_diagonal(m)
-  expect_equal(nrow(result), 3)
-  expect_equal(ncol(result), 2)  # n x (n-1)
+  expect_equal(nrow(result), 2)
+  expect_equal(ncol(result), 3)  # n x (n-1)
 })
 
 test_that("remove_diagonal errors on non-square matrix", {

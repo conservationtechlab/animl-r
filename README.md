@@ -1,4 +1,4 @@
-# animl v3.2.0
+# animl v3.3.0
 
 Animl comprises a variety of machine learning tools for analyzing ecological data. The package includes a set of functions to classify subjects within camera trap field data and can handle both images and videos. 
 
@@ -25,7 +25,7 @@ imagedir <- "examples/TestData"
 WorkingDirectory(imagedir, globalenv())
 
 # Read exif data for all images within base directory
-files <- build_file_manifest(imagedir, out_file=filemanifest_file, exif=TRUE)
+files <- build_file_manifest(imagedir, out_file=filemanifest_file, exif=TRUE, data_timezone="America/Los_Angeles")
 
 # Process videos, extract frames for ID
 allframes <- extract_frames(files, frames=3, out_file=imageframes_file,
@@ -127,7 +127,7 @@ Detectors:
 * R >= 4.0
 * Reticulate
 * Python >= 3.12
-* [Animl-Py >= 3.2.0](https://github.com/conservationtechlab/animl-py)
+* [Animl-Py >= 3.3.0](https://github.com/conservationtechlab/animl-py)
 
 We recommend running animl on a computer with a dedicated GPU.
 
@@ -141,23 +141,25 @@ Animl-r can be installed through CRAN:
 ```R
 install.packages('animl')
 ```
-Once loaded, then install required pacakges with 
+
+You must then set up the environment and install animl-py:
 ```R
 library(animl)
-
 animl::animl_install()
 ```
+
+You will be prompted to restart your R session.
+
 
 Animl-r can also be installed by downloading this repo, opening the animl.Rproj file in RStudio and selecting Build -> Install Package.
 
 
 # Release Notes 
-## New for 3.2.0
-- update device handlers
-- add sequence_calculation()
-- add best arg to single_classification
-- update args in export_timelapse()
-- ensure pandas < 3.0.0
+## New for 3.3.0
+ - compatible with animl-py v3.3.0
+ - add data_timezone arg to build_file_manifest for automatic timestamp handling
+ - add support for video metadata timestamp via Exiftool 
+ - minor bug fixes
 
 
 ### Contributors

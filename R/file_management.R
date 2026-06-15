@@ -22,17 +22,23 @@
 #' \dontrun{
 #' files <- build_file_manifest("C:\\Users\\usr\\Pictures\\")
 #' }
-build_file_manifest <- function(image_dir, exif=TRUE, out_file=NULL, data_timezone=NULL, 
-                                station_depth=NULL, camera_depth=NULL, recursive=TRUE) {
+build_file_manifest <- function(image_dir,
+                                exif=TRUE,
+                                out_file=NULL,
+                                data_timezone=NULL, 
+                                station_depth=NULL,
+                                camera_depth=NULL,
+                                recursive=TRUE) {
+  
   animl_py <- .animl_internal$animl_py
-  manifest <- animl_py$build_file_manifest(image_dir, exif=exif, out_file=out_file, 
-                                           data_timezone=data_timezone,
-                                           station_depth=station_depth,
-                                           camera_depth=camera_depth,
-                                           recursive=recursive)
-  return(manifest)
+  animl_py$build_file_manifest(image_dir,
+                               exif=exif,
+                               out_file=out_file, 
+                               data_timezone=data_timezone,
+                               station_depth=station_depth,
+                               camera_depth=camera_depth,
+                               recursive=recursive)
 }
-
 
 
 #manifest$createdate <- as.POSIXct(manifest$createdate)
@@ -177,6 +183,43 @@ load_json <- function(file){
 }
 
 
+#' Save data to a YAML file
+#'
+#' @param data the dictionary to be saved
+#' @param out_file full path to save file to
+#' @param prompt prompt user to confirm overwrite
+#'
+#' @returns None
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' save_yaml(config, 'config.yml')
+#' }
+save_yaml <- function(data, out_file, prompt=TRUE){
+  animl_py <- .animl_internal$animl_py
+  animl_py$save_yaml(data, out_file, prompt=prompt)
+  
+}
+
+
+#' Load data from a YAML file.
+#'
+#' @param file the full path of the file to load
+#'
+#' @returns data extracted from the file, dict form
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' config <- load_yaml('config.yml')
+#' }
+load_yaml <- function(file){
+  animl_py <- .animl_internal$animl_py
+  animl_py$load_yaml(file)
+}
+
+
 #' Download specified model to the given directory.
 #'
 #' @param model_url url of the model to download, obtained via the constants above
@@ -214,11 +257,9 @@ list_models <- function(){
 #' Get start and stop dates for each camera folder.
 #'
 #' @param manifest_dir either file manifest or directory of files to analyze
-#' @param camera_depth directory depth from which to split cameras
 #' @param file_col column in manifest to use for file paths, defaults to "filepath"
+#' @param camera_depth directory depth from which to split cameras
 #' @param timestamp_col column in manifest to use for datetime information, defaults to "datetime"
-#' @param recursive recursively search through all child directories
-#' @param data_timezone add timezone code to adjust times if building manifest from scratch
 #'
 #' @returns times dataframe with min and max timestamp per camera
 #' @export
@@ -227,11 +268,16 @@ list_models <- function(){
 #' \dontrun{
 #' active_times('path/to/data', recursive=TRUE, camera_depth=2)
 #' }
-active_times <- function(manifest_dir, camera_depth=0, file_col='filepath', timestamp_col = "datetime", 
-                         recursive=TRUE, data_timezone=NULL){
+active_times <- function(manifest_dir,
+                         file_col='filepath',
+                         camera_depth=0,
+                         timestamp_col="datetime"){
+
   animl_py <- .animl_internal$animl_py
-  animl_py$active_times(manifest_dir=manifest_dir,camera_depth=camera_depth, file_col=file_col, 
-                        timestamp_col=timestamp_col, recursive=recursive, data_timezone=data_timezone)
+  animl_py$active_times(manifest_dir=manifest_dir,
+                        file_col=file_col, 
+                        camera_depth=camera_depth,
+                        timestamp_col=timestamp_col)
 }
 
 

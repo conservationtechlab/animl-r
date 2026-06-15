@@ -28,10 +28,17 @@ load_miew <- function(file_path, device=NULL){
 #'
 #' @examples
 #' \dontrun{embeddings = extract_embeddings(miew, manifest)}
-extract_miew_embeddings <- function(miew_model, manifest, file_col="filepath", 
-                                    batch_size=1, num_workers=1, device=NULL){
+extract_miew_embeddings <- function(miew_model,
+                                    manifest,
+                                    file_col="filepath",
+                                    batch_size=1,
+                                    num_workers=1,
+                                    device=NULL){
+  
   animl_py <- .animl_internal$animl_py
-  animl_py$extract_miew_embeddings(miew_model, manifest, file_col=file_col,
+  animl_py$extract_miew_embeddings(miew_model,
+                                   manifest,
+                                   file_col=file_col,
                                    batch_size=as.integer(batch_size), 
                                    num_workers=as.integer(num_workers),
                                    device=device)
