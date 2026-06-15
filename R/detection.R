@@ -7,7 +7,7 @@ MD_LABELS = list('0'='empty', '1'='animal', '2'='human', '3'='vehicle')
 #' @param model_type type of model expected:  "mdv5", "mdv6", "mdv1000-cedar", "mdv1000-larch", "mdv1000-sorrel",
 #'                   "mdv1000-redwood", "mdv1000-spruce", "yolov5", "yolo", "onnx" 
 #'                   for yolo models v6+, use "yolo", for v5, use "yolov5". 
-#'                   for mdv1000 models, specify the version: cedar, larch, sorrel, redwood, sprsuce
+#'                   for mdv1000 models, specify the version: cedar, larch, sorrel, redwood, spruce
 #' @param device specify to run on cpu or gpu
 #'
 #' @return detector object
