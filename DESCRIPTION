@@ -18,6 +18,7 @@ Suggests:
     jsonlite,
     testthat (>= 3.0.0),
     withr
+SystemRequirements: Python (>= 3.12), animl-py
 Config/testthat/edition: 3
 Config/roxygen2/version: 8.0.0
 RoxygenNote: 7.3.3

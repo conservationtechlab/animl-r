@@ -34,11 +34,9 @@ allframes <- extract_frames(files, frames=3, out_file=imageframes_file,
 ```
 #### 2. Object Detection
 
-This produces a dataframe of images, including frames taken from any videos to be fed into the classifier. The authors recommend a two-step approach using the 'MegaDector' object detector to first identify potential animals and then using a second classification model trained on the species of interest. 
-
-More info on <br>
-[MegaDetector v5/v1000](https://github.com/agentmorris/MegaDetector/tree/main) <br>
-[MegaDetector v6](https://microsoft.github.io/CameraTraps/megadetector/) 
+This produces a dataframe of images, including frames taken from any videos to be fed into the classifier. 
+The authors recommend a two-step approach using the 'MegaDector' object detector to first identify potential 
+animals and then using a second classification model trained on the species of interest. 
 
 ```R
 #Load the Megadetector model
@@ -108,17 +106,12 @@ Or a .csv file for Timelapse
 manifest <- export_folders(manifest, out_dir=linkdir)
 ```
 
-
-
-
-
-
 # Models
 
 The Conservation Technology Lab has several [models](https://sandiegozoo.app.box.com/s/9f3xuqldvg9ysaix9c9ug8tdcrmc2eqx) available for use. <br><br>
 Detectors:
 [MegaDetector v5/v1000](https://github.com/agentmorris/MegaDetector/tree/main) <br>
-[MegaDetector v6](https://microsoft.github.io/CameraTraps/megadetector/) 
+[MegaDetector v6](https://microsoft.github.io/MegaDetector/) 
 
 
 # Installation
