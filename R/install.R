@@ -16,8 +16,6 @@ load_animl <- function(envname = "animl_env",
                        python_version = "3.12",
                        .silent = FALSE) {
   
-  if (!interactive()) {return(invisible())}
-  
   msg <- function(text) {
     if (!.silent) {
       packageStartupMessage(text)
@@ -37,7 +35,7 @@ load_animl <- function(envname = "animl_env",
   
   # If venv fails, try conda
   if (is.null(try_venv)) {
-    packageStartupMessage("virtualenv not found, trying conda...")
+    msg("virtualenv not found, trying conda...")
     try_conda <- tryCatch(
       reticulate::use_condaenv(envname, required = TRUE),
       error = function(e) {
@@ -50,7 +48,7 @@ load_animl <- function(envname = "animl_env",
     try_error <- try_venv
   }
   
-    # 2. Install if neither found
+  # 2. Install if neither found
   if (is.null(try_error)) {
     msg(sprintf(paste0("%s python environment not found. Run animl::animl_install().\n",
                        "See `?animl::animl_install_instructions` for more detail."), envname))

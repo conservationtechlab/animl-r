@@ -7,7 +7,9 @@
   # Try to load animl-py, but don't fail if it's not available
   tryCatch(
     {
-      load_animl(.silent = TRUE)
+      if (!interactive()) { silent <- TRUE}
+      else{ silent <- FALSE}
+      load_animl(.silent = silent)
       assign("animl_py_available", TRUE, envir = .animl_internal)
     },
     error = function(e) {
@@ -15,8 +17,8 @@
       assign("animl_py_available", FALSE, envir = .animl_internal)
     })
   }
-  
-  .onAttach <- function(libname, pkgname) {
+
+.onAttach <- function(libname, pkgname) {
     if (!exists("animl_py_available", envir = .animl_internal) || 
         !get("animl_py_available", envir = .animl_internal)) {
       packageStartupMessage(
