@@ -14,10 +14,10 @@ ANIML_VERSION <- "3.3.1_dev"
 #' \dontrun{animl_install("animl_env", ANIML_VERSION, python_version="3.12")}
 load_animl <- function(envname = "animl_env",
                        python_version = "3.12",
-                       .silent = FALSE) {
+                       interactive = TRUE) {
   
   msg <- function(text) {
-    if (!.silent) {
+    if (interactive) {
       packageStartupMessage(text)
     }
   }
