@@ -58,7 +58,7 @@ detect <- function(detector,
                    checkpoint_frequency=-1){
   
   animl_py <- .animl_internal$animl_py
-  animl_py$detect(detector,
+  results <- animl_py$detect(detector,
                   image_file_names, 
                   as.integer(resize_width), 
                   as.integer(resize_height),
@@ -71,6 +71,8 @@ detect <- function(detector,
                   device=device,
                   checkpoint_path=checkpoint_path,
                   checkpoint_frequency=as.integer(checkpoint_frequency))
+  names(results) <- c('detections','failed_files')
+  return(results)
 }
 
 
