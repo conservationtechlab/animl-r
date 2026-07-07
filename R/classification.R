@@ -82,7 +82,7 @@ classify <- function(model,
     #unpack if necessary
     if (is.list(model)){ model <- model[[1]] }
     
-    animl_py$classify(model,
+    results <- animl_py$classify(model,
                       detections,
                       resize_width=as.integer(resize_width),
                       resize_height=as.integer(resize_height), 
@@ -93,6 +93,8 @@ classify <- function(model,
                       num_workers=as.integer(num_workers),
                       device=device,
                       out_file=out_file)
+    names(results) <- c('preditions','failed_files')
+    return(results)
 }
 
 
