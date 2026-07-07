@@ -29,7 +29,7 @@ load_animl <- function(envname = "animl_env",
   try_venv <- tryCatch(
     reticulate::use_virtualenv(envname, required = TRUE),
     error = function(e) {
-      return(NULL)
+      return('not_found')
     }
   )
   
@@ -39,7 +39,7 @@ load_animl <- function(envname = "animl_env",
     try_conda <- tryCatch(
       reticulate::use_condaenv(envname, required = TRUE),
       error = function(e) {
-        return(NULL)
+        return('not_found')
       }
     )
     try_error <- try_conda
@@ -49,7 +49,7 @@ load_animl <- function(envname = "animl_env",
   }
   
   # 2. Install if neither found
-  if (is.null(try_error)) {
+  if (identical(try_error,'not_found')) {
     msg(sprintf(paste0("%s python environment not found. Run animl::animl_install().\n",
                        "See `?animl::animl_install_instructions` for more detail."), envname))
   }
@@ -60,6 +60,7 @@ load_animl <- function(envname = "animl_env",
     if (reticulate::py_module_available("animl")) {
       animl_py <- reticulate::import("animl", delay_load = TRUE)
       current_version <- animl_py$'__version__'
+      
       # check version match
       if (!identical(ANIML_VERSION, current_version)) {
         msg(paste0("animl-py version conflicts with current version.\n",
