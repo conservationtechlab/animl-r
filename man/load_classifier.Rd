@@ -24,7 +24,7 @@ load_classifier(
 \item{quiet}{bool, provide device information to user}
 }
 \value{
-list of: classifier model, class list, and optionally epoch if resuming training
+object with two values: $model - classifier model, $classes - class list as dataframe or null
 }
 \description{
 Load a Classifier Model and Class_list
