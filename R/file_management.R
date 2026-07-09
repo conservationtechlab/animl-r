@@ -31,13 +31,20 @@ build_file_manifest <- function(image_dir,
                                 recursive=TRUE) {
   
   animl_py <- .animl_internal$animl_py
-  animl_py$build_file_manifest(image_dir,
-                               exif=exif,
-                               out_file=out_file, 
-                               data_timezone=data_timezone,
-                               station_depth=station_depth,
-                               camera_depth=camera_depth,
-                               recursive=recursive)
+  manifest <- animl_py$build_file_manifest(image_dir,
+                                           exif=exif,
+                                           out_file=out_file, 
+                                           data_timezone=data_timezone,
+                                           station_depth=station_depth,
+                                           camera_depth=camera_depth,
+                                           recursive=recursive)
+  #convert to posix
+  if (exif){
+    manifest$datetime <- as.POSIXct(manifest$datetime, format = "%Y-%m-%d %H:%M:%S")
+    manifest$createdate <- as.POSIXct(manifest$createdate, format = "%Y-%m-%d %H:%M:%S")
+    manifest$filemodifydate <- as.POSIXct(manifest$filemodifydate, format = "%Y-%m-%d %H:%M:%S")
+  }
+  return(manifest)
 }
 
 
