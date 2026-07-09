@@ -7,9 +7,7 @@
   # Try to load animl-py, but don't fail if it's not available
   tryCatch(
     {
-      if (interactive()) { load_animl(interactive = TRUE) }
-      else{ load_animl(interactive=FALSE) }
-      
+      load_animl(interactive = interactive())
       assign("animl_py_available", TRUE, envir = .animl_internal)
     },
     error = function(e) {
