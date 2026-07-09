@@ -32,12 +32,12 @@ build_file_manifest <- function(image_dir,
   
   animl_py <- .animl_internal$animl_py
   manifest <- animl_py$build_file_manifest(image_dir,
-                               exif=exif,
-                               out_file=out_file, 
-                               data_timezone=data_timezone,
-                               station_depth=station_depth,
-                               camera_depth=camera_depth,
-                               recursive=recursive)
+                                           exif=exif,
+                                           out_file=out_file, 
+                                           data_timezone=data_timezone,
+                                           station_depth=station_depth,
+                                           camera_depth=camera_depth,
+                                           recursive=recursive)
   #convert to posix
   if (exif){
     manifest$datetime <- as.POSIXct(manifest$datetime, format = "%Y-%m-%d %H:%M:%S")
