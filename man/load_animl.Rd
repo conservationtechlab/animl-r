@@ -4,14 +4,14 @@
 \alias{load_animl}
 \title{Load animl-py if available}
 \usage{
-load_animl(envname = "animl_env", python_version = "3.12", .silent = FALSE)
+load_animl(envname = "animl_env", python_version = "3.12", interactive = TRUE)
 }
 \arguments{
 \item{envname}{name of python environment}
 
 \item{python_version}{version of python to install}
 
-\item{.silent}{suppress onload packageStartupMessage}
+\item{interactive}{bool, only message if interactive}
 }
 \value{
 none
