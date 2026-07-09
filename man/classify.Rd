@@ -42,7 +42,7 @@ classify(
 \item{out_file}{path to csv to save results to}
 }
 \value{
-detection manifest with added prediction and confidence columns
+two objects: $predictions model output logits. $failed_files paths that returned error on inference
 }
 \description{
 Infer Species for Given Detections

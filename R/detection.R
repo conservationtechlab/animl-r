@@ -38,7 +38,7 @@ load_detector <- function(model_path, model_type, device=NULL){
 #' @param checkpoint_path path to checkpoint file
 #' @param checkpoint_frequency write results to checkpoint file every N images
 #'
-#' @return list of dictionaries of MegaDetector detections
+#' @return to objects: $detections - Megadetector json format detections, $failed_files - files that failed on inference
 #' @export
 #'
 #' @examples
