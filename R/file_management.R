@@ -44,6 +44,7 @@ build_file_manifest <- function(image_dir,
     manifest$createdate <- as.POSIXct(manifest$createdate, format = "%Y-%m-%d %H:%M:%S")
     manifest$filemodifydate <- as.POSIXct(manifest$filemodifydate, format = "%Y-%m-%d %H:%M:%S")
   }
+  return(manifest)
 }
 
 
