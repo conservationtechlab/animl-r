@@ -24,7 +24,7 @@ load_classifier(
 \item{quiet}{bool, provide device information to user}
 }
 \value{
-object with two values: $model - classifier model, $classes - class list as dataframe or null
+list with two elements: $model - classifier model, $classes - class list as dataframe or null
 }
 \description{
 Load a Classifier Model and Class_list
