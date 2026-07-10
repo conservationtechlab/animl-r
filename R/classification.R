@@ -6,7 +6,7 @@
 #' @param architecture model architecture
 #' @param quiet bool, provide device information to user
 #'
-#' @return list of: classifier model, class list, and optionally epoch if resuming training
+#' @return list with two elements: $model - classifier model, $classes - class list as dataframe or null
 #' @export
 #'
 #' @examples
@@ -23,10 +23,10 @@ load_classifier <- function(model_path,
   animl_py <- .animl_internal$animl_py
   if(is.numeric(classes)){ classes = as.integer(classes)}
   classifier <- animl_py$load_classifier(model_path,
-                           classes,
-                           device=device,
-                           architecture=architecture,
-                           quiet=quiet)
+                                         classes,
+                                         device=device,
+                                         architecture=architecture,
+                                         quiet=quiet)
   names(classifier) <- c('model','classes')
   return(classifier)
 }
@@ -60,7 +60,7 @@ load_class_list <- function(classlist_file){
 #' @param device send model to the specified device
 #' @param out_file path to csv to save results to
 #'
-#' @return detection manifest with added prediction and confidence columns
+#' @return list with two elements: $predictions model output logits. $failed_files paths that returned error on inference
 #' @export
 #'
 #' @examples
@@ -82,17 +82,19 @@ classify <- function(model,
     #unpack if necessary
     if (is.list(model)){ model <- model[[1]] }
     
-    animl_py$classify(model,
-                      detections,
-                      resize_width=as.integer(resize_width),
-                      resize_height=as.integer(resize_height), 
-                      file_col=file_col,
-                      crop=crop,
-                      normalize=normalize,
-                      batch_size=as.integer(batch_size),
-                      num_workers=as.integer(num_workers),
-                      device=device,
-                      out_file=out_file)
+    results <- animl_py$classify(model,
+                                 detections,
+                                 resize_width=as.integer(resize_width),
+                                 resize_height=as.integer(resize_height), 
+                                 file_col=file_col,
+                                 crop=crop,
+                                 normalize=normalize,
+                                 batch_size=as.integer(batch_size),
+                                 num_workers=as.integer(num_workers),
+                                 device=device,
+                                 out_file=out_file)
+    names(results) <- c('preditions','failed_files')
+    return(results)
 }
 
 

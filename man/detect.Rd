@@ -48,7 +48,7 @@ detect(
 \item{checkpoint_frequency}{write results to checkpoint file every N images}
 }
 \value{
-list of dictionaries of MegaDetector detections
+list with two elements: $detections - Megadetector json format detections, $failed_files - files that failed on inference
 }
 \description{
 Apply MegaDetector to a Given Batch of Images
