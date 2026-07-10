@@ -6,7 +6,7 @@
 #' @param architecture model architecture
 #' @param quiet bool, provide device information to user
 #'
-#' @return object with two values: $model - classifier model, $classes - class list as dataframe or null
+#' @return list with two elements: $model - classifier model, $classes - class list as dataframe or null
 #' @export
 #'
 #' @examples
@@ -60,7 +60,7 @@ load_class_list <- function(classlist_file){
 #' @param device send model to the specified device
 #' @param out_file path to csv to save results to
 #'
-#' @return two objects: $predictions model output logits. $failed_files paths that returned error on inference
+#' @return list with two elements: $predictions model output logits. $failed_files paths that returned error on inference
 #' @export
 #'
 #' @examples

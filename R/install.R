@@ -34,7 +34,7 @@ load_animl <- function(envname = "animl_env",
   )
   
   # If venv fails, try conda
-  if (is.null(try_venv)) {
+  if (identical(try_error,'not_found')) {
     msg("virtualenv not found, trying conda...")
     try_conda <- tryCatch(
       reticulate::use_condaenv(envname, required = TRUE),
