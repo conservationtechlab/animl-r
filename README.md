@@ -1,4 +1,4 @@
-# animl v3.3.0
+# animl v3.3.1
 
 Animl comprises a variety of machine learning tools for analyzing ecological data. The package includes a set of functions to classify subjects within camera trap field data and can handle both images and videos. 
 
@@ -148,11 +148,12 @@ Animl-r can also be installed by downloading this repo, opening the animl.Rproj 
 
 
 # Release Notes 
-## New for 3.3.0
- - compatible with animl-py v3.3.0
- - add data_timezone arg to build_file_manifest for automatic timestamp handling
- - add support for video metadata timestamp via Exiftool 
- - minor bug fixes
+## New for 3.3.1
+- not loading conda env correctly (returning Null read as error)
+- update classifier and detector docs to reflect named list output
+- build_file_manifest() now returns posixct for datetime, createdate, filemodifydate
+- fix interactive messaging for .onLoad and .onAttach
+
 
 
 ### Contributors
