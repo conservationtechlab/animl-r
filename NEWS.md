@@ -1,6 +1,6 @@
-# animl 3.3.0
+# animl 3.3.1
 
-## New Functions
+## New Functions for 3.3
 
 - `active_times()`: Get start and stop dates for each camera folder from a manifest or directory.
 - `export_yolo()`: Export a manifest to YOLO format for model training, including train/val/test splits.
@@ -40,3 +40,7 @@ Distance metric functions (`remove_diagonal()`, `euclidean_squared_distance()`, 
 - `video_processing`: Increased default `num_workers` to 4 for faster video processing.
 - `install_animl()`: Added conda environment handling for more flexible Python environment management.
 - Added comprehensive `testthat` unit tests for all core functions.
+- not loading conda env correctly (returning Null read as error)
+- update classifier and detector docs to reflect named object output
+- build_file_manifest() now returns posixct for datetime, createdate, filemodifydate
+- fix interactive messaging for .onLoad and .onAttach
