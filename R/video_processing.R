@@ -6,7 +6,7 @@
 #' @param out_file csv file to which results will be saved
 #' @param out_dir directory to save frames to if not null
 #' @param file_col string value indexing which column contains file paths
-#' @param parallel Toggle for parallel processing, defaults to FALSE
+#' @param parallel Toggle for parallel processing, defaults to TRUE
 #' @param num_workers number of processors to use if parallel, defaults to 4
 #'
 #' @return dataframe of still frames for each video

@@ -2,7 +2,7 @@
 % Please edit documentation in R/install.R
 \name{animl_install}
 \alias{animl_install}
-\title{Load animl-py if available}
+\title{Install animl-py Python environment}
 \usage{
 animl_install(envname = "animl_env", python_version = "3.12")
 }
@@ -12,11 +12,11 @@ animl_install(envname = "animl_env", python_version = "3.12")
 \item{python_version}{version of python to install}
 }
 \value{
-animl-py module
+invisible NULL
 }
 \description{
-Load animl-py if available
+Install animl-py Python environment
 }
 \examples{
-\dontrun{animl_py <- load_animl_py()}
+\dontrun{animl_install("animl_env")}
 }

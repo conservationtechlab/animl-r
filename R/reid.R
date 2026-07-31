@@ -2,12 +2,12 @@
 #'
 #' @param file_path path to model weights
 #' @param device device to load model to
-
-#' @returns meiwid model
+#'
+#' @returns miewid model
 #' @export
 #'
 #' @examples
-#' \dontrun{miew = load_miewid("miewid_v3.bin")}
+#' \dontrun{miew = load_miew("miewid_v3.bin")}
 load_miew <- function(file_path, device=NULL){
   animl_py <- .animl_internal$animl_py
   animl_py$load_miew(file_path, device=device)

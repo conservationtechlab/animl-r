@@ -28,7 +28,7 @@ extract_frames(
 
 \item{file_col}{string value indexing which column contains file paths}
 
-\item{parallel}{Toggle for parallel processing, defaults to FALSE}
+\item{parallel}{Toggle for parallel processing, defaults to TRUE}
 
 \item{num_workers}{number of processors to use if parallel, defaults to 4}
 }

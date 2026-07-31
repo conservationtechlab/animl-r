@@ -1,5 +1,8 @@
 # animl 3.3.1
 
+
+# animl 3.3.0
+
 ## New Functions for 3.3
 
 - `active_times()`: Get start and stop dates for each camera folder from a manifest or directory.

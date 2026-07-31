@@ -1,5 +1,15 @@
 # VARIABLE FOR VERSION
-ANIML_VERSION <- "3.3.1"
+ANIML_VERSION <- "3.3.2"
+
+animl_module_installed <- function() {
+  tryCatch(
+    {
+      importlib_util <- reticulate::import("importlib.util")
+      !is.null(importlib_util$find_spec("animl"))
+    },
+    error = function(e) FALSE
+  )
+}
 
 #' Load animl-py if available
 #'
@@ -55,9 +65,20 @@ load_animl <- function(envname = "animl_env",
   }
   # env exists
   else {
+    if (!interactive) {
+      if (animl_module_installed()) {
+        assign(
+          "animl_py",
+          reticulate::import("animl", delay_load = TRUE),
+          envir = .animl_internal
+        )
+      }
+      return(invisible())
+    }
+
     # check animl-py installed
     msg("\n2. Checking animl-py version...")
-    if (reticulate::py_module_available("animl")) {
+    if (animl_module_installed()) {
       animl_py <- reticulate::import("animl", delay_load = TRUE)
       animl_py_version <- animl_py$'__version__'
       
@@ -71,8 +92,10 @@ load_animl <- function(envname = "animl_env",
         msg(sprintf("animl %s successfully loaded.", ANIML_VERSION))
         assign("animl_py", animl_py, envir = .animl_internal)
       }
-      # 4) Check external dependencies
-      check_animl_py()
+      # 4) Check external dependencies when interactive
+      if (interactive) {
+        check_animl_py()
+      }
     }
     # animl_env exists but animl-py not installed
     else {
@@ -90,6 +113,8 @@ load_animl <- function(envname = "animl_env",
 #'
 #' @returns version_string with only major and minor release
 #'
+#' @noRd
+#'
 #' @examples
 #' \dontrun{extract_major_minor("3.4.1")}
 extract_major_minor <- function(version_string) {
@@ -98,16 +123,16 @@ extract_major_minor <- function(version_string) {
 }
 
 
-#' Load animl-py if available
+#' Install animl-py Python environment
 #'
 #' @param envname name of python environment
 #' @param python_version version of python to install
 #'
-#' @return animl-py module
+#' @return invisible NULL
 #' @export
 #'
 #' @examples
-#' \dontrun{animl_py <- load_animl_py()}
+#' \dontrun{animl_install("animl_env")}
 animl_install <- function(envname = "animl_env", python_version = "3.12") {
   if (!interactive()) {
     stop("animl_install() must be run interactively.",call. = FALSE)
@@ -200,7 +225,7 @@ update_animl_py <- function(envname = "animl_env") {
 
 #' Install python if necessary and create the environment animl_env 
 #'
-#' @param envname name of the conda environment to create / use (default "animl-py")
+#' @param envname name of the virtual environment to create / use (default "animl_env")
 #' @param python_version python version to add to environment
 #' 
 #' @return invisible TRUE on success, otherwise stops or returns FALSE invisibly on failure
@@ -322,12 +347,21 @@ animl_install_instructions <- function() {
 #'
 #' @export
 check_animl_py <- function(){
-  if(reticulate::py_module_available("animl")){
+  if(animl_module_installed()){
     animl_py <- reticulate::import("animl", delay_load = TRUE)
     
-    exif <- animl_py$check_exiftool()
-    torch_cuda <- animl_py$check_torch_cuda()
-    torch_onnx <- animl_py$check_onnx_cuda()
+    exif <- tryCatch(
+      animl_py$check_exiftool(),
+      error = function(e) FALSE
+    )
+    torch_cuda <- tryCatch(
+      animl_py$check_torch_cuda(),
+      error = function(e) FALSE
+    )
+    torch_onnx <- tryCatch(
+      animl_py$check_onnx_cuda(),
+      error = function(e) FALSE
+    )
     
     if(interactive()){
       message(sprintf("Exiftool installed and available: %s", as.character(exif)))
