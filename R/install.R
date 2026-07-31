@@ -71,8 +71,10 @@ load_animl <- function(envname = "animl_env",
         msg(sprintf("animl %s successfully loaded.", ANIML_VERSION))
         assign("animl_py", animl_py, envir = .animl_internal)
       }
-      # 4) Check external dependencies
-      check_animl_py()
+      # 4) Check external dependencies when interactive
+      if (interactive) {
+        check_animl_py()
+      }
     }
     # animl_env exists but animl-py not installed
     else {
@@ -325,9 +327,18 @@ check_animl_py <- function(){
   if(reticulate::py_module_available("animl")){
     animl_py <- reticulate::import("animl", delay_load = TRUE)
     
-    exif <- animl_py$check_exiftool()
-    torch_cuda <- animl_py$check_torch_cuda()
-    torch_onnx <- animl_py$check_onnx_cuda()
+    exif <- tryCatch(
+      animl_py$check_exiftool(),
+      error = function(e) FALSE
+    )
+    torch_cuda <- tryCatch(
+      animl_py$check_torch_cuda(),
+      error = function(e) FALSE
+    )
+    torch_onnx <- tryCatch(
+      animl_py$check_onnx_cuda(),
+      error = function(e) FALSE
+    )
     
     if(interactive()){
       message(sprintf("Exiftool installed and available: %s", as.character(exif)))
