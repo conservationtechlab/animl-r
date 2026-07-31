@@ -1,0 +1,76 @@
+name: R-CMD-check
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  R-CMD-check:
+    runs-on: ${{ matrix.config.os }}
+
+    name: ${{ matrix.config.os }} (R ${{ matrix.config.r }})
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - os: windows-latest
+            r: release
+          - os: macos-latest
+            r: release
+          - os: ubuntu-latest
+            r: release
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+          use-public-rspm: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Create animl_env and install animl-py
+        shell: bash
+        run: |
+          VENV_DIR="$HOME/.virtualenvs/animl_env"
+          python -m venv "$VENV_DIR"
+
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            PYTHON_BIN="$VENV_DIR/Scripts/python.exe"
+          else
+            PYTHON_BIN="$VENV_DIR/bin/python"
+          fi
+
+          "$PYTHON_BIN" -m pip install --upgrade pip
+          "$PYTHON_BIN" -m pip install animl-py
+
+          echo "WORKON_HOME=$HOME/.virtualenvs" >> "$GITHUB_ENV"
+          echo "RETICULATE_PYTHON=$PYTHON_BIN" >> "$GITHUB_ENV"
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::rcmdcheck
+          needs: check
+
+      - name: Check
+        env:
+          _R_CHECK_CRAN_INCOMING_REMOTE_: false
+        run: |
+          rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), error_on = "warning", check_dir = "check")
+        shell: Rscript {0}
+
+      - name: Upload check results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.config.os }}-r${{ matrix.config.r }}-results
+          path: check
