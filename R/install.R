@@ -90,6 +90,8 @@ load_animl <- function(envname = "animl_env",
 #'
 #' @returns version_string with only major and minor release
 #'
+#' @noRd
+#'
 #' @examples
 #' \dontrun{extract_major_minor("3.4.1")}
 extract_major_minor <- function(version_string) {
@@ -98,16 +100,16 @@ extract_major_minor <- function(version_string) {
 }
 
 
-#' Load animl-py if available
+#' Install animl-py Python environment
 #'
 #' @param envname name of python environment
 #' @param python_version version of python to install
 #'
-#' @return animl-py module
+#' @return invisible NULL
 #' @export
 #'
 #' @examples
-#' \dontrun{animl_py <- load_animl_py()}
+#' \dontrun{animl_install("animl_env")}
 animl_install <- function(envname = "animl_env", python_version = "3.12") {
   if (!interactive()) {
     stop("animl_install() must be run interactively.",call. = FALSE)
@@ -200,7 +202,7 @@ update_animl_py <- function(envname = "animl_env") {
 
 #' Install python if necessary and create the environment animl_env 
 #'
-#' @param envname name of the conda environment to create / use (default "animl-py")
+#' @param envname name of the virtual environment to create / use (default "animl_env")
 #' @param python_version python version to add to environment
 #' 
 #' @return invisible TRUE on success, otherwise stops or returns FALSE invisibly on failure

@@ -95,9 +95,11 @@ WorkingDirectory <- function(workingdir, pkg.env) {
 #'
 #' @return none
 #'
+#' @noRd
+#'
 #' @examples
 #' \dontrun{
-#'  saveData(files,"path/to/newfile.csv")
+#'  save_data(files,"path/to/newfile.csv")
 #' }
 save_data <- function(data, out_file, prompt=TRUE) {
   if (file.exists(out_file) & prompt == TRUE) {
@@ -136,6 +138,8 @@ load_data <- function(file) {
 #' @return a boolean indicating wether a file was found 
 #'             and the user wants to load or not
 #' @importFrom methods is
+#'
+#' @noRd
 #'
 #' @examples
 #' \dontrun{
