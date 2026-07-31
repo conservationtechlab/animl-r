@@ -1,6 +1,16 @@
 # VARIABLE FOR VERSION
 ANIML_VERSION <- "3.3.1"
 
+animl_module_installed <- function() {
+  tryCatch(
+    {
+      importlib_util <- reticulate::import("importlib.util")
+      !is.null(importlib_util$find_spec("animl"))
+    },
+    error = function(e) FALSE
+  )
+}
+
 #' Load animl-py if available
 #'
 #' @param envname name of python environment
@@ -55,9 +65,20 @@ load_animl <- function(envname = "animl_env",
   }
   # env exists
   else {
+    if (!interactive) {
+      if (animl_module_installed()) {
+        assign(
+          "animl_py",
+          reticulate::import("animl", delay_load = TRUE),
+          envir = .animl_internal
+        )
+      }
+      return(invisible())
+    }
+
     # check animl-py installed
     msg("\n2. Checking animl-py version...")
-    if (reticulate::py_module_available("animl")) {
+    if (animl_module_installed()) {
       animl_py <- reticulate::import("animl", delay_load = TRUE)
       animl_py_version <- animl_py$'__version__'
       
@@ -324,7 +345,7 @@ animl_install_instructions <- function() {
 #'
 #' @export
 check_animl_py <- function(){
-  if(reticulate::py_module_available("animl")){
+  if(animl_module_installed()){
     animl_py <- reticulate::import("animl", delay_load = TRUE)
     
     exif <- tryCatch(
