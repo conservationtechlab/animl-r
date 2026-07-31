@@ -1,7 +1,15 @@
 # animl 3.3.2
 
+Bug fixes: 
+- unpack detection results in parse_detections()
 
 # animl 3.3.1
+
+Bug fixes:
+- not loading conda env correctly (returning Null read as error)
+- update classifier and detector docs to reflect named object output
+- build_file_manifest() now returns posixct for datetime, createdate, filemodifydate
+- fix interactive messaging for .onLoad and .onAttach
 
 
 # animl 3.3.0
