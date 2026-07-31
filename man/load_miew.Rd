@@ -12,11 +12,11 @@ load_miew(file_path, device = NULL)
 \item{device}{device to load model to}
 }
 \value{
-meiwid model
+miewid model
 }
 \description{
 Load MiewID model
 }
 \examples{
-\dontrun{miew = load_miewid("miewid_v3.bin")}
+\dontrun{miew = load_miew("miewid_v3.bin")}
 }

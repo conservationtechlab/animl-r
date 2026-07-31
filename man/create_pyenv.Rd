@@ -7,7 +7,7 @@
 create_pyenv(envname = "animl_env", python_version = "3.12")
 }
 \arguments{
-\item{envname}{name of the conda environment to create / use (default "animl-py")}
+\item{envname}{name of the virtual environment to create / use (default "animl_env")}
 
 \item{python_version}{python version to add to environment}
 }
