@@ -1,6 +1,16 @@
 # VARIABLE FOR VERSION
 ANIML_VERSION <- "3.3.1"
 
+animl_module_installed <- function() {
+  tryCatch(
+    {
+      importlib_util <- reticulate::import("importlib.util")
+      !is.null(importlib_util$find_spec("animl"))
+    },
+    error = function(e) FALSE
+  )
+}
+
 #' Load animl-py if available
 #'
 #' @param envname name of python environment
@@ -55,9 +65,20 @@ load_animl <- function(envname = "animl_env",
   }
   # env exists
   else {
+    if (!interactive) {
+      if (animl_module_installed()) {
+        assign(
+          "animl_py",
+          reticulate::import("animl", delay_load = TRUE),
+          envir = .animl_internal
+        )
+      }
+      return(invisible())
+    }
+
     # check animl-py installed
     msg("\n2. Checking animl-py version...")
-    if (reticulate::py_module_available("animl")) {
+    if (animl_module_installed()) {
       animl_py <- reticulate::import("animl", delay_load = TRUE)
       animl_py_version <- animl_py$'__version__'
       
@@ -71,8 +92,10 @@ load_animl <- function(envname = "animl_env",
         msg(sprintf("animl %s successfully loaded.", ANIML_VERSION))
         assign("animl_py", animl_py, envir = .animl_internal)
       }
-      # 4) Check external dependencies
-      check_animl_py()
+      # 4) Check external dependencies when interactive
+      if (interactive) {
+        check_animl_py()
+      }
     }
     # animl_env exists but animl-py not installed
     else {
@@ -324,12 +347,21 @@ animl_install_instructions <- function() {
 #'
 #' @export
 check_animl_py <- function(){
-  if(reticulate::py_module_available("animl")){
+  if(animl_module_installed()){
     animl_py <- reticulate::import("animl", delay_load = TRUE)
     
-    exif <- animl_py$check_exiftool()
-    torch_cuda <- animl_py$check_torch_cuda()
-    torch_onnx <- animl_py$check_onnx_cuda()
+    exif <- tryCatch(
+      animl_py$check_exiftool(),
+      error = function(e) FALSE
+    )
+    torch_cuda <- tryCatch(
+      animl_py$check_torch_cuda(),
+      error = function(e) FALSE
+    )
+    torch_onnx <- tryCatch(
+      animl_py$check_onnx_cuda(),
+      error = function(e) FALSE
+    )
     
     if(interactive()){
       message(sprintf("Exiftool installed and available: %s", as.character(exif)))
