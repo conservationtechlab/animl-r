@@ -54,7 +54,7 @@ jobs:
           fi
 
           "$PYTHON_BIN" -m pip install --upgrade pip
-          "$PYTHON_BIN" -m pip install animl-py
+          "$PYTHON_BIN" -m pip install animl
 
           echo "WORKON_HOME=$HOME/.virtualenvs" >> "$GITHUB_ENV"
           echo "RETICULATE_PYTHON=$PYTHON_BIN" >> "$GITHUB_ENV"
