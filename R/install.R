@@ -1,5 +1,5 @@
 # VARIABLE FOR VERSION
-ANIML_VERSION <- "3.3.1"
+ANIML_VERSION <- "3.3.2"
 
 animl_module_installed <- function() {
   tryCatch(
