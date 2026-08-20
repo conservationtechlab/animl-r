@@ -344,30 +344,58 @@ animl_install_instructions <- function() {
 
 
 #' Check if animl-py can connect to exiftool and CUDA
+#' 
+#' @return A list with three logical values:
+#'   \item{exiftool}{TRUE if exiftool is available}
+#'   \item{torch_cuda}{TRUE if CUDA is available to PyTorch}
+#'   \item{onnx_cuda}{TRUE if CUDA is available to ONNX}
+#'
+#' @examples
+#' \dontrun{
+#'   result <- check_animl_py()
+#'   print(result)
+#' }
 #'
 #' @export
 check_animl_py <- function(){
-  if(animl_module_installed()){
-    animl_py <- reticulate::import("animl", delay_load = TRUE)
-    
-    exif <- tryCatch(
-      animl_py$check_exiftool(),
-      error = function(e) FALSE
-    )
-    torch_cuda <- tryCatch(
-      animl_py$check_torch_cuda(),
-      error = function(e) FALSE
-    )
-    torch_onnx <- tryCatch(
-      animl_py$check_onnx_cuda(),
-      error = function(e) FALSE
-    )
-    
-    if(interactive()){
-      message(sprintf("Exiftool installed and available: %s", as.character(exif)))
-      message(sprintf("CUDA available to PyTorch: %s", as.character(torch_cuda)))
-      message(sprintf("CUDA available to Onnx: %s", as.character(torch_onnx)))
+  result <- list(
+    exiftool = FALSE,
+    torch_cuda = FALSE,
+    onnx_cuda = FALSE
+  )
+  
+  if(!animl_module_installed()){
+    if(interactive()){ 
+      message("Error: animl-py is not installed.") 
     }
+    return(result)
   }
-  else{ if(interactive()){ message("Error: animl-py is not installed.")} }
+  
+  animl_py <- reticulate::import("animl", delay_load = TRUE)
+  
+  # Check each component
+  result$exiftool <- tryCatch(
+    animl_py$check_exiftool(),
+    error = function(e) FALSE
+  )
+  
+  result$torch_cuda <- tryCatch(
+    animl_py$check_torch_cuda(),
+    error = function(e) FALSE
+  )
+  
+  result$onnx_cuda <- tryCatch(
+    animl_py$check_onnx_cuda(),
+    error = function(e) FALSE
+  )
+  
+  # Print results if interactive
+  if(interactive()){
+    exif_status <- if(isFALSE(result$exiftool)) "FALSE" else result$exiftool
+    message(sprintf("Exiftool installed and available: %s", exif_status))
+    message(sprintf("CUDA available to PyTorch: %s", as.character(result$torch_cuda)))
+    message(sprintf("CUDA available to Onnx: %s", as.character(result$onnx_cuda)))
+  }
+  
+  return(result)
 }
