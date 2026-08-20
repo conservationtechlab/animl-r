@@ -120,7 +120,7 @@ save_data <- function(data, out_file, prompt=TRUE) {
 #'
 #' @examples
 #' \dontrun{
-#'   loadData("path/to/newfile.csv")
+#'   load_data("path/to/newfile.csv")
 #' }
 
 load_data <- function(file) {
