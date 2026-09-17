@@ -17,6 +17,6 @@ Load .csv or .Rdata file
 }
 \examples{
 \dontrun{
-  loadData("path/to/newfile.csv")
+  load_data("path/to/newfile.csv")
 }
 }
