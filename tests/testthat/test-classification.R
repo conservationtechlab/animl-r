@@ -26,23 +26,6 @@ test_that("load_class_list column names match the CSV header", {
   expect_named(result, c("species_id", "species_name"))
 })
 
-# animl_py-dependent tests ------------------------------------------------
-
-test_that("save_classifier requires animl_py", {
-  skip_if(!animl_py_available(), "animl_py not available")
-  skip("save_classifier requires a loaded model — test manually")
-})
-
-test_that("load_classifier requires animl_py", {
-  skip_if(!animl_py_available(), "animl_py not available")
-  skip("load_classifier requires a real classifier model file — test manually with a local model")
-})
-
-test_that("classify requires a loaded model file", {
-  skip_if(!animl_py_available(), "animl_py not available")
-  skip("classify requires a real classifier model file — test manually with a local model")
-})
-
 test_that("single_classification returns a data frame with prediction and confidence", {
   skip_if(!animl_py_available(), "animl_py not available")
   animals <- data.frame(
