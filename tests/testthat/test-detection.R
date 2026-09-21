@@ -23,16 +23,43 @@ test_that("MD_LABELS contains exactly four categories (0–3)", {
 
 # load_detector ----------------------------------------------------------
 
-test_that("load_detector requires a model file", {
+test_that("load_detector loads a real MegaDetector v5a checkpoint", {
   skip_if(!animl_py_available(), "animl_py not available")
-  skip("load_detector requires a real model file — test manually with a local model")
+  model_path <- get_mdv5a_test_asset()
+  skip_if(is.null(model_path), "MegaDetector v5a asset unavailable")
+  
+  detector <- load_detector(model_path, model_type = "mdv5", device = "cpu")
+  expect_false(is.null(detector))
 })
+
 
 # detect -----------------------------------------------------------------
 
-test_that("detect requires a loaded detector model", {
+test_that("detect returns detections and failed_files for real images", {
   skip_if(!animl_py_available(), "animl_py not available")
-  skip("detect requires a real detector model — test manually with a local model")
+  model_path <- get_mdv5a_test_asset()
+  skip_if(is.null(model_path), "MegaDetector v5a asset unavailable")
+  
+  detector <- load_detector(model_path, model_type = "mdv5", device = "cpu")
+  
+  examples_dir <- testthat::test_path("..", "..", "examples", "Southwest")
+  img_paths <- list.files(examples_dir, pattern = "\\.(JPG|jpg)$", full.names = TRUE)[1:2]
+  skip_if(length(img_paths) < 2 || anyNA(img_paths), "example images unavailable")
+  
+  # A list (rather than a single path string) is what makes animl_py$detect()
+  # take the manifest/list branch and return a (results, failed_files) tuple
+  # -- this wrapper's names(results) <- c('detections','failed_files') below
+  # assumes exactly that shape.
+  result <- detect(detector, as.list(img_paths), resize_width = 1280, resize_height = 1280,
+                   device = "cpu")
+  
+  expect_type(result, "list")
+  expect_named(result, c("detections", "failed_files"))
+  expect_equal(length(result$detections), 2)
+  for (d in result$detections) {
+    expect_true("filepath" %in% names(d))
+    expect_true("detections" %in% names(d))
+  }
 })
 
 # parse_detections -------------------------------------------------------
@@ -76,7 +103,7 @@ test_that("parse_detections filters by threshold", {
     )
   )
   result <- parse_detections(results, threshold = 0.5)
-  if (nrow(result) > 0) {
-    expect_true(all(result$conf >= 0.5 | result$category == 0))
-  }
+  expect_equal(nrow(result), 0)
 })
+
+

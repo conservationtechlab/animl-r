@@ -75,7 +75,9 @@ euclidean_squared_distance <- function(input1, input2) {
   # ||a - b||^2 = ||a||^2 + ||b||^2 - 2 * a . b^T
   s1 <- rowSums(input1^2)
   s2 <- rowSums(input2^2)
-  outer(s1, s2, "+") - 2 * tcrossprod(input1, input2)
+  result <- outer(s1, s2, "+") - 2 * tcrossprod(input1, input2)
+  # floating point cancellation for near-identical vectors
+  pmax(result, 0)
 }
 
 

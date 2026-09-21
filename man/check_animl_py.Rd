@@ -6,6 +6,19 @@
 \usage{
 check_animl_py()
 }
+\value{
+A list with three logical values:
+\item{exiftool}{TRUE if exiftool is available}
+\item{torch_cuda}{TRUE if CUDA is available to PyTorch}
+\item{onnx_cuda}{TRUE if CUDA is available to ONNX}
+}
 \description{
 Check if animl-py can connect to exiftool and CUDA
+}
+\examples{
+\dontrun{
+  result <- check_animl_py()
+  print(result)
+}
+
 }
