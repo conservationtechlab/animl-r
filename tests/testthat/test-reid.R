@@ -2,17 +2,47 @@ library(testthat)
 
 # load_miew --------------------------------------------------------------
 
-test_that("load_miew requires a real model file", {
+test_that("load_miew loads a fetched MiewID model", {
   skip_if(!animl_py_available(), "animl_py not available")
-  skip("load_miew requires a real model file — test manually with a local model")
+  model_path <- get_miewid_test_asset()
+  skip_if(is.null(model_path), "MiewID model asset unavailable (Hugging Face unreachable)")
+  
+  model <- load_miew(model_path, device = "cpu")
+  expect_false(is.null(model))
 })
+
 
 # extract_miew_embeddings ------------------------------------------------
 
-test_that("extract_miew_embeddings requires a loaded model", {
+test_that("extract_miew_embeddings returns embeddings for real images", {
   skip_if(!animl_py_available(), "animl_py not available")
-  skip("extract_miew_embeddings requires a real MiewID model — test manually with a local model")
+  model_path <- get_miewid_test_asset()
+  skip_if(is.null(model_path), "MiewID model asset unavailable (Hugging Face unreachable)")
+  
+  model <- load_miew(model_path, device = "cpu")
+  
+  temp_img_dir <- tempfile("miewid-images-")
+  dir.create(temp_img_dir, recursive = TRUE)
+  on.exit(unlink(temp_img_dir, recursive = TRUE), add = TRUE)
+  
+  img_paths <- c(
+    write_test_ppm(file.path(temp_img_dir, "img1.jpg")),
+    write_test_ppm(file.path(temp_img_dir, "img2.jpg"))
+  )
+  manifest <- data.frame(
+    filepath = img_paths,
+    bbox_x = 0, bbox_y = 0, bbox_w = 1, bbox_h = 1,
+    stringsAsFactors = FALSE
+  )
+  
+  
+  embeddings <- extract_miew_embeddings(model, manifest, file_col = "filepath",
+                                        batch_size = 1, num_workers = 1, device = "cpu")
+  
+  expect_equal(nrow(embeddings), 2)
+  expect_true(ncol(embeddings) > 0)
 })
+
 
 # remove_diagonal --------------------------------------------------------
 
