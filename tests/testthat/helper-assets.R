@@ -25,6 +25,21 @@ create_test_detections <- function(n_files = 2) {
   )
 }
 
+get_mdv5a_test_asset <- function() {
+  cache_path <- testthat::test_path("_cache", "md_v5a.0.0.pt")
+  if (file.exists(cache_path)) return(cache_path)
+  dir.create(dirname(cache_path), recursive = TRUE, showWarnings = FALSE)
+  url <- "https://github.com/conservationtechlab/animl-py/releases/download/megadetector/md_v5a.0.0.pt"
+  ok <- tryCatch({
+    utils::download.file(url, destfile = cache_path, mode = "wb", quiet = TRUE)
+    TRUE
+  }, error = function(e) {
+    message("Failed to download MegaDetector v5a: ", conditionMessage(e))
+    FALSE
+  })
+  if (isTRUE(ok) && file.exists(cache_path)) cache_path else NULL
+}
+
 animl_test_asset_url <- function(asset = c("model", "classes")) {
   asset <- match.arg(asset)
 
