@@ -54,8 +54,8 @@ sequence_classification<-function(animals,
   
   # unpack predictions if necessary
   if (is(predictions, "list")) {
-    predictions_raw <- predictions[[1]]
-    failed_files <- predictions[[2]]
+    predictions_raw <- predictions$predictions
+    failed_files <- predictions$failed_files
   }
   else{
     predictions_raw <- predictions
