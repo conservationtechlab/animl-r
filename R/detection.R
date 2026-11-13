@@ -156,11 +156,11 @@ get_empty <- function(manifest) {
   }
   if (2 %in% categories) {
     empty[which(empty$category == 2), "prediction"] <- "human"
-    empty[which(empty$category == 2), "confidence"] <- empty$conf[which(empty$category == 2)]
+    empty[which(empty$category == 2), "confidence"] <- empty[["conf"]][which(empty$category == 2)]
   }
   if (3 %in% categories) {
     empty[which(empty$category == 3), "prediction"] <- "vehicle"
-    empty[which(empty$category == 3), "confidence"] <- empty$conf[which(empty$category == 3)]
+    empty[which(empty$category == 3), "confidence"] <- empty[["conf"]][which(empty$category == 3)]
   }
   return(empty)
 }
