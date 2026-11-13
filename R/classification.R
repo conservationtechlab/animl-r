@@ -80,7 +80,7 @@ classify <- function(model,
     animl_py <- .animl_internal$animl_py
     
     #unpack if necessary
-    if (is.list(model)){ model <- model[[1]] }
+    if (is.list(model)){ model <- model$model }
     
     results <- animl_py$classify(model,
                                  detections,
