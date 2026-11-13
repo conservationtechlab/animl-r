@@ -71,6 +71,11 @@ detect <- function(detector,
                   device=device,
                   checkpoint_path=checkpoint_path,
                   checkpoint_frequency=as.integer(checkpoint_frequency))
+  # older animl-py returns only the detections list (no failed_files) when a
+  # checkpoint already covers every image
+  if (length(results) > 0 && !is.null(results[[1]][["filepath"]])) {
+    results <- list(results, list())
+  }
   names(results) <- c('detections','failed_files')
   return(results)
 }
@@ -97,6 +102,18 @@ parse_detections <- function(results,
                              threshold=0,
                              file_col="filepath") {
   
+  # checkpoint files loaded with load_json() store detections under 'images'
+  if (is.list(results) && !is.data.frame(results) && !is.null(results[["images"]])) {
+    results <- results[["images"]]
+  }
+  # a single failed file comes back from python as a length-1 character vector,
+  # which would be passed back as a string rather than a list
+  if (is.list(results) && !is.data.frame(results) && "failed_files" %in% names(results)) {
+    results["failed_files"] <- list(as.list(results[["failed_files"]]))
+  }
+  if (is.data.frame(results)) {
+    stop("'results' is a data.frame; load checkpoint files with load_json() rather than jsonlite::fromJSON()")
+  }
   animl_py <- .animl_internal$animl_py
   animl_py$parse_detections(results,
                             manifest=manifest,
