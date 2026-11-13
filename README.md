@@ -1,4 +1,4 @@
-# animl v3.3.2
+# animl v3.4.0
 
 Animl comprises a variety of machine learning tools for analyzing ecological data. The package includes a set of functions to classify subjects within camera trap field data and can handle both images and videos. 
 
@@ -120,7 +120,7 @@ Detectors:
 * R >= 4.0
 * Reticulate
 * Python >= 3.12
-* [Animl-Py >= 3.3.0](https://github.com/conservationtechlab/animl-py)
+* [Animl-Py >= 3.4.0](https://github.com/conservationtechlab/animl-py)
 
 We recommend running animl on a computer with a dedicated GPU.
 
