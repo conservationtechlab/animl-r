@@ -151,7 +151,7 @@ sequence_classification<-function(animals,
     }
     
     animals$prediction <- classes[apply(predictions_raw, 1, which.max)]
-    animals$confidence <- apply(predictions_raw, 1, max) * animals$conf
+    animals$confidence <- apply(predictions_raw, 1, max) * animals[["conf"]]
     empty$conf<-1
     animals<-rbind(animals,empty[,-ncol(empty)]) # dont add ID column
     predictions_raw<-rbind(cbind(predictions_raw,matrix(0,nrow(predictions_raw),ncol(predempty)-ncol(predictions_raw))),as.matrix(predempty))
@@ -205,7 +205,7 @@ sequence_classification<-function(animals,
       #check if there are empty predictions
       if(length(empty_col)==0 || !(empty_col %in% predclass) || length(which(predclass %in% empty_col))==length(rows)){
         #no empties
-        predsort_confidence <- predsort[rows,]*animals_sort$conf[rows]
+        predsort_confidence <- predsort[rows,]*animals_sort[["conf"]][rows]
         predbest <- apply(predsort_confidence, 2, mean)
         conf_placeholder[rows]<-max(predsort_confidence[,which.max(predbest)])
         predict_placeholder[rows]<-classes[which.max(predbest)]
@@ -224,7 +224,7 @@ sequence_classification<-function(animals,
         
         
         if(length(sel_no_empties)>0 & length(sel_mixed)>0){
-          predsort_confidence<-matrix(predsort[rows[sel_no_empties],]*animals_sort$conf[rows[sel_no_empties]],ncol=ncol(predsort))
+          predsort_confidence<-matrix(predsort[rows[sel_no_empties],]*animals_sort[["conf"]][rows[sel_no_empties]],ncol=ncol(predsort))
           predbest<-apply(predsort_confidence,2,mean)
           conf_placeholder[rows[sel_mixed]]<-max(predsort_confidence[,which.max(predbest)])
           predict_placeholder[rows[sel_mixed]]<-classes[which.max(predbest)]
@@ -232,7 +232,7 @@ sequence_classification<-function(animals,
         #classify empty images
         for(s in names(sel_all_empty[sel_all_empty])){
           row_index<-which(animals_sort[rows,file_col] %in% s)
-          predsort_confidence <- matrix(predsort[rows[row_index],]*animals_sort$conf[rows[row_index]],ncol=ncol(predsort))
+          predsort_confidence <- matrix(predsort[rows[row_index],]*animals_sort[["conf"]][rows[row_index]],ncol=ncol(predsort))
           predbest<-apply(predsort_confidence,2,mean) 
           conf_placeholder[rows[row_index]]<-max(predbest) 
           predict_placeholder[rows[row_index]]<-classes[which.max(predbest)]
@@ -242,7 +242,7 @@ sequence_classification<-function(animals,
     #only one box in the sequence
     else{ 
       predbest<-predsort[rows,,drop=FALSE]
-      conf_placeholder[rows]<-max(predbest*animals_sort$conf[rows])
+      conf_placeholder[rows]<-max(predbest*animals_sort[["conf"]][rows])
       predict_placeholder[rows]<-classes[which.max(predbest)]
     }
     # move to next sequence
