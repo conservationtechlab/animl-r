@@ -93,7 +93,7 @@ classify <- function(model,
                                  num_workers=as.integer(num_workers),
                                  device=device,
                                  out_file=out_file)
-    names(results) <- c('preditions','failed_files')
+    names(results) <- c('predictions','failed_files')
     return(results)
 }
 
@@ -102,12 +102,11 @@ classify <- function(model,
 #'
 #' @param animals manifest of animal detections 
 #' @param empty manifest of md human, vehicle and empty images
-#' @param predictions_output softmaxed likelihoods from predict_species
+#' @param predictions softmaxed likelihoods from predict_species
 #' @param class_list list of class labels
 #' @param best whether to return one prediction per file
 #' @param count whether to add a count column with number of detections of each species per file
 #' @param file_col column name for file paths in the dataframe
-#' @param failed_files optional list of files that failed to load during classification 
 #'
 #' @returns dataframe with prediction and confidence columns
 #' @export
@@ -116,17 +115,25 @@ classify <- function(model,
 #' \dontrun{animals <- single_classification(animals, empty, pred_raw, class_list)}
 single_classification <- function(animals,
                                   empty,
-                                  predictions_output,
+                                  predictions,
                                   class_list,
                                   best=FALSE,
                                   count=FALSE,
-                                  file_col='filepath',
-                                  failed_files=NULL){
+                                  file_col='filepath'){
+
+  if (is(predictions, "list")) {
+    predictions_raw <- predictions$predictions
+    failed_files <- predictions$failed_files
+  }
+  else{
+    predictions_raw <- predictions
+    failed_files <- NULL
+  }
   
   animl_py <- .animl_internal$animl_py
   animl_py$single_classification(animals,
                                  empty,
-                                 predictions_output,
+                                 predictions_raw,
                                  class_list,
                                  best=best,
                                  count=count,
