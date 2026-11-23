@@ -78,3 +78,18 @@ test_that("sequence_classification returns data frame with prediction and confid
   expect_true("confidence" %in% names(result))
 })
 
+test_that("sequence_classification drops only the failed rows", {
+  df <- data.frame(
+    filepath = c("a.jpg", "a.jpg", "b.jpg"),
+    station  = c("A", "A", "B"),
+    datetime = c("2023-01-01 10:00:00", "2023-01-01 10:00:00", "2023-01-01 10:00:30"),
+    conf     = c(0.9, 0.8, 0.7),
+    stringsAsFactors = FALSE
+  )
+  # rows 1 and 3 loaded; row 2, a second crop of a.jpg, failed
+  predictions <- list(predictions = matrix(c(0.9, 0.1, 0.2, 0.8), nrow = 2, byrow = TRUE),
+                      failed_rows = 2L)
+  result <- sequence_classification(df, NULL, predictions, c("cat", "dog"), station_col = "station")
+  expect_equal(nrow(result), 2)
+  expect_setequal(result$filepath, c("a.jpg", "b.jpg"))
+})

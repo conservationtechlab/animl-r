@@ -55,17 +55,17 @@ sequence_classification<-function(animals,
   # unpack predictions if necessary
   if (is(predictions, "list")) {
     predictions_raw <- predictions$predictions
-    failed_files <- predictions$failed_files
+    failed_rows <- predictions$failed_rows
   }
   else{
     predictions_raw <- predictions
-    failed_files <- NULL
+    failed_rows <- NULL
   }
   if (!is(predictions_raw, "matrix")) { stop("'predictions_raw' must be a matrix") }
   
-  # remove failed_files
-  if (!is.null(failed_files) && length(failed_files) > 0){
-    animals <- animals[!(animals[[file_col]] %in% failed_files), ]
+  # remove failed_rows
+  if (!is.null(failed_rows) && length(failed_rows) > 0){
+    animals <- animals[-failed_rows, ]
     rownames(animals) <- NULL
   }
   if(nrow(animals)!=nrow(predictions_raw)){ stop("'animals' and 'predictions_raw' must have the same number of rows")}
