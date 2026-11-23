@@ -1,10 +1,9 @@
-name: R-CMD-check
+name: R-CMD-check (animl-py PyPI)
 
 on:
   pull_request:
     branches:
       - master
-      - dev
 
 permissions:
   contents: read
@@ -74,5 +73,5 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.config.os }}-r${{ matrix.config.r }}-results
+          name: ${{ matrix.config.os }}-r${{ matrix.config.r }}-animl-py-pypi-results
           path: check
