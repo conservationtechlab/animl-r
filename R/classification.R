@@ -60,7 +60,7 @@ load_class_list <- function(classlist_file){
 #' @param device send model to the specified device
 #' @param out_file path to csv to save results to
 #'
-#' @return list with two elements: $predictions model output logits. $failed_files paths that returned error on inference
+#' @return list with two elements: $predictions model output logits. $failed_rows rows of detections that returned error on inference
 #' @export
 #'
 #' @examples
@@ -93,7 +93,9 @@ classify <- function(model,
                                  num_workers=as.integer(num_workers),
                                  device=device,
                                  out_file=out_file)
-    names(results) <- c('predictions','failed_files')
+    names(results) <- c('predictions','failed_rows')
+    # animl-py returns 0-based positions
+    results$failed_rows <- as.integer(unlist(results$failed_rows)) + 1L
     return(results)
 }
 
@@ -123,14 +125,16 @@ single_classification <- function(animals,
 
   if (is(predictions, "list")) {
     predictions_raw <- predictions$predictions
-    failed_files <- predictions$failed_files
+    failed_rows <- predictions$failed_rows
   }
   else{
     predictions_raw <- predictions
-    failed_files <- NULL
+    failed_rows <- NULL
   }
   
   animl_py <- .animl_internal$animl_py
+  # animl-py expects a list of 0-based positions
+  if (!is.null(failed_rows)) { failed_rows <- as.list(as.integer(failed_rows) - 1L) }
   animl_py$single_classification(animals,
                                  empty,
                                  predictions_raw,
@@ -138,5 +142,5 @@ single_classification <- function(animals,
                                  best=best,
                                  count=count,
                                  file_col = file_col,
-                                 failed_files = failed_files)
+                                 failed_rows = failed_rows)
 }
