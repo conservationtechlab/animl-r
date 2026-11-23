@@ -99,8 +99,8 @@ test_that("classify requires a loaded model file", {
   )
   
   expect_type(results, "list")
-  expect_named(results, c("preditions", "failed_files"))
-  expect_true(is.matrix(results$preditions) || is.data.frame(results$preditions))
+  expect_named(results, c("predictions", "failed_files"))
+  expect_true(is.matrix(results$predictions) || is.data.frame(results$predictions))
   expect_true(is.character(results$failed_files) || is.list(results$failed_files))
 })
 
