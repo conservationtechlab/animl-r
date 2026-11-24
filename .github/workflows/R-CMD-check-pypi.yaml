@@ -53,8 +53,19 @@ jobs:
           "$PYTHON_BIN" -m pip install --upgrade pip
           "$PYTHON_BIN" -m pip install animl
 
-          echo "WORKON_HOME=$HOME/.virtualenvs" >> "$GITHUB_ENV"
-          echo "RETICULATE_PYTHON=$PYTHON_BIN" >> "$GITHUB_ENV"
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            # R on Windows can't resolve git-bash paths like /c/Users/...
+            echo "WORKON_HOME=$(cygpath -w "$HOME/.virtualenvs")" >> "$GITHUB_ENV"
+            echo "RETICULATE_PYTHON=$(cygpath -w "$PYTHON_BIN")" >> "$GITHUB_ENV"
+          else
+            echo "WORKON_HOME=$HOME/.virtualenvs" >> "$GITHUB_ENV"
+            echo "RETICULATE_PYTHON=$PYTHON_BIN" >> "$GITHUB_ENV"
+          fi
+
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            # torch's shm manager socket path is too long under the default macOS TMPDIR
+            echo "TMPDIR=/tmp" >> "$GITHUB_ENV"
+          fi
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
