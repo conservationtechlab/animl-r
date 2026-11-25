@@ -1040,7 +1040,7 @@ Export a manifest to COCO format.
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `manifest`    | data.frame  | required | Data frame containing detection results and file paths |
-| `class_dict`  | named list  | required | Mapping of class labels to category IDs |
+| `class_dict`  | named list  | required | Mapping of category IDs to class names, e.g. `list('0'='empty', '1'='deer')`. Each annotation's category is looked up from its `prediction`; predictions not in `class_dict` get category ID -1 |
 | `out_file`    | character   | required | File path to save the COCO JSON output |
 | `info`        | named list  | NULL     | Optional dataset info to include in COCO output, e.g. `list(description = "My Dataset", version = "1.0")` |
 | `licenses`    | list        | NULL     | Optional list of licenses to include in COCO output |
