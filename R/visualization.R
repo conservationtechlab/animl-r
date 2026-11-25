@@ -15,8 +15,8 @@
 #'
 #' @examples
 #' \dontrun{
-#' test_image <- classify(classifier_model, test_image, file_col='filepath')
-#' plot_box(test_image, file_col='filepath', minconf = 0.5, prediction=TRUE)
+#' plot_box(manifest[1, ], file_col='filepath', min_conf=0.5,
+#'          classifier_label_col='prediction', show_confidence=TRUE)
 #' }
 plot_box <- function(rows,
                      file_col='filepath',
@@ -46,7 +46,7 @@ plot_box <- function(rows,
 #' @param manifest manifest of detections
 #' @param out_dir Name of the output directory
 #' @param file_col Column name containing file paths
-#' @param min_conf Confidence threshold to plot the box
+#' @param min_conf Confidence threshold to plot the box, defaults to 0
 #' @param classifier_label_col Column name containing class to print above the box. If None, no label is printed.
 #' @param detector_category_col Column name containing the detector category to determine box color and label.
 #' @param show_confidence If true, show confidence score above the box.
@@ -57,7 +57,7 @@ plot_box <- function(rows,
 #' @export
 #'
 #' @examples
-#' \dontrun{plot_all_bounding_boxes(manifest, 'Plots/', label_col='prediction',
+#' \dontrun{plot_all_bounding_boxes(manifest, 'Plots/', classifier_label_col='prediction',
 #'                                  show_confidence=TRUE, 
 #'                                  colors=list("1" = c(0, 255, 0),
 #'                                              "2" = c(0, 0, 255),
@@ -65,7 +65,7 @@ plot_box <- function(rows,
 plot_all_bounding_boxes <- function(manifest,
                                     out_dir,
                                     file_col='filepath',
-                                    min_conf=0.1, 
+                                    min_conf=0, 
                                     classifier_label_col=NULL,
                                     detector_category_col='category',
                                     show_confidence=FALSE,

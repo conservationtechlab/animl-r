@@ -38,3 +38,8 @@ test_that("plot_all_bounding_boxes requires animl_py and real images", {
   skip_if(!animl_py_available(), "animl_py not available")
   skip("plot_all_bounding_boxes requires real image files — test manually")
 })
+
+test_that("plot_all_bounding_boxes min_conf defaults to 0, matching plot_box", {
+  expect_equal(formals(plot_all_bounding_boxes)$min_conf, 0)
+  expect_equal(formals(plot_box)$min_conf, 0)
+})

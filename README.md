@@ -1,4 +1,4 @@
-# animl v3.3.2
+# animl v3.4.0
 
 Animl comprises a variety of machine learning tools for analyzing ecological data. The package includes a set of functions to classify subjects within camera trap field data and can handle both images and videos. 
 
@@ -66,14 +66,14 @@ class_list <- classes$class
 
 # load the model
 model_file <- "/Models/Southwest/v3/southwest_v3.pt"
-southwest <- load_classifier(model_file, nrow(class_list))
+southwest <- load_classifier(model_file, classes)
 
 # obtain species predictions likelihoods
 pred_raw <- classify(southwest, animals, resize_width=480, resize_height=480, 
                      out_file=predictions_file, batch_size=16, num_workers=8)
 
 # apply class_list labels and combine with empty set
-manifest <- single_classification(animals, empty, pred_raw, class_list$class)
+manifest <- single_classification(animals, empty, pred_raw, class_list)
 ```
 
 If your data includes videos or sequences, we recommend using the sequence_classification algorithm.
@@ -99,11 +99,11 @@ manifest <- export_camtrapR(manifest, out_dir=linkdir, out_file=results_file,
  
 You can also export a .json file formatted for COCO
 ```
-manifest <- export_coco(manifest, class_list=class_list, out_file='results.json')
+coco <- export_coco(manifest, class_dict=list('0'='empty', '1'='deer'), out_file='results.json')
 ```
 Or a .csv file for Timelapse
 ```
-manifest <- export_folders(manifest, out_dir=linkdir)
+csv_loc <- export_timelapse(manifest, out_dir='/path/to/output/')
 ```
 
 # Models
@@ -120,7 +120,7 @@ Detectors:
 * R >= 4.0
 * Reticulate
 * Python >= 3.12
-* [Animl-Py >= 3.3.0](https://github.com/conservationtechlab/animl-py)
+* [Animl-Py >= 3.4.0](https://github.com/conservationtechlab/animl-py)
 
 We recommend running animl on a computer with a dedicated GPU.
 

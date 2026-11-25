@@ -8,7 +8,7 @@ plot_all_bounding_boxes(
   manifest,
   out_dir,
   file_col = "filepath",
-  min_conf = 0.1,
+  min_conf = 0,
   classifier_label_col = NULL,
   detector_category_col = "category",
   show_confidence = FALSE,
@@ -23,7 +23,7 @@ plot_all_bounding_boxes(
 
 \item{file_col}{Column name containing file paths}
 
-\item{min_conf}{Confidence threshold to plot the box}
+\item{min_conf}{Confidence threshold to plot the box, defaults to 0}
 
 \item{classifier_label_col}{Column name containing class to print above the box. If None, no label is printed.}
 
@@ -42,7 +42,7 @@ None
 Plot all bounding boxes in a manifest
 }
 \examples{
-\dontrun{plot_all_bounding_boxes(manifest, 'Plots/', label_col='prediction',
+\dontrun{plot_all_bounding_boxes(manifest, 'Plots/', classifier_label_col='prediction',
                                  show_confidence=TRUE, 
                                  colors=list("1" = c(0, 255, 0),
                                              "2" = c(0, 0, 255),

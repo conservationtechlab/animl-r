@@ -20,5 +20,5 @@ animals.csv, non-anim.csv, csv_loc
 Converts the Manifests to a csv file that contains columns needed for TimeLapse conversion in later step
 }
 \examples{
-\dontrun{export_timelapse(animals, empty, '/path/to/images/')}
+\dontrun{csv_loc <- export_timelapse(manifest, '/path/to/output/')}
 }

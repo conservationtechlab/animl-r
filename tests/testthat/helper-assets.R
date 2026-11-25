@@ -1,22 +1,5 @@
 # Helper functions for downloading and managing test assets
 
-get_test_model <- function() {
-  model_url <- "https://github.com/conservationtechlab/animl-r/releases/download/v3.3.0/test_model.pt"
-  model_path <- file.path(tempdir(), "test_model.pt")
-  
-  if (!file.exists(model_path)) {
-    tryCatch(
-      download.file(model_url, model_path, quiet = TRUE, mode = "wb"),
-      error = function(e) {
-        warning("Could not download test model: ", conditionMessage(e))
-        return(NULL)
-      }
-    )
-  }
-  
-  return(if (file.exists(model_path)) model_path else NULL)
-}
-
 create_test_detections <- function(n_files = 2) {
   # Create minimal test dataframe
   data.frame(

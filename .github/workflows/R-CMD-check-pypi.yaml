@@ -1,0 +1,88 @@
+name: R-CMD-check (animl-py PyPI)
+
+on:
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  R-CMD-check:
+    runs-on: ${{ matrix.config.os }}
+
+    name: ${{ matrix.config.os }} (R ${{ matrix.config.r }})
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {os: windows-latest, r: '4.6.1'}
+          - {os: macOS-latest, r: '4.6.1'}
+          - {os: ubuntu-latest, r: '4.6.1'}
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+          use-public-rspm: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Create animl_env and install animl-py
+        shell: bash
+        run: |
+          VENV_DIR="$HOME/.virtualenvs/animl_env"
+          python -m venv "$VENV_DIR"
+
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            PYTHON_BIN="$VENV_DIR/Scripts/python.exe"
+          else
+            PYTHON_BIN="$VENV_DIR/bin/python"
+          fi
+
+          "$PYTHON_BIN" -m pip install --upgrade pip
+          "$PYTHON_BIN" -m pip install animl
+
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            # R on Windows can't resolve git-bash paths like /c/Users/...
+            echo "WORKON_HOME=$(cygpath -w "$HOME/.virtualenvs")" >> "$GITHUB_ENV"
+            echo "RETICULATE_PYTHON=$(cygpath -w "$PYTHON_BIN")" >> "$GITHUB_ENV"
+          else
+            echo "WORKON_HOME=$HOME/.virtualenvs" >> "$GITHUB_ENV"
+            echo "RETICULATE_PYTHON=$PYTHON_BIN" >> "$GITHUB_ENV"
+          fi
+
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            # torch's shm manager socket path is too long under the default macOS TMPDIR
+            echo "TMPDIR=/tmp" >> "$GITHUB_ENV"
+          fi
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::rcmdcheck
+          needs: check
+
+      - name: Check
+        env:
+          _R_CHECK_CRAN_INCOMING_REMOTE_: false
+          ONNXRUNTIME_LOGLEVEL: 0
+        run: |
+          rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), error_on = "error", check_dir = "check")
+        shell: Rscript {0}
+
+      - name: Upload check results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.config.os }}-r${{ matrix.config.r }}-animl-py-pypi-results
+          path: check

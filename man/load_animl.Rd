@@ -20,5 +20,5 @@ none
 Load animl-py if available
 }
 \examples{
-\dontrun{animl_install("animl_env", ANIML_VERSION, python_version="3.12")}
+\dontrun{load_animl("animl_env")}
 }

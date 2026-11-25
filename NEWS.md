@@ -1,5 +1,12 @@
-# animl 3.3.1
+# animl 3.4.0
 
+## API Changes
+
+- `export_camtrapdp()`: Renamed from the misspelled `export_camptrapdp()`, which still works but is deprecated.
+- `export_train_val_test()`: Added `groupby_col` parameter to keep groups (e.g. stations) from being shared between splits.
+- `save_classifier()`: Added `scaler` parameter to save a GradScaler state for mixed-precision training.
+- `extract_frames()`: Added `quiet` parameter to suppress progress bars and messages.
+- `plot_all_bounding_boxes()`: Changed default `min_conf` from `0.1` to `0`, matching `plot_box()` and animl-py.
 
 # animl 3.3.0
 

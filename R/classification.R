@@ -60,7 +60,7 @@ load_class_list <- function(classlist_file){
 #' @param device send model to the specified device
 #' @param out_file path to csv to save results to
 #'
-#' @return list with two elements: $predictions model output logits. $failed_files paths that returned error on inference
+#' @return list with two elements: $predictions model output logits. $failed_rows rows of detections that returned error on inference
 #' @export
 #'
 #' @examples
@@ -80,7 +80,7 @@ classify <- function(model,
     animl_py <- .animl_internal$animl_py
     
     #unpack if necessary
-    if (is.list(model)){ model <- model[[1]] }
+    if (is.list(model)){ model <- model$model }
     
     results <- animl_py$classify(model,
                                  detections,
@@ -93,7 +93,9 @@ classify <- function(model,
                                  num_workers=as.integer(num_workers),
                                  device=device,
                                  out_file=out_file)
-    names(results) <- c('preditions','failed_files')
+    names(results) <- c('predictions','failed_rows')
+    # animl-py returns 0-based positions
+    results$failed_rows <- as.integer(unlist(results$failed_rows)) + 1L
     return(results)
 }
 
@@ -102,12 +104,11 @@ classify <- function(model,
 #'
 #' @param animals manifest of animal detections 
 #' @param empty manifest of md human, vehicle and empty images
-#' @param predictions_output softmaxed likelihoods from predict_species
+#' @param predictions softmaxed likelihoods from predict_species
 #' @param class_list list of class labels
 #' @param best whether to return one prediction per file
 #' @param count whether to add a count column with number of detections of each species per file
 #' @param file_col column name for file paths in the dataframe
-#' @param failed_files optional list of files that failed to load during classification 
 #'
 #' @returns dataframe with prediction and confidence columns
 #' @export
@@ -116,20 +117,30 @@ classify <- function(model,
 #' \dontrun{animals <- single_classification(animals, empty, pred_raw, class_list)}
 single_classification <- function(animals,
                                   empty,
-                                  predictions_output,
+                                  predictions,
                                   class_list,
                                   best=FALSE,
                                   count=FALSE,
-                                  file_col='filepath',
-                                  failed_files=NULL){
+                                  file_col='filepath'){
+
+  if (is(predictions, "list")) {
+    predictions_raw <- predictions$predictions
+    failed_rows <- predictions$failed_rows
+  }
+  else{
+    predictions_raw <- predictions
+    failed_rows <- NULL
+  }
   
   animl_py <- .animl_internal$animl_py
+  # animl-py expects a list of 0-based positions
+  if (!is.null(failed_rows)) { failed_rows <- as.list(as.integer(failed_rows) - 1L) }
   animl_py$single_classification(animals,
                                  empty,
-                                 predictions_output,
+                                 predictions_raw,
                                  class_list,
                                  best=best,
                                  count=count,
                                  file_col = file_col,
-                                 failed_files = failed_files)
+                                 failed_rows = failed_rows)
 }

@@ -8,6 +8,7 @@
 #' @param file_col string value indexing which column contains file paths
 #' @param parallel Toggle for parallel processing, defaults to TRUE
 #' @param num_workers number of processors to use if parallel, defaults to 4
+#' @param quiet suppress progress bars and print statements, defaults to FALSE
 #'
 #' @return dataframe of still frames for each video
 #' @export
@@ -23,19 +24,23 @@ extract_frames <- function(files,
                            out_dir=NULL,
                            file_col="filepath",
                            parallel=TRUE,
-                           num_workers=4){
+                           num_workers=4,
+                           quiet=FALSE){
   
   if (!is.null(fps)){ fps <- as.integer(fps) }
   if (!is.null(frames)){ frames <- as.integer(frames) }
   animl_py <- .animl_internal$animl_py
-  animl_py$extract_frames(files,
-                          frames=frames,
-                          fps=fps,
-                          out_file=out_file,
-                          out_dir=out_dir,
-                          file_col=file_col,
-                          parallel=parallel,
-                          num_workers=as.integer(num_workers))
+  args <- list(files,
+               frames=frames,
+               fps=fps,
+               out_file=out_file,
+               out_dir=out_dir,
+               file_col=file_col,
+               parallel=parallel,
+               num_workers=as.integer(num_workers))
+  # only pass quiet when set, for compatibility with older animl-py
+  if (isTRUE(quiet)) { args$quiet <- TRUE }
+  do.call(animl_py$extract_frames, args)
 }
 
 

@@ -29,6 +29,12 @@ test_that("load_class_list column names match the CSV header", {
 # animl_py-dependent tests ------------------------------------------------
 
 
+test_that("save_classifier has scaler parameter defaulting to NULL", {
+  params <- formals(save_classifier)
+  expect_true("scaler" %in% names(params))
+  expect_null(params$scaler)
+})
+
 test_that("save_classifier requires animl_py", {
   skip_if(!animl_py_available(), "animl_py not available")
   torch <- tryCatch(reticulate::import("torch", convert = FALSE), error = function(e) NULL)
@@ -99,11 +105,28 @@ test_that("classify requires a loaded model file", {
   )
   
   expect_type(results, "list")
-  expect_named(results, c("preditions", "failed_files"))
-  expect_true(is.matrix(results$preditions) || is.data.frame(results$preditions))
-  expect_true(is.character(results$failed_files) || is.list(results$failed_files))
+  expect_named(results, c("predictions", "failed_rows"))
+  expect_true(is.matrix(results$predictions) || is.data.frame(results$predictions))
+  expect_true(is.integer(results$failed_rows))
 })
 
+
+test_that("single_classification drops only the failed rows", {
+  skip_if(!animl_py_available(), "animl_py not available")
+  animals <- data.frame(
+    filepath = c("img1.jpg", "img1.jpg", "img2.jpg"),
+    category = c(1L, 1L, 1L),
+    category_label = c('animal', 'animal', 'animal'),
+    conf     = c(0.9, 0.8, 0.7),
+    stringsAsFactors = FALSE
+  )
+  # rows 1 and 3 loaded; row 2, a second crop of img1.jpg, failed
+  predictions <- list(predictions = matrix(c(0.8, 0.2, 0.3, 0.7), nrow = 2, byrow = TRUE),
+                      failed_rows = 2L)
+  result <- single_classification(animals, NULL, predictions, c("deer", "fox"))
+  expect_equal(result$filepath, c("img1.jpg", "img2.jpg"))
+  expect_equal(result$prediction, c("deer", "fox"))
+})
 
 test_that("single_classification returns a data frame with prediction and confidence", {
   skip_if(!animl_py_available(), "animl_py not available")

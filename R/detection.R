@@ -14,7 +14,7 @@ MD_LABELS = list('0'='empty', '1'='animal', '2'='human', '3'='vehicle')
 #' @export
 #'
 #' @examples
-#' \dontrun{md_py <- megadetector("/mnt/machinelearning/megaDetector/md_v5a.0.0.pt", 
+#' \dontrun{detector <- load_detector("/path/to/md_v5a.0.0.pt",
 #'                                model_type='mdv5', device='cuda:0')}
 load_detector <- function(model_path, model_type, device=NULL){
   animl_py <- .animl_internal$animl_py
@@ -42,7 +42,7 @@ load_detector <- function(model_path, model_type, device=NULL){
 #' @export
 #'
 #' @examples
-#' \dontrun{mdres <- detect(md_py, allframes$Frame, 1280, 960, device='cpu')}
+#' \dontrun{mdres <- detect(detector, allframes, 1280, 1280, device='cpu')}
 detect <- function(detector,
                    image_file_names,
                    resize_width,
@@ -71,6 +71,11 @@ detect <- function(detector,
                   device=device,
                   checkpoint_path=checkpoint_path,
                   checkpoint_frequency=as.integer(checkpoint_frequency))
+  # older animl-py returns only the detections list (no failed_files) when a
+  # checkpoint already covers every image
+  if (length(results) > 0 && !is.null(results[[1]][["filepath"]])) {
+    results <- list(results, list())
+  }
   names(results) <- c('detections','failed_files')
   return(results)
 }
@@ -89,7 +94,7 @@ detect <- function(detector,
 #'
 #' @examples
 #' \dontrun{
-#' mdresults <- parseMD(mdres)
+#' mdresults <- parse_detections(mdres, manifest=allframes)
 #' }
 parse_detections <- function(results,
                              manifest=NULL,
@@ -97,6 +102,18 @@ parse_detections <- function(results,
                              threshold=0,
                              file_col="filepath") {
   
+  # checkpoint files loaded with load_json() store detections under 'images'
+  if (is.list(results) && !is.data.frame(results) && !is.null(results[["images"]])) {
+    results <- results[["images"]]
+  }
+  # a single failed file comes back from python as a length-1 character vector,
+  # which would be passed back as a string rather than a list
+  if (is.list(results) && !is.data.frame(results) && "failed_files" %in% names(results)) {
+    results["failed_files"] <- list(as.list(results[["failed_files"]]))
+  }
+  if (is.data.frame(results)) {
+    stop("'results' is a data.frame; load checkpoint files with load_json() rather than jsonlite::fromJSON()")
+  }
   animl_py <- .animl_internal$animl_py
   animl_py$parse_detections(results,
                             manifest=manifest,
@@ -139,11 +156,11 @@ get_empty <- function(manifest) {
   }
   if (2 %in% categories) {
     empty[which(empty$category == 2), "prediction"] <- "human"
-    empty[which(empty$category == 2), "confidence"] <- empty$conf[which(empty$category == 2)]
+    empty[which(empty$category == 2), "confidence"] <- empty[["conf"]][which(empty$category == 2)]
   }
   if (3 %in% categories) {
     empty[which(empty$category == 3), "prediction"] <- "vehicle"
-    empty[which(empty$category == 3), "confidence"] <- empty$conf[which(empty$category == 3)]
+    empty[which(empty$category == 3), "confidence"] <- empty[["conf"]][which(empty$category == 3)]
   }
   return(empty)
 }

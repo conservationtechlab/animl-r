@@ -33,5 +33,5 @@ matrix of embeddings
 Extract Embeddings from MiewID
 }
 \examples{
-\dontrun{embeddings = extract_embeddings(miew, manifest)}
+\dontrun{embeddings <- extract_miew_embeddings(miew, manifest)}
 }
