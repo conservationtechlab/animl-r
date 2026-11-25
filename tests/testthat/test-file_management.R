@@ -201,3 +201,11 @@ test_that("list_models requires animl_py", {
   skip_if(!animl_py_available(), "animl_py not available")
   skip("list_models requires network access — test manually")
 })
+
+# extract_frames ---------------------------------------------------------
+
+test_that("extract_frames has quiet parameter defaulting to FALSE", {
+  params <- formals(extract_frames)
+  expect_true("quiet" %in% names(params))
+  expect_false(params$quiet)
+})

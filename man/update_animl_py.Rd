@@ -16,5 +16,5 @@ None
 Update animl-py version for the given environment
 }
 \examples{
-\dontrun{update_animl_py(py_env = "animl_env")}
+\dontrun{update_animl_py(envname = "animl_env")}
 }

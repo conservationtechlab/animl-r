@@ -28,11 +28,11 @@
 #'
 #' @examples
 #' \dontrun{
-#' predictions <-classify(classifier, images, resize_width=456, resize_height=456)
 #' animals <- get_animals(images)
 #' empty <- get_empty(images)
+#' predictions <- classify(classifier, animals, resize_width=456, resize_height=456)
 #' animals <- sequence_classification(animals, empty, predictions, classes,
-#'                                    station_column="StationID",
+#'                                    station_col="StationID",
 #'                                    empty_class = "Empty",
 #'                                    sort_columns = c("StationID", "DateTime"),
 #'                                    maxdiff=60)

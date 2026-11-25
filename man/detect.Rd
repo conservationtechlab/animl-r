@@ -54,5 +54,5 @@ list with two elements: $detections - Megadetector json format detections, $fail
 Apply MegaDetector to a Given Batch of Images
 }
 \examples{
-\dontrun{mdres <- detect(md_py, allframes$Frame, 1280, 960, device='cpu')}
+\dontrun{mdres <- detect(detector, allframes, 1280, 1280, device='cpu')}
 }

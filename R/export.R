@@ -98,13 +98,15 @@ update_labels_from_folders <- function(manifest, export_dir, unique_name='unique
 #' @param val_size fraction of data dedicated to validation
 #' @param test_size fraction of data dedicated to testing
 #' @param seed RNG seed for reproducibility
+#' @param groupby_col optional column containing group labels (e.g. station);
+#'   if provided, train/val/test splits do not share any groups
 #'
-#' @return train manifest, validate manifest, test manifest
+#' @return list of train manifest, validate manifest, test manifest
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#'   output <- train_val_test(manifest)
+#'   splits <- export_train_val_test(manifest)
 #' }
 export_train_val_test <- function(manifest,
                                   label_col="class",
@@ -113,17 +115,21 @@ export_train_val_test <- function(manifest,
                                   out_dir=NULL,
                                   val_size= 0.1,
                                   test_size = 0.1,
-                                  seed=42){
+                                  seed=42,
+                                  groupby_col=NULL){
   
   animl_py <- .animl_internal$animl_py
-  animl_py$export_train_val_test(manifest,
-                                 label_col=label_col,
-                                 file_col=file_col,
-                                 conf_col=conf_col,
-                                 out_dir=out_dir,
-                                 val_size=val_size,
-                                 test_size=test_size,
-                                 seed=seed)
+  args <- list(manifest,
+               label_col=label_col,
+               file_col=file_col,
+               conf_col=conf_col,
+               out_dir=out_dir,
+               val_size=val_size,
+               test_size=test_size,
+               seed=as.integer(seed))
+  # only pass groupby_col when set, for compatibility with older animl-py
+  if (!is.null(groupby_col)) { args$groupby_col <- groupby_col }
+  do.call(animl_py$export_train_val_test, args)
 }
 
 
@@ -139,7 +145,7 @@ export_train_val_test <- function(manifest,
 #' @export
 #'
 #' @examples
-#' \dontrun{export_megadetector(manifest, output_file= 'results.json', detector='MDv6')}
+#' \dontrun{export_coco(manifest, class_dict=list('0'='empty', '1'='deer'), out_file='results.json')}
 export_coco <- function(manifest,
                         class_dict,
                         out_file,
@@ -171,8 +177,8 @@ export_coco <- function(manifest,
 #'
 #' @examples
 #' \dontrun{
-#' splits <- train_val_test(manifest)
-#' manifest <- export_yolo(splits[[1]], splits[[2]], splits[[3]], out_dir)
+#' splits <- export_train_val_test(manifest)
+#' yolo <- export_yolo(splits[[1]], splits[[2]], splits[[3]], class_list, out_dir)
 #' }
 export_yolo <- function(train_manifest,
                         val_manifest,
@@ -198,25 +204,46 @@ export_yolo <- function(train_manifest,
 #' Export a manifest to camtrapdp format
 #'
 #' @param manifest  dataframe containing images and associated predictions
-#' @param out_dir  path to save the camtrapdp formatted file
+#' @param out_dir  directory to save the camtrapdp formatted files
 #' @param file_public  whether media files are publicly accessible
 #' @param classifier_name  name of the classifier used for predictions
 #'
-#' @returns media_df, observations_df, datapackage
+#' @returns list of media_df, observations_df, datapackage
+#' @export
+#'
+#' @examples
+#' \dontrun{export_camtrapdp(manifest, '~/exports/')}
+export_camtrapdp <- function(manifest,
+                             out_dir,
+                             file_public=FALSE,
+                             classifier_name=NULL){
+  
+  animl_py <- .animl_internal$animl_py
+  # animl-py releases before the rename only have the misspelled name
+  py_fn <- if (reticulate::py_has_attr(animl_py, "export_camtrapdp")) {
+    animl_py$export_camtrapdp
+  } else {
+    animl_py$export_camptrapdp
+  }
+  py_fn(manifest,
+        out_dir,
+        file_public=file_public,
+        classifier_name=classifier_name)
+}
+
+
+#' Deprecated misspelling of export_camtrapdp()
+#'
+#' @param ... arguments passed to export_camtrapdp()
+#'
+#' @returns list of media_df, observations_df, datapackage
 #' @export
 #'
 #' @examples
 #' \dontrun{export_camptrapdp(manifest, '~/exports/')}
-export_camptrapdp <- function(manifest,
-                              out_dir,
-                              file_public=FALSE,
-                              classifier_name=NULL){
-  
-  animl_py <- .animl_internal$animl_py
-  animl_py$export_camptrapdp(manifest,
-                             out_dir,
-                             file_public=file_public,
-                             classifier_name=classifier_name)
+export_camptrapdp <- function(...){
+  .Deprecated("export_camtrapdp")
+  export_camtrapdp(...)
 }
 
 
@@ -273,7 +300,7 @@ export_camtrapR <- function(manifest,
 #' @export 
 #'
 #' @examples
-#' \dontrun{export_timelapse(animals, empty, '/path/to/images/')}
+#' \dontrun{csv_loc <- export_timelapse(manifest, '/path/to/output/')}
 export_timelapse <- function(manifest,
                              out_dir,
                              only_animal=TRUE){
@@ -296,7 +323,7 @@ export_timelapse <- function(manifest,
 #' @export
 #'
 #' @examples
-#' \dontrun{export_megadetector(manifest, output_file= 'results.json', detector='MDv6')}
+#' \dontrun{export_megadetector(manifest, out_file='results.json', detector='MDv6')}
 export_megadetector <- function(manifest,
                                 out_file=NULL, 
                                 detector='MegaDetector v5a',

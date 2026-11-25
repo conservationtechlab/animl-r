@@ -31,6 +31,6 @@ Parse MD results into a simple dataframe
 }
 \examples{
 \dontrun{
-mdresults <- parseMD(mdres)
+mdresults <- parse_detections(mdres, manifest=allframes)
 }
 }

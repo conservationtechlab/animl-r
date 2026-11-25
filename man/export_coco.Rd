@@ -24,5 +24,5 @@ coco formated json
 Converts the .csv file to a COCO-formatted .json file.
 }
 \examples{
-\dontrun{export_megadetector(manifest, output_file= 'results.json', detector='MDv6')}
+\dontrun{export_coco(manifest, class_dict=list('0'='empty', '1'='deer'), out_file='results.json')}
 }

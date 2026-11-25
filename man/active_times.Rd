@@ -28,6 +28,6 @@ Get start and stop dates for each camera folder.
 }
 \examples{
 \dontrun{
-active_times('path/to/data', recursive=TRUE, camera_depth=2)
+times <- active_times(manifest, camera_depth=2)
 }
 }

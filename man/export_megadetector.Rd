@@ -27,5 +27,5 @@ None
 Converts the .csv file to the MD-formatted .json file.
 }
 \examples{
-\dontrun{export_megadetector(manifest, output_file= 'results.json', detector='MDv6')}
+\dontrun{export_megadetector(manifest, out_file='results.json', detector='MDv6')}
 }

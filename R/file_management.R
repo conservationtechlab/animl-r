@@ -277,7 +277,7 @@ list_models <- function(){
 #'
 #' @examples
 #' \dontrun{
-#' active_times('path/to/data', recursive=TRUE, camera_depth=2)
+#' times <- active_times(manifest, camera_depth=2)
 #' }
 active_times <- function(manifest_dir,
                          file_col='filepath',

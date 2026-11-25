@@ -27,7 +27,7 @@ load_miew <- function(file_path, device=NULL){
 #' @export
 #'
 #' @examples
-#' \dontrun{embeddings = extract_embeddings(miew, manifest)}
+#' \dontrun{embeddings <- extract_miew_embeddings(miew, manifest)}
 extract_miew_embeddings <- function(miew_model,
                                     manifest,
                                     file_col="filepath",

@@ -14,7 +14,7 @@ MD_LABELS = list('0'='empty', '1'='animal', '2'='human', '3'='vehicle')
 #' @export
 #'
 #' @examples
-#' \dontrun{md_py <- megadetector("/mnt/machinelearning/megaDetector/md_v5a.0.0.pt", 
+#' \dontrun{detector <- load_detector("/path/to/md_v5a.0.0.pt",
 #'                                model_type='mdv5', device='cuda:0')}
 load_detector <- function(model_path, model_type, device=NULL){
   animl_py <- .animl_internal$animl_py
@@ -42,7 +42,7 @@ load_detector <- function(model_path, model_type, device=NULL){
 #' @export
 #'
 #' @examples
-#' \dontrun{mdres <- detect(md_py, allframes$Frame, 1280, 960, device='cpu')}
+#' \dontrun{mdres <- detect(detector, allframes, 1280, 1280, device='cpu')}
 detect <- function(detector,
                    image_file_names,
                    resize_width,
@@ -94,7 +94,7 @@ detect <- function(detector,
 #'
 #' @examples
 #' \dontrun{
-#' mdresults <- parseMD(mdres)
+#' mdresults <- parse_detections(mdres, manifest=allframes)
 #' }
 parse_detections <- function(results,
                              manifest=NULL,

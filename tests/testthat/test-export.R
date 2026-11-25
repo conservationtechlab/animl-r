@@ -183,3 +183,41 @@ test_that("export_timelapse writes animals.csv to out_dir", {
   export_timelapse(manifest, out, only_animal = TRUE)
   expect_true(file.exists(file.path(out, "animals.csv")))
 })
+
+# export_camtrapdp -------------------------------------------------------
+
+test_that("export_camptrapdp is a deprecated alias for export_camtrapdp", {
+  local_mocked_bindings(export_camtrapdp = function(...) list(...))
+  expect_warning(result <- export_camptrapdp("manifest", "out_dir", file_public = TRUE),
+                 "export_camtrapdp")
+  expect_equal(result, list("manifest", "out_dir", file_public = TRUE))
+})
+
+# export_train_val_test --------------------------------------------------
+
+test_that("export_train_val_test has groupby_col parameter defaulting to NULL", {
+  params <- formals(export_train_val_test)
+  expect_true("groupby_col" %in% names(params))
+  expect_null(params$groupby_col)
+})
+
+test_that("export_train_val_test splits a manifest, with and without groupby_col", {
+  skip_if(!animl_py_available(), "animl_py not available")
+  manifest <- data.frame(filepath = sprintf("img%02d.jpg", 1:40),
+                         class = rep(c("deer", "elk"), 20),
+                         station = rep(sprintf("s%d", 1:10), each = 4),
+                         stringsAsFactors = FALSE)
+  splits <- export_train_val_test(manifest, val_size = 0.2, test_size = 0.2)
+  expect_length(splits, 3)
+  expect_equal(sum(sapply(splits, nrow)), 40)
+
+  py_args <- reticulate::py_to_r(reticulate::import("builtins")$list(
+    reticulate::import("inspect")$signature(
+      animl:::.animl_internal$animl_py$export_train_val_test)$parameters$keys()))
+  skip_if(!"groupby_col" %in% py_args, "installed animl-py has no groupby_col")
+  grouped <- export_train_val_test(manifest, val_size = 0.2, test_size = 0.2,
+                                   groupby_col = "station")
+  stations <- lapply(grouped, function(d) unique(d$station))
+  expect_length(intersect(stations[[1]], stations[[3]]), 0)
+  expect_length(intersect(stations[[1]], stations[[2]]), 0)
+})

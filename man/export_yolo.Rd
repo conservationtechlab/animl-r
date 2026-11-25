@@ -40,7 +40,7 @@ Export a manifest to YOLO format for model training
 }
 \examples{
 \dontrun{
-splits <- train_val_test(manifest)
-manifest <- export_yolo(splits[[1]], splits[[2]], splits[[3]], out_dir)
+splits <- export_train_val_test(manifest)
+yolo <- export_yolo(splits[[1]], splits[[2]], splits[[3]], class_list, out_dir)
 }
 }

@@ -2,29 +2,18 @@
 % Please edit documentation in R/export.R
 \name{export_camptrapdp}
 \alias{export_camptrapdp}
-\title{Export a manifest to camtrapdp format}
+\title{Deprecated misspelling of export_camtrapdp()}
 \usage{
-export_camptrapdp(
-  manifest,
-  out_dir,
-  file_public = FALSE,
-  classifier_name = NULL
-)
+export_camptrapdp(...)
 }
 \arguments{
-\item{manifest}{dataframe containing images and associated predictions}
-
-\item{out_dir}{path to save the camtrapdp formatted file}
-
-\item{file_public}{whether media files are publicly accessible}
-
-\item{classifier_name}{name of the classifier used for predictions}
+\item{...}{arguments passed to export_camtrapdp()}
 }
 \value{
-media_df, observations_df, datapackage
+list of media_df, observations_df, datapackage
 }
 \description{
-Export a manifest to camtrapdp format
+Deprecated misspelling of export_camtrapdp()
 }
 \examples{
 \dontrun{export_camptrapdp(manifest, '~/exports/')}

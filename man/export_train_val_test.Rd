@@ -12,7 +12,8 @@ export_train_val_test(
   out_dir = NULL,
   val_size = 0.1,
   test_size = 0.1,
-  seed = 42
+  seed = 42,
+  groupby_col = NULL
 )
 }
 \arguments{
@@ -31,15 +32,18 @@ export_train_val_test(
 \item{test_size}{fraction of data dedicated to testing}
 
 \item{seed}{RNG seed for reproducibility}
+
+\item{groupby_col}{optional column containing group labels (e.g. station);
+if provided, train/val/test splits do not share any groups}
 }
 \value{
-train manifest, validate manifest, test manifest
+list of train manifest, validate manifest, test manifest
 }
 \description{
 Splits the manifest into training validation and test datasets for training
 }
 \examples{
 \dontrun{
-  output <- train_val_test(manifest)
+  splits <- export_train_val_test(manifest)
 }
 }

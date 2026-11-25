@@ -10,7 +10,8 @@ save_classifier(
   epoch,
   stats,
   optimizer = NULL,
-  scheduler = NULL
+  scheduler = NULL,
+  scaler = NULL
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ save_classifier(
 \item{optimizer}{pytorch optimizer (optional)}
 
 \item{scheduler}{pytorch scheduler (optional)}
+
+\item{scaler}{pytorch GradScaler for mixed-precision training (optional)}
 }
 \value{
 None

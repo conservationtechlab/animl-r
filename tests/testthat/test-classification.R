@@ -29,6 +29,12 @@ test_that("load_class_list column names match the CSV header", {
 # animl_py-dependent tests ------------------------------------------------
 
 
+test_that("save_classifier has scaler parameter defaulting to NULL", {
+  params <- formals(save_classifier)
+  expect_true("scaler" %in% names(params))
+  expect_null(params$scaler)
+})
+
 test_that("save_classifier requires animl_py", {
   skip_if(!animl_py_available(), "animl_py not available")
   torch <- tryCatch(reticulate::import("torch", convert = FALSE), error = function(e) NULL)

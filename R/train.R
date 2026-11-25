@@ -43,6 +43,7 @@ test_classifier <- function(cfg){
 #' @param stats performance metrics of current epoch
 #' @param optimizer pytorch optimizer (optional)
 #' @param scheduler pytorch scheduler (optional)
+#' @param scaler pytorch GradScaler for mixed-precision training (optional)
 #'
 #' @returns None
 #' @export
@@ -54,13 +55,17 @@ save_classifier <- function(model,
                             epoch,
                             stats,
                             optimizer=NULL,
-                            scheduler=NULL){
+                            scheduler=NULL,
+                            scaler=NULL){
   
   animl_py <- .animl_internal$animl_py
-  animl_py$save_classifier(model,
-                           out_dir,
-                           epoch,
-                           reticulate::r_to_py(stats), 
-                           optimizer=optimizer,
-                           scheduler=scheduler)
+  args <- list(model,
+               out_dir,
+               epoch,
+               reticulate::r_to_py(stats),
+               optimizer=optimizer,
+               scheduler=scheduler)
+  # only pass scaler when set, for compatibility with older animl-py
+  if (!is.null(scaler)) { args$scaler <- scaler }
+  do.call(animl_py$save_classifier, args)
 }

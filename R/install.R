@@ -21,7 +21,7 @@ animl_module_installed <- function() {
 #' @export
 #'
 #' @examples
-#' \dontrun{animl_install("animl_env", ANIML_VERSION, python_version="3.12")}
+#' \dontrun{load_animl("animl_env")}
 load_animl <- function(envname = "animl_env",
                        python_version = "3.12",
                        interactive = TRUE) {
@@ -187,7 +187,7 @@ animl_install <- function(envname = "animl_env", python_version = "3.12") {
 #' @export
 #'
 #' @examples
-#' \dontrun{update_animl_py(py_env = "animl_env")}
+#' \dontrun{update_animl_py(envname = "animl_env")}
 update_animl_py <- function(envname = "animl_env") {
   if (!interactive()) {
     stop(paste0("update_animl_py() must be run interactively.",
