@@ -9,7 +9,7 @@ export_coco(manifest, class_dict, out_file, info = NULL, licenses = NULL)
 \arguments{
 \item{manifest}{dataframe containing images and associated detections}
 
-\item{class_dict}{named list containing class names and their corresponding IDs}
+\item{class_dict}{named list mapping category IDs to class names, e.g. list('0'='empty', '1'='deer')}
 
 \item{out_file}{path to save the formatted file}
 
