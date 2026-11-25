@@ -122,7 +122,9 @@ li .highlight {
     position: sticky;
     top: 0;
     align-self: flex-start;
-    min-height: 100vh;
+    max-height: 100vh;           /* Changed from min-height */
+    overflow-y: auto;             /* Add this */
+    padding-right: 0.5rem;        /* Add space for scrollbar */
 }
 
 .sidebar-inner {
