@@ -460,7 +460,7 @@ Unlike `sequence_classification()`, does not apply any classification or labelin
 
 <br><br>
 
-### extract_frames(files, frames=5, fps=NULL, out_file=NULL, out_dir=NULL, file_col="filepath", parallel=TRUE, num_workers=4)
+### extract_frames(files, frames=5, fps=NULL, out_file=NULL, out_dir=NULL, file_col="filepath", parallel=TRUE, num_workers=4, quiet=FALSE)
 {: #extract_frames}
 
 Extract frames from video files in a given data.frame.
@@ -476,6 +476,7 @@ Can sample frames based on a specified number of frames or frames per second (fp
 | `file_col`    | character  | "filepath"    | Column in manifest to use for file paths |
 | `parallel`    | logical    | TRUE          | Toggle to use multiprocessing for frame extraction |
 | `num_workers` | integer    | 4             | Number of worker processes to use for parallel processing |
+| `quiet`       | logical    | FALSE         | Suppress progress bars and print statements |
 
 **Returns:** `data.frame` — the input data.frame with an additional "frame" column. The value of frame is 0 for images,
 while videos will be represented with multiple rows as indicated by frames or fps, with each row containing the sampled frame number.
@@ -839,10 +840,10 @@ For details on the configuration parameters, see the [config README](https://git
 
 <br><br>
 
-### save_classifier(model, out_dir, epoch, stats, optimizer=NULL, scheduler=NULL)
+### save_classifier(model, out_dir, epoch, stats, optimizer=NULL, scheduler=NULL, scaler=NULL)
 {: #save_classifier}
 
-Saves model state weights and optional optimizer/scheduler states to disk.
+Saves model state weights and optional optimizer/scheduler/scaler states to disk.
 
 | Parameter   | Type             | Default   | Description                                                  |
 |-------------|------------------|-----------|--------------------------------------------------------------|
@@ -852,6 +853,7 @@ Saves model state weights and optional optimizer/scheduler states to disk.
 | `stats`     | list             | required  | Performance metrics of the current epoch, e.g. `list(acc = 0.85)` |
 | `optimizer` | object           | NULL      | (Optional) PyTorch optimizer state to save                   |
 | `scheduler` | object           | NULL      | (Optional) PyTorch scheduler state to save                   |
+| `scaler`    | object           | NULL      | (Optional) PyTorch GradScaler state to save, for mixed-precision training |
 
 **Returns:** none
 
@@ -905,7 +907,7 @@ If `show_confidence` is TRUE, `rows` must contain a `confidence` or `conf` colum
 
 <br><br>
 
-### plot_all_bounding_boxes(manifest, out_dir, file_col="filepath", min_conf=0.1, classifier_label_col=NULL, detector_category_col="category", show_confidence=FALSE, ...)
+### plot_all_bounding_boxes(manifest, out_dir, file_col="filepath", min_conf=0, classifier_label_col=NULL, detector_category_col="category", show_confidence=FALSE, ...)
 {: #plot_all_bounding_boxes}
 
 Plot bounding boxes for all rows in a manifest data.frame and save the plotted images.
@@ -915,7 +917,7 @@ Plot bounding boxes for all rows in a manifest data.frame and save the plotted i
 | `manifest`              | data.frame | required | Data frame containing detection results and file paths |
 | `out_dir`               | character | required | Directory to save plotted images with bounding boxes |
 | `file_col`              | character | "filepath" | Column name containing file paths |
-| `min_conf`              | numeric | 0.1 | Minimum confidence threshold to display a bounding box |
+| `min_conf`              | numeric | 0 | Minimum confidence threshold to display a bounding box |
 | `classifier_label_col`  | character | NULL | Column name containing classifier labels to display on boxes, if applicable |
 | `detector_category_col` | character | "category" | Column name containing detector category to determine box color |
 | `show_confidence`       | logical | FALSE | If TRUE, show confidence score on box |
@@ -983,13 +985,15 @@ Each file's label is taken from the name of the folder it is in after review.
 
 <br><br>
 
-### export_train_val_test(manifest, label_col="class", file_col="filepath", conf_col="confidence", out_dir=NULL, val_size=0.1, test_size=0.1, seed=42)
+### export_train_val_test(manifest, label_col="class", file_col="filepath", conf_col="confidence", out_dir=NULL, val_size=0.1, test_size=0.1, seed=42, groupby_col=NULL)
 {: #export_train_val_test}
 
 Splits a manifest into training, validation and test sets with `label_col` stratified.
 `test_size` and `val_size` are fractions of the whole dataset (e.g., 0.2 -> 20%), and must sum to less than 1.
 
 Only one row is kept per file: the highest confidence detection according to `conf_col`, or the first row if `conf_col` is not in the manifest. This keeps different detections from the same image from ending up in different splits, which would lead to data leakage and overly optimistic performance estimates.
+
+If `groupby_col` is given (e.g. a station or sequence column), the data is split so that no group appears in more than one split.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -1001,6 +1005,7 @@ Only one row is kept per file: the highest confidence detection according to `co
 | `val_size`    | numeric    | 0.1      | Fraction of dataset to use for validation set |
 | `test_size`   | numeric    | 0.1      | Fraction of dataset to use for test set |
 | `seed`        | integer    | 42       | Random seed for reproducibility of splits |
+| `groupby_col` | character  | NULL     | Column containing group labels; if given, train/val/test share no groups |
 
 **Returns:** `list` — train, validation and test data.frames, in that order
 
@@ -1044,10 +1049,11 @@ Export a manifest to COCO format.
 
 <br><br>
 
-### export_camptrapdp(manifest, out_dir, file_public=FALSE, classifier_name=NULL)
+### export_camtrapdp(manifest, out_dir, file_public=FALSE, classifier_name=NULL)
 {: #export_camtrapdp}
 
 Export a manifest to CamtrapDP format. Saves `media.csv`, `observations.csv` and `datapackage.json` to `out_dir`.
+The previous misspelled name, `export_camptrapdp()`, still works but is deprecated.
 Requires scientific name for the species prediction label and bounding box coordinates for each detection.
 Assumes MegaDetector category labels and uses the `category` column to determine which rows are "empty" vs "animal" detections.
 
